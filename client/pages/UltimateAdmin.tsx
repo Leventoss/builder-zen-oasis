@@ -145,6 +145,12 @@ export default function UltimateAdmin() {
   const [showAnimeDialog, setShowAnimeDialog] = useState(false);
   const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
+
+  // User Management State
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [userFilter, setUserFilter] = useState("all");
   
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
@@ -1078,7 +1084,7 @@ export default function UltimateAdmin() {
           <TabsContent value="bulk-operations" className="space-y-6">
             <Card className="bg-anime-card border-anime-accent/20">
               <CardHeader>
-                <CardTitle className="text-white">Toplu ��şlemler</CardTitle>
+                <CardTitle className="text-white">Toplu İşlemler</CardTitle>
                 <CardDescription className="text-gray-400">
                   Birden fazla animeyi aynı anda içe aktar
                 </CardDescription>
