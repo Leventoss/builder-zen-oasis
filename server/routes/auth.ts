@@ -10,9 +10,38 @@ export interface AuthResponse {
     username: string;
     email: string;
     isAdmin: boolean;
+    isPremium: boolean;
+    premiumExpiresAt?: string;
+    discordId?: string;
+    discordUsername?: string;
   };
   token?: string;
 }
+
+// Discord OAuth handler
+export const handleDiscordAuth: RequestHandler = async (req, res) => {
+  try {
+    // Discord OAuth implementation will go here
+    res.redirect('/api/auth/discord/callback');
+  } catch (error) {
+    console.error('Discord auth error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Discord giriş hatası'
+    });
+  }
+};
+
+// Discord OAuth callback
+export const handleDiscordCallback: RequestHandler = async (req, res) => {
+  try {
+    // Discord OAuth callback implementation will go here
+    res.redirect('/');
+  } catch (error) {
+    console.error('Discord callback error:', error);
+    res.redirect('/?error=discord_auth_failed');
+  }
+};
 
 // Login endpoint
 export const handleLogin: RequestHandler = async (req, res) => {
@@ -59,6 +88,10 @@ export const handleLogin: RequestHandler = async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.is_admin,
+        isPremium: user.is_premium || false,
+        premiumExpiresAt: user.premium_expires_at,
+        discordId: user.discord_id,
+        discordUsername: user.discord_username,
       },
       token,
     } as AuthResponse);
@@ -112,6 +145,10 @@ export const handleRegister: RequestHandler = async (req, res) => {
         username: newUser.username,
         email: newUser.email,
         isAdmin: newUser.is_admin,
+        isPremium: newUser.is_premium || false,
+        premiumExpiresAt: newUser.premium_expires_at,
+        discordId: newUser.discord_id,
+        discordUsername: newUser.discord_username,
       },
       token,
     } as AuthResponse);
@@ -165,6 +202,10 @@ export const handleVerifyToken: RequestHandler = async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.is_admin,
+        isPremium: user.is_premium || false,
+        premiumExpiresAt: user.premium_expires_at,
+        discordId: user.discord_id,
+        discordUsername: user.discord_username,
       },
     } as AuthResponse);
   } catch (error) {
