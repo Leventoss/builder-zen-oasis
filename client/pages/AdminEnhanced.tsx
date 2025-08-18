@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Settings, Users, Bot, Crown, Download, Upload, Image } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Settings,
+  Users,
+  Bot,
+  Crown,
+  Download,
+  Upload,
+  Image,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,12 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -34,13 +39,13 @@ import { enhancedAnimeAPI } from "@/lib/enhancedAnimeApi";
 import { toast } from "@/hooks/use-toast";
 
 interface PremiumSettings {
-  chatAccess: 'premium' | 'registered' | 'both';
+  chatAccess: "premium" | "registered" | "both";
   enabled: boolean;
 }
 
 interface BulkImportItem {
   title: string;
-  status: 'pending' | 'importing' | 'success' | 'error';
+  status: "pending" | "importing" | "success" | "error";
   message?: string;
 }
 
@@ -56,8 +61,8 @@ export default function AdminEnhanced() {
   const [bulkImportItems, setBulkImportItems] = useState<BulkImportItem[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [premiumSettings, setPremiumSettings] = useState<PremiumSettings>({
-    chatAccess: 'both',
-    enabled: true
+    chatAccess: "both",
+    enabled: true,
   });
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -72,25 +77,25 @@ export default function AdminEnhanced() {
   const loadUsers = async () => {
     try {
       // Load users from API
-      const response = await fetch('/api/admin/users');
+      const response = await fetch("/api/admin/users");
       if (response.ok) {
         const userData = await response.json();
         setUsers(userData);
       }
     } catch (error) {
-      console.error('Failed to load users:', error);
+      console.error("Failed to load users:", error);
     }
   };
 
   const loadPremiumSettings = async () => {
     try {
-      const response = await fetch('/api/admin/premium-settings');
+      const response = await fetch("/api/admin/premium-settings");
       if (response.ok) {
         const settings = await response.json();
         setPremiumSettings(settings);
       }
     } catch (error) {
-      console.error('Failed to load premium settings:', error);
+      console.error("Failed to load premium settings:", error);
     }
   };
 
@@ -107,11 +112,11 @@ export default function AdminEnhanced() {
 
     try {
       const fullResults = await enhancedAnimeAPI.searchAndGetFull(title);
-      
+
       if (fullResults.length > 0) {
         const animeData = enhancedAnimeAPI.convertToFullAnimeData(
-          fullResults[0].anime, 
-          fullResults[0].episodes
+          fullResults[0].anime,
+          fullResults[0].episodes,
         );
 
         // Add anime to store
@@ -121,13 +126,13 @@ export default function AdminEnhanced() {
         if (animeData.episodeList && animeData.episodeList.length > 0) {
           // Add episodes to database via API
           for (const episode of animeData.episodeList) {
-            await fetch('/api/episodes', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+            await fetch("/api/episodes", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...episode,
-                animeId: animeData.id
-              })
+                animeId: animeData.id,
+              }),
             });
           }
         }
@@ -155,53 +160,65 @@ export default function AdminEnhanced() {
   const handleBulkImport = async () => {
     if (!bulkImportText.trim()) return;
 
-    const titles = bulkImportText.split('\n').filter(t => t.trim());
-    setBulkImportItems(titles.map(title => ({ title: title.trim(), status: 'pending' })));
+    const titles = bulkImportText.split("\n").filter((t) => t.trim());
+    setBulkImportItems(
+      titles.map((title) => ({ title: title.trim(), status: "pending" })),
+    );
     setIsImporting(true);
 
     for (let i = 0; i < titles.length; i++) {
       const title = titles[i].trim();
-      
+
       // Update status to importing
-      setBulkImportItems(prev => prev.map((item, idx) => 
-        idx === i ? { ...item, status: 'importing' } : item
-      ));
+      setBulkImportItems((prev) =>
+        prev.map((item, idx) =>
+          idx === i ? { ...item, status: "importing" } : item,
+        ),
+      );
 
       try {
         const fullResults = await enhancedAnimeAPI.searchAndGetFull(title);
-        
+
         if (fullResults.length > 0) {
           const animeData = enhancedAnimeAPI.convertToFullAnimeData(
-            fullResults[0].anime, 
-            fullResults[0].episodes
+            fullResults[0].anime,
+            fullResults[0].episodes,
           );
 
           addAnime(animeData);
 
           // Update status to success
-          setBulkImportItems(prev => prev.map((item, idx) => 
-            idx === i ? { 
-              ...item, 
-              status: 'success', 
-              message: `${fullResults[0].episodes.length} bölümle eklendi` 
-            } : item
-          ));
+          setBulkImportItems((prev) =>
+            prev.map((item, idx) =>
+              idx === i
+                ? {
+                    ...item,
+                    status: "success",
+                    message: `${fullResults[0].episodes.length} bölümle eklendi`,
+                  }
+                : item,
+            ),
+          );
         } else {
           throw new Error("Bulunamadı");
         }
       } catch (error) {
         // Update status to error
-        setBulkImportItems(prev => prev.map((item, idx) => 
-          idx === i ? { 
-            ...item, 
-            status: 'error', 
-            message: error.message 
-          } : item
-        ));
+        setBulkImportItems((prev) =>
+          prev.map((item, idx) =>
+            idx === i
+              ? {
+                  ...item,
+                  status: "error",
+                  message: error.message,
+                }
+              : item,
+          ),
+        );
       }
 
       // Add delay between imports
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
 
     setIsImporting(false);
@@ -213,12 +230,12 @@ export default function AdminEnhanced() {
 
   // Image quality enhancement
   const enhanceImageQuality = async (animeId: string) => {
-    const anime = animes.find(a => a.id === animeId);
+    const anime = animes.find((a) => a.id === animeId);
     if (!anime) return;
 
     try {
       const improvements = await enhancedAnimeAPI.enhanceImageQuality(anime);
-      
+
       if (improvements) {
         updateAnime(animeId, improvements);
         toast({
@@ -241,12 +258,16 @@ export default function AdminEnhanced() {
   };
 
   // Premium management
-  const updateUserPremium = async (userId: number, isPremium: boolean, expiryDate?: string) => {
+  const updateUserPremium = async (
+    userId: number,
+    isPremium: boolean,
+    expiryDate?: string,
+  ) => {
     try {
       const response = await fetch(`/api/admin/users/${userId}/premium`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isPremium, expiryDate })
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPremium, expiryDate }),
       });
 
       if (response.ok) {
@@ -268,10 +289,10 @@ export default function AdminEnhanced() {
   // Save premium settings
   const savePremiumSettings = async () => {
     try {
-      const response = await fetch('/api/admin/premium-settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(premiumSettings)
+      const response = await fetch("/api/admin/premium-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(premiumSettings),
       });
 
       if (response.ok) {
@@ -296,16 +317,22 @@ export default function AdminEnhanced() {
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
-          <h1 className="text-3xl font-bold text-white">Gelişmiş Admin Paneli</h1>
+          <h1 className="text-3xl font-bold text-white">
+            Gelişmiş Admin Paneli
+          </h1>
           <Badge variant="secondary" className="bg-anime-accent text-white">
             Yönetici
           </Badge>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="bg-anime-card border border-anime-accent/20">
             <TabsTrigger value="anime" className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
@@ -330,7 +357,9 @@ export default function AdminEnhanced() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Enhanced Quick Add */}
               <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold text-white mb-4">Gelişmiş Hızlı Ekleme</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">
+                  Gelişmiş Hızlı Ekleme
+                </h3>
                 <div className="space-y-4">
                   <Input
                     placeholder="Anime adı (örn: One Piece, Black Clover)"
@@ -346,14 +375,17 @@ export default function AdminEnhanced() {
                     Detaylı Veri ile Ekle (Bölümlerle)
                   </Button>
                   <p className="text-sm text-gray-400">
-                    * Bu özellik anime verilerini, posterlerini, bannerlarını ve bölüm listesini otomatik olarak ekler.
+                    * Bu özellik anime verilerini, posterlerini, bannerlarını ve
+                    bölüm listesini otomatik olarak ekler.
                   </p>
                 </div>
               </div>
 
               {/* Bulk Import */}
               <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold text-white mb-4">Toplu İçe Aktarma</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">
+                  Toplu İçe Aktarma
+                </h3>
                 <div className="space-y-4">
                   <Textarea
                     placeholder="Her satıra bir anime adı yazın:&#10;One Piece&#10;Black Clover&#10;Demon Slayer"
@@ -376,25 +408,40 @@ export default function AdminEnhanced() {
             {/* Bulk Import Progress */}
             {bulkImportItems.length > 0 && (
               <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold text-white mb-4">İçe Aktarma Durumu</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">
+                  İçe Aktarma Durumu
+                </h3>
                 <div className="space-y-2">
                   {bulkImportItems.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-anime-dark rounded">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-anime-dark rounded"
+                    >
                       <span className="text-white">{item.title}</span>
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={
-                            item.status === 'success' ? 'default' : 
-                            item.status === 'error' ? 'destructive' : 
-                            item.status === 'importing' ? 'secondary' : 'outline'
+                            item.status === "success"
+                              ? "default"
+                              : item.status === "error"
+                                ? "destructive"
+                                : item.status === "importing"
+                                  ? "secondary"
+                                  : "outline"
                           }
                         >
-                          {item.status === 'success' ? 'Başarılı' :
-                           item.status === 'error' ? 'Hata' :
-                           item.status === 'importing' ? 'İşleniyor' : 'Bekliyor'}
+                          {item.status === "success"
+                            ? "Başarılı"
+                            : item.status === "error"
+                              ? "Hata"
+                              : item.status === "importing"
+                                ? "İşleniyor"
+                                : "Bekliyor"}
                         </Badge>
                         {item.message && (
-                          <span className="text-sm text-gray-400">{item.message}</span>
+                          <span className="text-sm text-gray-400">
+                            {item.message}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -405,7 +452,9 @@ export default function AdminEnhanced() {
 
             {/* Image Quality Control */}
             <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">Resim Kalitesi Kontrolü</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Resim Kalitesi Kontrolü
+              </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {animes.slice(0, 6).map((anime) => (
                   <div key={anime.id} className="bg-anime-dark p-4 rounded-lg">
@@ -414,7 +463,9 @@ export default function AdminEnhanced() {
                       alt={anime.title}
                       className="w-full h-48 object-cover rounded mb-3"
                     />
-                    <h4 className="text-white font-medium mb-2">{anime.title}</h4>
+                    <h4 className="text-white font-medium mb-2">
+                      {anime.title}
+                    </h4>
                     <Button
                       onClick={() => enhanceImageQuality(anime.id)}
                       size="sm"
@@ -432,19 +483,32 @@ export default function AdminEnhanced() {
           {/* Users Management Tab */}
           <TabsContent value="users" className="space-y-6">
             <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">Kullanıcı Listesi</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Kullanıcı Listesi
+              </h3>
               <div className="space-y-3">
                 {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 bg-anime-dark rounded-lg">
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-4 bg-anime-dark rounded-lg"
+                  >
                     <div className="flex items-center gap-4">
                       <div>
-                        <h4 className="text-white font-medium">{user.username}</h4>
+                        <h4 className="text-white font-medium">
+                          {user.username}
+                        </h4>
                         <p className="text-sm text-gray-400">{user.email}</p>
                       </div>
                       <div className="flex gap-2">
-                        {user.isAdmin && <Badge variant="destructive">Admin</Badge>}
-                        {user.isPremium && <Badge className="bg-yellow-600">Premium</Badge>}
-                        {user.discordUsername && <Badge variant="secondary">Discord</Badge>}
+                        {user.isAdmin && (
+                          <Badge variant="destructive">Admin</Badge>
+                        )}
+                        {user.isPremium && (
+                          <Badge className="bg-yellow-600">Premium</Badge>
+                        )}
+                        {user.discordUsername && (
+                          <Badge variant="secondary">Discord</Badge>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -459,9 +523,15 @@ export default function AdminEnhanced() {
                         Düzenle
                       </Button>
                       <Button
-                        onClick={() => updateUserPremium(user.id, !user.isPremium)}
+                        onClick={() =>
+                          updateUserPremium(user.id, !user.isPremium)
+                        }
                         size="sm"
-                        className={user.isPremium ? "bg-red-600 hover:bg-red-700" : "bg-yellow-600 hover:bg-yellow-700"}
+                        className={
+                          user.isPremium
+                            ? "bg-red-600 hover:bg-red-700"
+                            : "bg-yellow-600 hover:bg-yellow-700"
+                        }
                       >
                         <Crown className="h-4 w-4 mr-1" />
                         {user.isPremium ? "Premium Kaldır" : "Premium Yap"}
@@ -476,17 +546,24 @@ export default function AdminEnhanced() {
           {/* Premium Settings Tab */}
           <TabsContent value="premium" className="space-y-6">
             <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">Premium Özellik Ayarları</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Premium Özellik Ayarları
+              </h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-white">Premium Sistem Aktif</Label>
-                    <p className="text-sm text-gray-400">Premium üyelik sistemini etkinleştir/devre dışı b��rak</p>
+                    <p className="text-sm text-gray-400">
+                      Premium üyelik sistemini etkinleştir/devre dışı b��rak
+                    </p>
                   </div>
                   <Switch
                     checked={premiumSettings.enabled}
-                    onCheckedChange={(checked) => 
-                      setPremiumSettings(prev => ({ ...prev, enabled: checked }))
+                    onCheckedChange={(checked) =>
+                      setPremiumSettings((prev) => ({
+                        ...prev,
+                        enabled: checked,
+                      }))
                     }
                   />
                 </div>
@@ -495,20 +572,31 @@ export default function AdminEnhanced() {
                   <Label className="text-white">AI Chat Erişimi</Label>
                   <Select
                     value={premiumSettings.chatAccess}
-                    onValueChange={(value: 'premium' | 'registered' | 'both') => 
-                      setPremiumSettings(prev => ({ ...prev, chatAccess: value }))
+                    onValueChange={(value: "premium" | "registered" | "both") =>
+                      setPremiumSettings((prev) => ({
+                        ...prev,
+                        chatAccess: value,
+                      }))
                     }
                   >
                     <SelectTrigger className="bg-anime-dark border-anime-accent/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="premium">Sadece Premium Üyeler</SelectItem>
-                      <SelectItem value="registered">Sadece Kayıtlı Üyeler</SelectItem>
-                      <SelectItem value="both">Hem Premium Hem Kayıtlı</SelectItem>
+                      <SelectItem value="premium">
+                        Sadece Premium Üyeler
+                      </SelectItem>
+                      <SelectItem value="registered">
+                        Sadece Kayıtlı Üyeler
+                      </SelectItem>
+                      <SelectItem value="both">
+                        Hem Premium Hem Kayıtlı
+                      </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-sm text-gray-400">AI chat desteğini kimler kullanabilir?</p>
+                  <p className="text-sm text-gray-400">
+                    AI chat desteğini kimler kullanabilir?
+                  </p>
                 </div>
 
                 <Button
@@ -525,23 +613,32 @@ export default function AdminEnhanced() {
           {/* AI Chat Settings Tab */}
           <TabsContent value="ai" className="space-y-6">
             <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">AI Chat Ayarları</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                AI Chat Ayarları
+              </h3>
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <Label className="text-white">Konuyla İlgili Destek Modu</Label>
+                  <Label className="text-white">
+                    Konuyla İlgili Destek Modu
+                  </Label>
                   <div className="p-4 bg-anime-dark rounded-lg">
                     <p className="text-sm text-gray-300 mb-3">
-                      AI sadece anime ve site ile ilgili konularda destek versin, programlama veya alakasız konularda yardım etmesin.
+                      AI sadece anime ve site ile ilgili konularda destek
+                      versin, programlama veya alakasız konularda yardım
+                      etmesin.
                     </p>
                     <Switch defaultChecked />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-white">Otomatik Kategori Yönlendirme</Label>
+                  <Label className="text-white">
+                    Otomatik Kategori Yönlendirme
+                  </Label>
                   <div className="p-4 bg-anime-dark rounded-lg">
                     <p className="text-sm text-gray-300 mb-3">
-                      Kullanıcı mesajlarını otomatik olarak doğru kategoriye yönlendir.
+                      Kullanıcı mesajlarını otomatik olarak doğru kategoriye
+                      yönlendir.
                     </p>
                     <Switch defaultChecked />
                   </div>
@@ -601,8 +698,11 @@ export default function AdminEnhanced() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={selectedUser.isPremium}
-                    onCheckedChange={(checked) => 
-                      setSelectedUser(prev => ({ ...prev, isPremium: checked }))
+                    onCheckedChange={(checked) =>
+                      setSelectedUser((prev) => ({
+                        ...prev,
+                        isPremium: checked,
+                      }))
                     }
                   />
                   <Label className="text-white">Premium Üye</Label>
@@ -610,8 +710,8 @@ export default function AdminEnhanced() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={selectedUser.isAdmin}
-                    onCheckedChange={(checked) => 
-                      setSelectedUser(prev => ({ ...prev, isAdmin: checked }))
+                    onCheckedChange={(checked) =>
+                      setSelectedUser((prev) => ({ ...prev, isAdmin: checked }))
                     }
                   />
                   <Label className="text-white">Admin</Label>

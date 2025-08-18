@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Image, Settings, Bot, User, AlertCircle, Lock } from "lucide-react";
+import {
+  Send,
+  Image,
+  Settings,
+  Bot,
+  User,
+  AlertCircle,
+  Lock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,17 +61,25 @@ export default function ChatFixed() {
   ];
 
   const categoryGreetings = {
-    "anime-ekletme": "Merhaba! Anime ekletme talepleriniz için buradayım. Eklemek istediğiniz animeyi ve detaylarını yazınız.",
-    "anime-sorun": "Merhaba! Anime izlerken veya playerda yaşadığınız sorunları detaylıca yazarsanız hızlıca yardımcı olabilirim.",
-    "site-isleyisi": "Merhaba! Sitemizin işleyişiyle ilgili sorularınızı ve önerilerinizi buradan iletebilirsiniz.",
-    "premium": "Merhaba! Premium üyelik ve özel destek için sorularınızı bekliyorum."
+    "anime-ekletme":
+      "Merhaba! Anime ekletme talepleriniz için buradayım. Eklemek istediğiniz animeyi ve detaylarını yazınız.",
+    "anime-sorun":
+      "Merhaba! Anime izlerken veya playerda yaşadığınız sorunları detaylıca yazarsanız hızlıca yardımcı olabilirim.",
+    "site-isleyisi":
+      "Merhaba! Sitemizin işleyişiyle ilgili sorularınızı ve önerilerinizi buradan iletebilirsiniz.",
+    premium:
+      "Merhaba! Premium üyelik ve özel destek için sorularınızı bekliyorum.",
   };
 
   const categoryTips = {
-    "anime-ekletme": "İpucu: Ekletmek istediğiniz anime adını, sezonunu ve varsa özel isteğinizi belirtin.",
-    "anime-sorun": "İpucu: Sorununuzu detaylıca yazarsanız daha hızlı çözüm bulabilirim.",
-    "site-isleyisi": "İpucu: Siteyle ilgili öneri veya şikayetlerinizi açıkça belirtin.",
-    "premium": "İpucu: Premium üyelik avantajları ve ödeme sorunları için buradayım."
+    "anime-ekletme":
+      "İpucu: Ekletmek istediğiniz anime adını, sezonunu ve varsa özel isteğinizi belirtin.",
+    "anime-sorun":
+      "İpucu: Sorununuzu detaylıca yazarsanız daha hızlı çözüm bulabilirim.",
+    "site-isleyisi":
+      "İpucu: Siteyle ilgili öneri veya şikayetlerinizi açıkça belirtin.",
+    premium:
+      "İpucu: Premium üyelik avantajları ve ödeme sorunları için buradayım.",
   };
 
   // Scroll to bottom when new messages arrive
@@ -91,7 +107,9 @@ export default function ChatFixed() {
     const greetingMessage: ChatMessage = {
       id: `msg_${Date.now()}`,
       sender: "bot",
-      message: categoryGreetings[selectedCategory] || "Merhaba! Size nasıl yardımcı olabilirim?",
+      message:
+        categoryGreetings[selectedCategory] ||
+        "Merhaba! Size nasıl yardımcı olabilirim?",
       timestamp: new Date(),
     };
 
@@ -109,28 +127,28 @@ export default function ChatFixed() {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setCurrentMessage("");
     setSelectedImage(null);
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat/ai', {
-        method: 'POST',
+      const response = await fetch("/api/chat/ai", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: currentMessage,
           category: selectedCategory,
           sessionId: sessionId,
           userId: user?.id,
-          isPremium: user?.isPremium || false
+          isPremium: user?.isPremium || false,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('AI yanıtı alınamadı');
+        throw new Error("AI yanıtı alınamadı");
       }
 
       const aiResponse = await response.json();
@@ -138,23 +156,26 @@ export default function ChatFixed() {
       const botMessage: ChatMessage = {
         id: `msg_${Date.now()}_bot`,
         sender: "bot",
-        message: aiResponse.message || "Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar deneyin.",
+        message:
+          aiResponse.message ||
+          "Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar deneyin.",
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error('AI chat error:', error);
-      
+      console.error("AI chat error:", error);
+
       const errorMessage: ChatMessage = {
         id: `msg_${Date.now()}_error`,
         sender: "bot",
-        message: "Özür dilerim, teknik bir sorun yaşadım. Lütfen sorunuzı farklı şekilde ifade edebilir misiniz?",
+        message:
+          "Özür dilerim, teknik bir sorun yaşadım. Lütfen sorunuzı farklı şekilde ifade edebilir misiniz?",
         timestamp: new Date(),
         isError: true,
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +184,7 @@ export default function ChatFixed() {
   // Handle image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setSelectedImage(file);
     }
   };
@@ -176,7 +197,9 @@ export default function ChatFixed() {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-md mx-auto text-center">
             <Lock className="h-16 w-16 text-anime-accent mx-auto mb-6" />
-            <h1 className="text-2xl font-bold text-white mb-4">Destek Erişimi</h1>
+            <h1 className="text-2xl font-bold text-white mb-4">
+              Destek Erişimi
+            </h1>
             <p className="text-gray-400 mb-6">
               Destek hattını kullanmak için siteye giriş yapmanız gerekiyor.
             </p>
@@ -185,7 +208,7 @@ export default function ChatFixed() {
             </p>
             <Button
               className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold"
-              onClick={() => window.location.href = '/'}
+              onClick={() => (window.location.href = "/")}
             >
               Giriş Yap
             </Button>
@@ -202,9 +225,12 @@ export default function ChatFixed() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-4">Destek Merkezi</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">
+                Destek Merkezi
+              </h1>
               <p className="text-gray-400">
-                Size nasıl yardımcı olmamızı istiyorsunuz? Kategori seçerek başlayın.
+                Size nasıl yardımcı olmamızı istiyorsunuz? Kategori seçerek
+                başlayın.
               </p>
               <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                 <p className="text-green-400 text-sm">
@@ -214,7 +240,9 @@ export default function ChatFixed() {
             </div>
 
             <div className="bg-anime-card border border-anime-accent/20 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">Destek Kategorisi Seçin</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Destek Kategorisi Seçin
+              </h3>
               <div className="space-y-3">
                 {categories.map((category) => (
                   <button
@@ -257,7 +285,7 @@ export default function ChatFixed() {
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-4">
         <div className="max-w-4xl mx-auto">
           {/* Chat Header */}
@@ -267,7 +295,11 @@ export default function ChatFixed() {
                 <Bot className="h-6 w-6 text-anime-accent" />
                 <div>
                   <h2 className="text-xl font-semibold text-white">
-                    {categories.find(c => c.value === selectedCategory)?.label} Desteği
+                    {
+                      categories.find((c) => c.value === selectedCategory)
+                        ?.label
+                    }{" "}
+                    Desteği
                   </h2>
                   <p className="text-sm text-gray-400">AI Destek Asistanı</p>
                 </div>
@@ -295,8 +327,8 @@ export default function ChatFixed() {
                     message.sender === "user"
                       ? "bg-anime-accent text-white"
                       : message.isError
-                      ? "bg-red-600/20 border border-red-600/40 text-red-200"
-                      : "bg-anime-dark text-white"
+                        ? "bg-red-600/20 border border-red-600/40 text-red-200"
+                        : "bg-anime-dark text-white"
                   }`}
                 >
                   <div className="flex items-start gap-2">
@@ -330,8 +362,14 @@ export default function ChatFixed() {
                     <Bot className="h-5 w-5 text-anime-accent" />
                     <div className="flex gap-1">
                       <div className="w-2 h-2 bg-anime-accent rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-anime-accent rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="w-2 h-2 bg-anime-accent rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      <div
+                        className="w-2 h-2 bg-anime-accent rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-anime-accent rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -363,21 +401,25 @@ export default function ChatFixed() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => document.getElementById("image-upload")?.click()}
+                  onClick={() =>
+                    document.getElementById("image-upload")?.click()
+                  }
                   className="border-anime-accent/30"
                 >
                   <Image className="h-4 w-4" />
                 </Button>
                 <Button
                   onClick={sendMessage}
-                  disabled={isLoading || (!currentMessage.trim() && !selectedImage)}
+                  disabled={
+                    isLoading || (!currentMessage.trim() && !selectedImage)
+                  }
                   className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold disabled:bg-gray-600 disabled:text-gray-400"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            
+
             {selectedImage && (
               <div className="mt-3 flex items-center gap-2">
                 <img
@@ -398,7 +440,7 @@ export default function ChatFixed() {
 
             <div className="mt-3 p-3 bg-blue-600/10 border border-blue-600/40 rounded-lg">
               <p className="text-blue-200 text-sm">
-                💡 Sadece anime ve site ile ilgili konularda destek verebilirim. 
+                💡 Sadece anime ve site ile ilgili konularda destek verebilirim.
                 Kayıtlı kullanıcı olarak bu hizmeti kullanabiliyorsunuz.
               </p>
             </div>

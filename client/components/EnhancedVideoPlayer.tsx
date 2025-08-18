@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Play, 
-  Pause, 
-  Volume2, 
-  VolumeX, 
-  Maximize, 
-  Minimize, 
-  Settings, 
-  RotateCcw, 
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  Settings,
+  RotateCcw,
   RotateCw,
   Subtitles,
   Download,
-  Share2
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
+  Share2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +22,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { toast } from '@/hooks/use-toast';
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
 
 interface VideoPlayerProps {
   src: string;
@@ -46,7 +46,7 @@ export default function EnhancedVideoPlayer({
   subtitles = [],
   onProgress,
   onEnded,
-  initialTime = 0
+  initialTime = 0,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ export default function EnhancedVideoPlayer({
   // Auto-hide controls
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    
+
     const resetTimeout = () => {
       setShowControls(true);
       clearTimeout(timeout);
@@ -100,7 +100,7 @@ export default function EnhancedVideoPlayer({
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime);
       onProgress?.(video.currentTime);
-      
+
       // Update buffered progress
       if (video.buffered.length > 0) {
         setBuffered(video.buffered.end(video.buffered.length - 1));
@@ -124,20 +124,20 @@ export default function EnhancedVideoPlayer({
       setIsLoading(false);
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('ended', handleEnded);
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('waiting', handleWaiting);
-    video.addEventListener('canplaythrough', handleCanPlayThrough);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("ended", handleEnded);
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("canplaythrough", handleCanPlayThrough);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('ended', handleEnded);
-      video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('waiting', handleWaiting);
-      video.removeEventListener('canplaythrough', handleCanPlayThrough);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("waiting", handleWaiting);
+      video.removeEventListener("canplaythrough", handleCanPlayThrough);
     };
   }, [src, initialTime, onProgress, onEnded]);
 
@@ -147,8 +147,9 @@ export default function EnhancedVideoPlayer({
       setIsFullscreen(!!document.fullscreenElement);
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   // Keyboard controls
@@ -157,39 +158,39 @@ export default function EnhancedVideoPlayer({
       if (!videoRef.current) return;
 
       switch (e.code) {
-        case 'Space':
+        case "Space":
           e.preventDefault();
           togglePlay();
           break;
-        case 'ArrowLeft':
+        case "ArrowLeft":
           e.preventDefault();
           skip(-10);
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           e.preventDefault();
           skip(10);
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           changeVolume(volume + 0.1);
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           changeVolume(volume - 0.1);
           break;
-        case 'KeyM':
+        case "KeyM":
           e.preventDefault();
           toggleMute();
           break;
-        case 'KeyF':
+        case "KeyF":
           e.preventDefault();
           toggleFullscreen();
           break;
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [volume]);
 
   const togglePlay = () => {
@@ -208,7 +209,10 @@ export default function EnhancedVideoPlayer({
     const video = videoRef.current;
     if (!video) return;
 
-    video.currentTime = Math.max(0, Math.min(duration, video.currentTime + seconds));
+    video.currentTime = Math.max(
+      0,
+      Math.min(duration, video.currentTime + seconds),
+    );
   };
 
   const changeVolume = (newVolume: number) => {
@@ -273,18 +277,18 @@ export default function EnhancedVideoPlayer({
     const seconds = Math.floor(time % 60);
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
   const bufferedPercent = duration > 0 ? (buffered / duration) * 100 : 0;
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className={`relative bg-black rounded-lg overflow-hidden group ${isFullscreen ? 'h-screen w-screen' : 'w-full'}`}
+      className={`relative bg-black rounded-lg overflow-hidden group ${isFullscreen ? "h-screen w-screen" : "w-full"}`}
       onMouseMove={() => setShowControls(true)}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
@@ -330,29 +334,29 @@ export default function EnhancedVideoPlayer({
       )}
 
       {/* Controls */}
-      <div 
+      <div
         className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
+          showControls ? "opacity-100" : "opacity-0"
         }`}
       >
         {/* Progress Bar */}
-        <div 
+        <div
           ref={progressRef}
           className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-4 relative"
           onClick={handleProgressClick}
         >
           {/* Buffered Progress */}
-          <div 
+          <div
             className="absolute top-0 left-0 h-full bg-white/30 rounded-full"
             style={{ width: `${bufferedPercent}%` }}
           />
           {/* Current Progress */}
-          <div 
+          <div
             className="absolute top-0 left-0 h-full bg-anime-accent rounded-full"
             style={{ width: `${progressPercent}%` }}
           />
           {/* Progress Handle */}
-          <div 
+          <div
             className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-anime-accent rounded-full border-2 border-white"
             style={{ left: `calc(${progressPercent}% - 8px)` }}
           />
@@ -368,7 +372,11 @@ export default function EnhancedVideoPlayer({
               variant="ghost"
               className="text-white hover:bg-white/20"
             >
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              {isPlaying ? (
+                <Pause className="h-5 w-5" />
+              ) : (
+                <Play className="h-5 w-5" />
+              )}
             </Button>
 
             {/* Skip Buttons */}
@@ -400,7 +408,11 @@ export default function EnhancedVideoPlayer({
                 variant="ghost"
                 className="text-white hover:bg-white/20"
               >
-                {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                {isMuted || volume === 0 ? (
+                  <VolumeX className="h-5 w-5" />
+                ) : (
+                  <Volume2 className="h-5 w-5" />
+                )}
               </Button>
               <div className="w-20">
                 <Slider
@@ -468,9 +480,11 @@ export default function EnhancedVideoPlayer({
                   <DropdownMenuItem
                     key={rate}
                     onClick={() => changePlaybackRate(rate)}
-                    className={playbackRate === rate ? 'bg-anime-accent/20' : ''}
+                    className={
+                      playbackRate === rate ? "bg-anime-accent/20" : ""
+                    }
                   >
-                    {rate}x {rate === 1 ? '(Normal)' : ''}
+                    {rate}x {rate === 1 ? "(Normal)" : ""}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -483,7 +497,11 @@ export default function EnhancedVideoPlayer({
               variant="ghost"
               className="text-white hover:bg-white/20"
             >
-              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              {isFullscreen ? (
+                <Minimize className="h-5 w-5" />
+              ) : (
+                <Maximize className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>

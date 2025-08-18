@@ -95,7 +95,10 @@ export default function AuthModal({
       console.error("Auth error:", error);
       toast({
         title: "Hata",
-        description: error instanceof Error ? error.message : "Beklenmedik bir hata oluştu",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Beklenmedik bir hata oluştu",
         variant: "destructive",
       });
     } finally {
@@ -104,7 +107,7 @@ export default function AuthModal({
   };
 
   const handleSocialAuth = async (provider: string) => {
-    if (provider === 'discord') {
+    if (provider === "discord") {
       try {
         // Discord OAuth flow
         const success = await loginWithDiscord();

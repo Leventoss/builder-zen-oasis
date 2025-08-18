@@ -33,19 +33,14 @@ import {
   Maximize2,
   Copy,
   ExternalLink,
-  User
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -98,8 +93,8 @@ interface AnimeFormData {
   year: number;
   episodes: number;
   duration: string;
-  status: 'ongoing' | 'completed' | 'upcoming';
-  category: 'anime' | 'movie';
+  status: "ongoing" | "completed" | "upcoming";
+  category: "anime" | "movie";
   genre: string[];
   genreEn: string[];
   studio: string;
@@ -127,21 +122,32 @@ interface EpisodeFormData {
 
 interface BulkImportProgress {
   title: string;
-  status: 'pending' | 'importing' | 'success' | 'error';
+  status: "pending" | "importing" | "success" | "error";
   message?: string;
   result?: any;
 }
 
 export default function UltimateAdmin() {
   const { user, isAdmin } = useAuth();
-  const { animes, addAnime, updateAnime, deleteAnime, episodes, addEpisode, updateEpisode, deleteEpisode } = useAnimeStore();
+  const {
+    animes,
+    addAnime,
+    updateAnime,
+    deleteAnime,
+    episodes,
+    addEpisode,
+    updateEpisode,
+    deleteEpisode,
+  } = useAnimeStore();
 
   // State Management
   const [activeTab, setActiveTab] = useState("overview");
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedAnime, setSelectedAnime] = useState<any>(null);
   const [editingAnime, setEditingAnime] = useState<AnimeFormData | null>(null);
-  const [editingEpisode, setEditingEpisode] = useState<EpisodeFormData | null>(null);
+  const [editingEpisode, setEditingEpisode] = useState<EpisodeFormData | null>(
+    null,
+  );
   const [showAnimeDialog, setShowAnimeDialog] = useState(false);
   const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
@@ -151,25 +157,27 @@ export default function UltimateAdmin() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all");
-  
+
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [sortBy, setSortBy] = useState("title");
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   // Bulk Import
   const [bulkImportText, setBulkImportText] = useState("");
-  const [bulkImportProgress, setBulkImportProgress] = useState<BulkImportProgress[]>([]);
+  const [bulkImportProgress, setBulkImportProgress] = useState<
+    BulkImportProgress[]
+  >([]);
   const [isImporting, setIsImporting] = useState(false);
   const [includeEpisodes, setIncludeEpisodes] = useState(false);
-  
+
   // API Search
   const [apiSearchQuery, setApiSearchQuery] = useState("");
   const [apiSearchResults, setApiSearchResults] = useState<any[]>([]);
   const [isApiSearching, setIsApiSearching] = useState(false);
-  
+
   // Statistics
   const [stats, setStats] = useState({
     totalAnimes: 0,
@@ -177,13 +185,13 @@ export default function UltimateAdmin() {
     ongoing: 0,
     completed: 0,
     movies: 0,
-    averageRating: 0
+    averageRating: 0,
   });
 
   // Load data
   useEffect(() => {
     updateStats();
-    if (activeTab === 'users') {
+    if (activeTab === "users") {
       loadUsers();
     }
   }, [animes, episodes, activeTab]);
@@ -192,13 +200,13 @@ export default function UltimateAdmin() {
   const loadUsers = async () => {
     setUsersLoading(true);
     try {
-      const response = await fetch('/api/admin/users');
+      const response = await fetch("/api/admin/users");
       if (response.ok) {
         const result = await response.json();
         setUsers(result.data || []);
       }
     } catch (error) {
-      console.error('Failed to load users:', error);
+      console.error("Failed to load users:", error);
       toast({
         title: "Kullanıcı Yükleme Hatası",
         description: "Kullanıcılar yüklenirken hata oluştu",
@@ -212,14 +220,20 @@ export default function UltimateAdmin() {
   const updateStats = () => {
     const totalAnimes = animes.length || 0;
     const totalEpisodes = episodes.length || 0;
-    const ongoing = animes.filter(a => a.status === 'ongoing').length || 0;
-    const completed = animes.filter(a => a.status === 'completed').length || 0;
-    const movies = animes.filter(a => a.category === 'movie').length || 0;
+    const ongoing = animes.filter((a) => a.status === "ongoing").length || 0;
+    const completed =
+      animes.filter((a) => a.status === "completed").length || 0;
+    const movies = animes.filter((a) => a.category === "movie").length || 0;
 
     // Safe rating calculation with NaN protection
-    const validRatings = animes.filter(a => typeof a.rating === 'number' && !isNaN(a.rating) && a.rating > 0);
-    const averageRating = validRatings.length > 0 ?
-      validRatings.reduce((sum, a) => sum + a.rating, 0) / validRatings.length : 0;
+    const validRatings = animes.filter(
+      (a) => typeof a.rating === "number" && !isNaN(a.rating) && a.rating > 0,
+    );
+    const averageRating =
+      validRatings.length > 0
+        ? validRatings.reduce((sum, a) => sum + a.rating, 0) /
+          validRatings.length
+        : 0;
 
     setStats({
       totalAnimes,
@@ -227,36 +241,41 @@ export default function UltimateAdmin() {
       ongoing,
       completed,
       movies,
-      averageRating: isNaN(averageRating) ? 0 : Number(averageRating.toFixed(1))
+      averageRating: isNaN(averageRating)
+        ? 0
+        : Number(averageRating.toFixed(1)),
     });
   };
 
   // Filter and sort animes
   const filteredAnimes = animes
-    .filter(anime => {
-      const matchesSearch = !searchQuery || 
+    .filter((anime) => {
+      const matchesSearch =
+        !searchQuery ||
         anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         anime.titleEn?.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesStatus = filterStatus === 'all' || anime.status === filterStatus;
-      const matchesCategory = filterCategory === 'all' || anime.category === filterCategory;
-      
+
+      const matchesStatus =
+        filterStatus === "all" || anime.status === filterStatus;
+      const matchesCategory =
+        filterCategory === "all" || anime.category === filterCategory;
+
       return matchesSearch && matchesStatus && matchesCategory;
     })
     .sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
 
-      if (sortBy === 'rating') {
-        aValue = typeof aValue === 'number' && !isNaN(aValue) ? aValue : 0;
-        bValue = typeof bValue === 'number' && !isNaN(bValue) ? bValue : 0;
+      if (sortBy === "rating") {
+        aValue = typeof aValue === "number" && !isNaN(aValue) ? aValue : 0;
+        bValue = typeof bValue === "number" && !isNaN(bValue) ? bValue : 0;
       }
 
       // Ensure we have valid values for comparison
-      if (aValue === undefined || aValue === null) aValue = '';
-      if (bValue === undefined || bValue === null) bValue = '';
+      if (aValue === undefined || aValue === null) aValue = "";
+      if (bValue === undefined || bValue === null) bValue = "";
 
-      if (sortOrder === 'asc') {
+      if (sortOrder === "asc") {
         return aValue > bValue ? 1 : -1;
       } else {
         return aValue < bValue ? 1 : -1;
@@ -266,18 +285,18 @@ export default function UltimateAdmin() {
   // API Search
   const handleApiSearch = async () => {
     if (!apiSearchQuery.trim()) return;
-    
+
     setIsApiSearching(true);
     try {
       const results = await advancedAnimeAPI.enhancedSearch(apiSearchQuery, 20);
       setApiSearchResults(results);
-      
+
       toast({
         title: "API Arama Tamamlandı",
         description: `${results.length} anime bulundu`,
       });
     } catch (error) {
-      console.error('API search error:', error);
+      console.error("API search error:", error);
       toast({
         title: "API Arama Hatası",
         description: "Arama sırasında bir hata oluştu",
@@ -289,17 +308,25 @@ export default function UltimateAdmin() {
   };
 
   // Add anime from API
-  const addAnimeFromApi = async (apiAnime: any, includeEpisodes: boolean = false) => {
+  const addAnimeFromApi = async (
+    apiAnime: any,
+    includeEpisodes: boolean = false,
+  ) => {
     try {
       // Convert API anime to our format with proper title handling
-      const titleEn = apiAnime.title_english || apiAnime.title?.english || apiAnime.title || 'Unknown';
+      const titleEn =
+        apiAnime.title_english ||
+        apiAnime.title?.english ||
+        apiAnime.title ||
+        "Unknown";
       const titleTr = apiAnime.title || apiAnime.title?.romaji || titleEn;
 
       // Check if anime already exists
-      const existingAnime = animes.find(a =>
-        a.titleEn?.toLowerCase() === titleEn.toLowerCase() ||
-        a.title?.toLowerCase() === titleTr.toLowerCase() ||
-        (apiAnime.mal_id && a.malId === apiAnime.mal_id)
+      const existingAnime = animes.find(
+        (a) =>
+          a.titleEn?.toLowerCase() === titleEn.toLowerCase() ||
+          a.title?.toLowerCase() === titleTr.toLowerCase() ||
+          (apiAnime.mal_id && a.malId === apiAnime.mal_id),
       );
 
       if (existingAnime) {
@@ -315,33 +342,75 @@ export default function UltimateAdmin() {
         title: titleTr, // Use Turkish/Romaji title as primary
         titleEn: titleEn,
         titleTr: titleTr,
-        description: apiAnime.synopsis?.replace(/<[^>]*>/g, '') || apiAnime.description?.replace(/<[^>]*>/g, '') || 'Açıklama mevcut değil',
-        descriptionEn: apiAnime.synopsis?.replace(/<[^>]*>/g, '') || apiAnime.description?.replace(/<[^>]*>/g, '') || 'No description available',
-        poster: apiAnime.images?.jpg?.large_image_url || apiAnime.images?.jpg?.image_url || apiAnime.coverImage?.large || 'https://via.placeholder.com/300x400',
-        banner: apiAnime.images?.jpg?.large_image_url || apiAnime.images?.jpg?.image_url || apiAnime.coverImage?.large || 'https://via.placeholder.com/1200x400',
-        rating: apiAnime.score ? parseFloat(apiAnime.score.toString()) : (apiAnime.averageScore ? apiAnime.averageScore / 10 : 8.0),
-        year: apiAnime.year || apiAnime.aired?.prop?.from?.year || apiAnime.startDate?.year || new Date().getFullYear(),
+        description:
+          apiAnime.synopsis?.replace(/<[^>]*>/g, "") ||
+          apiAnime.description?.replace(/<[^>]*>/g, "") ||
+          "Açıklama mevcut değil",
+        descriptionEn:
+          apiAnime.synopsis?.replace(/<[^>]*>/g, "") ||
+          apiAnime.description?.replace(/<[^>]*>/g, "") ||
+          "No description available",
+        poster:
+          apiAnime.images?.jpg?.large_image_url ||
+          apiAnime.images?.jpg?.image_url ||
+          apiAnime.coverImage?.large ||
+          "https://via.placeholder.com/300x400",
+        banner:
+          apiAnime.images?.jpg?.large_image_url ||
+          apiAnime.images?.jpg?.image_url ||
+          apiAnime.coverImage?.large ||
+          "https://via.placeholder.com/1200x400",
+        rating: apiAnime.score
+          ? parseFloat(apiAnime.score.toString())
+          : apiAnime.averageScore
+            ? apiAnime.averageScore / 10
+            : 8.0,
+        year:
+          apiAnime.year ||
+          apiAnime.aired?.prop?.from?.year ||
+          apiAnime.startDate?.year ||
+          new Date().getFullYear(),
         episodes: apiAnime.episodes || 12,
-        duration: apiAnime.duration ? `${apiAnime.duration}min` : '24min',
-        status: apiAnime.status === 'Finished Airing' || apiAnime.status === 'FINISHED' ? 'completed' :
-               apiAnime.status === 'Currently Airing' || apiAnime.status === 'RELEASING' ? 'ongoing' : 'upcoming',
-        category: apiAnime.type === 'Movie' || apiAnime.format === 'MOVIE' ? 'movie' : 'anime',
-        genre: apiAnime.genres?.map((g: any) => g.name || g) || ['Genel'],
-        genreEn: apiAnime.genres?.map((g: any) => g.name || g) || ['General'],
-        studio: apiAnime.studios?.[0]?.name || apiAnime.studios?.nodes?.[0]?.name || 'Bilinmiyor',
-        producer: apiAnime.producers?.[0]?.name || 'Bilinmiyor',
-        season: apiAnime.season?.toLowerCase() || 'unknown',
-        source: apiAnime.source || 'Unknown',
-        trailer: apiAnime.trailer?.url || '',
+        duration: apiAnime.duration ? `${apiAnime.duration}min` : "24min",
+        status:
+          apiAnime.status === "Finished Airing" ||
+          apiAnime.status === "FINISHED"
+            ? "completed"
+            : apiAnime.status === "Currently Airing" ||
+                apiAnime.status === "RELEASING"
+              ? "ongoing"
+              : "upcoming",
+        category:
+          apiAnime.type === "Movie" || apiAnime.format === "MOVIE"
+            ? "movie"
+            : "anime",
+        genre: apiAnime.genres?.map((g: any) => g.name || g) || ["Genel"],
+        genreEn: apiAnime.genres?.map((g: any) => g.name || g) || ["General"],
+        studio:
+          apiAnime.studios?.[0]?.name ||
+          apiAnime.studios?.nodes?.[0]?.name ||
+          "Bilinmiyor",
+        producer: apiAnime.producers?.[0]?.name || "Bilinmiyor",
+        season: apiAnime.season?.toLowerCase() || "unknown",
+        source: apiAnime.source || "Unknown",
+        trailer: apiAnime.trailer?.url || "",
         malId: apiAnime.mal_id || apiAnime.id,
-        externalLinks: apiAnime.external_links?.map((link: any) => ({ name: link.name, url: link.url })) || [],
-        streamingLinks: apiAnime.streaming?.map((stream: any) => ({ name: stream.name, url: stream.url })) || []
+        externalLinks:
+          apiAnime.external_links?.map((link: any) => ({
+            name: link.name,
+            url: link.url,
+          })) || [],
+        streamingLinks:
+          apiAnime.streaming?.map((stream: any) => ({
+            name: stream.name,
+            url: stream.url,
+          })) || [],
       };
 
       // Save to backend
-      const response = await fetch('/api/animes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/animes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(animeData),
       });
 
@@ -356,10 +425,10 @@ export default function UltimateAdmin() {
           description: `${animeData.title} başarıyla eklendi`,
         });
       } else {
-        throw new Error('API request failed');
+        throw new Error("API request failed");
       }
     } catch (error) {
-      console.error('Add anime from API error:', error);
+      console.error("Add anime from API error:", error);
       toast({
         title: "Hata",
         description: "Anime eklenirken hata oluştu",
@@ -372,10 +441,15 @@ export default function UltimateAdmin() {
   const handleBulkImport = async () => {
     if (!bulkImportText.trim()) return;
 
-    const titles = bulkImportText.split('\n').filter(t => t.trim()).map(t => t.trim());
+    const titles = bulkImportText
+      .split("\n")
+      .filter((t) => t.trim())
+      .map((t) => t.trim());
     const uniqueTitles = [...new Set(titles)]; // Remove duplicates
 
-    setBulkImportProgress(uniqueTitles.map(title => ({ title, status: 'pending' })));
+    setBulkImportProgress(
+      uniqueTitles.map((title) => ({ title, status: "pending" })),
+    );
     setIsImporting(true);
 
     let importedCount = 0;
@@ -386,9 +460,11 @@ export default function UltimateAdmin() {
       // Process one by one to avoid duplicates
       for (const title of uniqueTitles) {
         try {
-          setBulkImportProgress(prev => prev.map(item =>
-            item.title === title ? { ...item, status: 'importing' } : item
-          ));
+          setBulkImportProgress((prev) =>
+            prev.map((item) =>
+              item.title === title ? { ...item, status: "importing" } : item,
+            ),
+          );
 
           const searchResults = await advancedAnimeAPI.enhancedSearch(title, 1);
 
@@ -396,57 +472,73 @@ export default function UltimateAdmin() {
             const animeData = searchResults[0];
 
             // Check if anime already exists
-            const existingAnime = animes.find(a =>
-              a.title.toLowerCase().includes(title.toLowerCase()) ||
-              a.titleEn?.toLowerCase().includes(title.toLowerCase())
+            const existingAnime = animes.find(
+              (a) =>
+                a.title.toLowerCase().includes(title.toLowerCase()) ||
+                a.titleEn?.toLowerCase().includes(title.toLowerCase()),
             );
 
             if (existingAnime) {
-              setBulkImportProgress(prev => prev.map(item =>
-                item.title === title ? {
-                  ...item,
-                  status: 'error',
-                  message: 'Zaten mevcut'
-                } : item
-              ));
+              setBulkImportProgress((prev) =>
+                prev.map((item) =>
+                  item.title === title
+                    ? {
+                        ...item,
+                        status: "error",
+                        message: "Zaten mevcut",
+                      }
+                    : item,
+                ),
+              );
               failedCount++;
               continue;
             }
 
             await addAnimeFromApi(animeData);
 
-            setBulkImportProgress(prev => prev.map(item =>
-              item.title === title ? {
-                ...item,
-                status: 'success',
-                message: 'Başarılı'
-              } : item
-            ));
+            setBulkImportProgress((prev) =>
+              prev.map((item) =>
+                item.title === title
+                  ? {
+                      ...item,
+                      status: "success",
+                      message: "Başarılı",
+                    }
+                  : item,
+              ),
+            );
             importedCount++;
             results.push(animeData);
           } else {
-            setBulkImportProgress(prev => prev.map(item =>
-              item.title === title ? {
-                ...item,
-                status: 'error',
-                message: 'Bulunamadı'
-              } : item
-            ));
+            setBulkImportProgress((prev) =>
+              prev.map((item) =>
+                item.title === title
+                  ? {
+                      ...item,
+                      status: "error",
+                      message: "Bulunamadı",
+                    }
+                  : item,
+              ),
+            );
             failedCount++;
           }
 
           // Small delay to prevent rate limiting
-          await new Promise(resolve => setTimeout(resolve, 500));
-
+          await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (error) {
           console.error(`Import failed for ${title}:`, error);
-          setBulkImportProgress(prev => prev.map(item =>
-            item.title === title ? {
-              ...item,
-              status: 'error',
-              message: 'API Hatası'
-            } : item
-          ));
+          setBulkImportProgress((prev) =>
+            prev.map((item) =>
+              item.title === title
+                ? {
+                    ...item,
+                    status: "error",
+                    message: "API Hatası",
+                  }
+                : item,
+            ),
+          );
           failedCount++;
         }
       }
@@ -455,9 +547,8 @@ export default function UltimateAdmin() {
         title: "Toplu İçe Aktarma Tamamlandı",
         description: `${importedCount} başarılı, ${failedCount} başarısız`,
       });
-
     } catch (error) {
-      console.error('Bulk import error:', error);
+      console.error("Bulk import error:", error);
       toast({
         title: "Toplu İçe Aktarma Hatası",
         description: "İşlem sırasında hata oluştu",
@@ -471,37 +562,39 @@ export default function UltimateAdmin() {
   // Save anime
   const saveAnime = async () => {
     if (!editingAnime) return;
-    
+
     try {
-      const endpoint = editingAnime.id ? `/api/animes/${editingAnime.id}` : '/api/animes';
-      const method = editingAnime.id ? 'PUT' : 'POST';
-      
+      const endpoint = editingAnime.id
+        ? `/api/animes/${editingAnime.id}`
+        : "/api/animes";
+      const method = editingAnime.id ? "PUT" : "POST";
+
       const response = await fetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingAnime),
       });
 
       if (response.ok) {
         const result = await response.json();
-        
+
         if (editingAnime.id) {
           updateAnime(editingAnime.id, editingAnime);
         } else {
           editingAnime.id = result.data.id;
           addAnime(editingAnime);
         }
-        
+
         setEditingAnime(null);
         setShowAnimeDialog(false);
-        
+
         toast({
           title: "Başarılı",
-          description: `Anime ${editingAnime.id ? 'güncellendi' : 'eklendi'}`,
+          description: `Anime ${editingAnime.id ? "güncellendi" : "eklendi"}`,
         });
       }
     } catch (error) {
-      console.error('Save anime error:', error);
+      console.error("Save anime error:", error);
       toast({
         title: "Hata",
         description: "Kayıt sırasında hata oluştu",
@@ -513,37 +606,39 @@ export default function UltimateAdmin() {
   // Save episode
   const saveEpisode = async () => {
     if (!editingEpisode) return;
-    
+
     try {
-      const endpoint = editingEpisode.id ? `/api/episodes/${editingEpisode.id}` : '/api/episodes';
-      const method = editingEpisode.id ? 'PUT' : 'POST';
-      
+      const endpoint = editingEpisode.id
+        ? `/api/episodes/${editingEpisode.id}`
+        : "/api/episodes";
+      const method = editingEpisode.id ? "PUT" : "POST";
+
       const response = await fetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingEpisode),
       });
 
       if (response.ok) {
         const result = await response.json();
-        
+
         if (editingEpisode.id) {
           updateEpisode(editingEpisode.id, editingEpisode);
         } else {
           editingEpisode.id = result.data.id;
           addEpisode(editingEpisode);
         }
-        
+
         setEditingEpisode(null);
         setShowEpisodeDialog(false);
-        
+
         toast({
           title: "Başarılı",
-          description: `Bölüm ${editingEpisode.id ? 'güncellendi' : 'eklendi'}`,
+          description: `Bölüm ${editingEpisode.id ? "güncellendi" : "eklendi"}`,
         });
       }
     } catch (error) {
-      console.error('Save episode error:', error);
+      console.error("Save episode error:", error);
       toast({
         title: "Hata",
         description: "Bölüm kaydı sırasında hata oluştu",
@@ -554,11 +649,11 @@ export default function UltimateAdmin() {
 
   // Delete anime
   const handleDeleteAnime = async (animeId: string) => {
-    if (!confirm('Bu animeyi silmek istediğinize emin misiniz?')) return;
-    
+    if (!confirm("Bu animeyi silmek istediğinize emin misiniz?")) return;
+
     try {
       const response = await fetch(`/api/animes/${animeId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
@@ -569,7 +664,7 @@ export default function UltimateAdmin() {
         });
       }
     } catch (error) {
-      console.error('Delete anime error:', error);
+      console.error("Delete anime error:", error);
       toast({
         title: "Hata",
         description: "Silme sırasında hata oluştu",
@@ -580,17 +675,18 @@ export default function UltimateAdmin() {
 
   // Enhance anime images
   const enhanceAnimeImages = async (animeId: string) => {
-    const anime = animes.find(a => a.id === animeId);
+    const anime = animes.find((a) => a.id === animeId);
     if (!anime || !anime.malId) return;
-    
+
     try {
       const improvements = await advancedAnimeAPI.enhanceImages(anime);
-      
+
       if (improvements) {
         updateAnime(animeId, improvements);
         toast({
           title: "Resimler Geliştirildi",
-          description: "Anime resimleri daha yüksek kaliteli versiyonlarla güncellendi",
+          description:
+            "Anime resimleri daha yüksek kaliteli versiyonlarla güncellendi",
         });
       } else {
         toast({
@@ -599,7 +695,7 @@ export default function UltimateAdmin() {
         });
       }
     } catch (error) {
-      console.error('Enhance images error:', error);
+      console.error("Enhance images error:", error);
       toast({
         title: "Hata",
         description: "Resim geliştirme sırasında hata oluştu",
@@ -622,35 +718,58 @@ export default function UltimateAdmin() {
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold text-white">Ultimate Anime Yönetimi</h1>
+            <h1 className="text-3xl font-bold text-white">
+              Ultimate Anime Yönetimi
+            </h1>
             <Badge variant="secondary" className="bg-anime-accent text-white">
               <Database className="h-4 w-4 mr-1" />
               Admin Panel
             </Badge>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
               className="border-anime-accent/30"
             >
-              {viewMode === 'grid' ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
+              {viewMode === "grid" ? (
+                <List className="h-4 w-4" />
+              ) : (
+                <Grid className="h-4 w-4" />
+              )}
             </Button>
-            
+
             <Button
               onClick={() => {
                 setEditingAnime({
-                  title: '', titleEn: '', titleTr: '', description: '', descriptionEn: '',
-                  poster: '', banner: '', rating: 7.0, year: new Date().getFullYear(),
-                  episodes: 12, duration: '24min', status: 'upcoming', category: 'anime',
-                  genre: [], genreEn: [], studio: '', producer: '', season: '', source: '', 
-                  trailer: '', externalLinks: [], streamingLinks: []
+                  title: "",
+                  titleEn: "",
+                  titleTr: "",
+                  description: "",
+                  descriptionEn: "",
+                  poster: "",
+                  banner: "",
+                  rating: 7.0,
+                  year: new Date().getFullYear(),
+                  episodes: 12,
+                  duration: "24min",
+                  status: "upcoming",
+                  category: "anime",
+                  genre: [],
+                  genreEn: [],
+                  studio: "",
+                  producer: "",
+                  season: "",
+                  source: "",
+                  trailer: "",
+                  externalLinks: [],
+                  streamingLinks: [],
                 });
                 setShowAnimeDialog(true);
               }}
@@ -662,13 +781,20 @@ export default function UltimateAdmin() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="bg-anime-card border border-anime-accent/20">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
               Genel Bakış
             </TabsTrigger>
-            <TabsTrigger value="anime-management" className="flex items-center gap-2">
+            <TabsTrigger
+              value="anime-management"
+              className="flex items-center gap-2"
+            >
               <Film className="h-4 w-4" />
               Anime Yönetimi
             </TabsTrigger>
@@ -676,7 +802,10 @@ export default function UltimateAdmin() {
               <Download className="h-4 w-4" />
               API İçe Aktarma
             </TabsTrigger>
-            <TabsTrigger value="bulk-operations" className="flex items-center gap-2">
+            <TabsTrigger
+              value="bulk-operations"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Toplu İşlemler
             </TabsTrigger>
@@ -695,61 +824,85 @@ export default function UltimateAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-400">Toplam Anime</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Toplam Anime
+                  </CardTitle>
                   <Film className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.totalAnimes || 0}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.totalAnimes || 0}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-400">Toplam Bölüm</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Toplam Bölüm
+                  </CardTitle>
                   <Play className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.totalEpisodes || 0}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.totalEpisodes || 0}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-400">Devam Eden</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Devam Eden
+                  </CardTitle>
                   <Zap className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.ongoing || 0}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.ongoing || 0}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-400">Tamamlanan</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Tamamlanan
+                  </CardTitle>
                   <Star className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.completed || 0}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.completed || 0}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-400">Filmler</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Filmler
+                  </CardTitle>
                   <Video className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.movies || 0}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.movies || 0}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-400">Ort. Puan</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-400">
+                    Ort. Puan
+                  </CardTitle>
                   <Star className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.averageRating || 0}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.averageRating || 0}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -760,31 +913,48 @@ export default function UltimateAdmin() {
                   <CardTitle className="text-white">Hızlı İşlemler</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button 
+                  <Button
                     className="w-full bg-anime-accent hover:bg-anime-accent/80"
-                    onClick={() => setActiveTab('api-import')}
+                    onClick={() => setActiveTab("api-import")}
                   >
                     <Download className="h-4 w-4 mr-2" />
                     API'den Anime İçe Aktar
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => setActiveTab('bulk-operations')}
+                    onClick={() => setActiveTab("bulk-operations")}
                   >
                     <Layers className="h-4 w-4 mr-2" />
                     Toplu İşlemler
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
                       setEditingAnime({
-                        title: '', titleEn: '', titleTr: '', description: '', descriptionEn: '',
-                        poster: '', banner: '', rating: 7.0, year: new Date().getFullYear(),
-                        episodes: 12, duration: '24min', status: 'upcoming', category: 'anime',
-                        genre: [], genreEn: [], studio: '', producer: '', season: '', source: '', 
-                        trailer: '', externalLinks: [], streamingLinks: []
+                        title: "",
+                        titleEn: "",
+                        titleTr: "",
+                        description: "",
+                        descriptionEn: "",
+                        poster: "",
+                        banner: "",
+                        rating: 7.0,
+                        year: new Date().getFullYear(),
+                        episodes: 12,
+                        duration: "24min",
+                        status: "upcoming",
+                        category: "anime",
+                        genre: [],
+                        genreEn: [],
+                        studio: "",
+                        producer: "",
+                        season: "",
+                        source: "",
+                        trailer: "",
+                        externalLinks: [],
+                        streamingLinks: [],
                       });
                       setShowAnimeDialog(true);
                     }}
@@ -797,7 +967,9 @@ export default function UltimateAdmin() {
 
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader>
-                  <CardTitle className="text-white">Son Eklenen Animeler</CardTitle>
+                  <CardTitle className="text-white">
+                    Son Eklenen Animeler
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -809,12 +981,19 @@ export default function UltimateAdmin() {
                           className="w-12 h-16 object-cover rounded"
                         />
                         <div className="flex-1">
-                          <p className="text-white font-medium text-sm">{anime.title}</p>
-                          <p className="text-gray-400 text-xs">{anime.year} • {anime.episodes} bölüm</p>
+                          <p className="text-white font-medium text-sm">
+                            {anime.title}
+                          </p>
+                          <p className="text-gray-400 text-xs">
+                            {anime.year} • {anime.episodes} bölüm
+                          </p>
                         </div>
                         <Badge variant="outline" className="text-xs">
-                          {anime.status === 'ongoing' ? 'Devam' : 
-                           anime.status === 'completed' ? 'Bitti' : 'Yakında'}
+                          {anime.status === "ongoing"
+                            ? "Devam"
+                            : anime.status === "completed"
+                              ? "Bitti"
+                              : "Yakında"}
                         </Badge>
                       </div>
                     ))}
@@ -844,7 +1023,10 @@ export default function UltimateAdmin() {
                     />
                   </div>
                   <div className="flex gap-2">
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <Select
+                      value={filterStatus}
+                      onValueChange={setFilterStatus}
+                    >
                       <SelectTrigger className="w-32 bg-anime-dark border-anime-accent/30">
                         <SelectValue />
                       </SelectTrigger>
@@ -855,8 +1037,11 @@ export default function UltimateAdmin() {
                         <SelectItem value="upcoming">Yakında</SelectItem>
                       </SelectContent>
                     </Select>
-                    
-                    <Select value={filterCategory} onValueChange={setFilterCategory}>
+
+                    <Select
+                      value={filterCategory}
+                      onValueChange={setFilterCategory}
+                    >
                       <SelectTrigger className="w-32 bg-anime-dark border-anime-accent/30">
                         <SelectValue />
                       </SelectTrigger>
@@ -866,7 +1051,7 @@ export default function UltimateAdmin() {
                         <SelectItem value="movie">Film</SelectItem>
                       </SelectContent>
                     </Select>
-                    
+
                     <Select value={sortBy} onValueChange={setSortBy}>
                       <SelectTrigger className="w-32 bg-anime-dark border-anime-accent/30">
                         <SelectValue />
@@ -878,22 +1063,31 @@ export default function UltimateAdmin() {
                         <SelectItem value="episodes">Bölüm</SelectItem>
                       </SelectContent>
                     </Select>
-                    
+
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                      onClick={() =>
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                      }
                       className="border-anime-accent/30"
                     >
-                      {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                      {sortOrder === "asc" ? (
+                        <SortAsc className="h-4 w-4" />
+                      ) : (
+                        <SortDesc className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
 
-                {viewMode === 'grid' ? (
+                {viewMode === "grid" ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredAnimes.map((anime) => (
-                      <Card key={anime.id} className="bg-anime-dark border-anime-accent/20 hover:border-anime-accent/50 transition-colors">
+                      <Card
+                        key={anime.id}
+                        className="bg-anime-dark border-anime-accent/20 hover:border-anime-accent/50 transition-colors"
+                      >
                         <div className="relative">
                           <img
                             src={anime.poster}
@@ -930,8 +1124,11 @@ export default function UltimateAdmin() {
                           </div>
                           <div className="flex items-center justify-between">
                             <Badge variant="outline" className="text-xs">
-                              {anime.status === 'ongoing' ? 'Devam' : 
-                               anime.status === 'completed' ? 'Bitti' : 'Yakında'}
+                              {anime.status === "ongoing"
+                                ? "Devam"
+                                : anime.status === "completed"
+                                  ? "Bitti"
+                                  : "Yakında"}
                             </Badge>
                             <div className="flex items-center gap-1 text-yellow-500 text-xs">
                               <Star className="h-3 w-3 fill-current" />
@@ -951,7 +1148,9 @@ export default function UltimateAdmin() {
                         <TableHead className="text-gray-400">Yıl</TableHead>
                         <TableHead className="text-gray-400">Durum</TableHead>
                         <TableHead className="text-gray-400">Puan</TableHead>
-                        <TableHead className="text-gray-400">İşlemler</TableHead>
+                        <TableHead className="text-gray-400">
+                          İşlemler
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -967,17 +1166,26 @@ export default function UltimateAdmin() {
                           <TableCell className="text-white">
                             <div>
                               <p className="font-medium">{anime.title}</p>
-                              <p className="text-gray-400 text-sm">{anime.titleEn}</p>
+                              <p className="text-gray-400 text-sm">
+                                {anime.titleEn}
+                              </p>
                             </div>
                           </TableCell>
-                          <TableCell className="text-gray-300">{anime.year}</TableCell>
+                          <TableCell className="text-gray-300">
+                            {anime.year}
+                          </TableCell>
                           <TableCell>
                             <Badge variant="outline">
-                              {anime.status === 'ongoing' ? 'Devam' : 
-                               anime.status === 'completed' ? 'Bitti' : 'Yakında'}
+                              {anime.status === "ongoing"
+                                ? "Devam"
+                                : anime.status === "completed"
+                                  ? "Bitti"
+                                  : "Yakında"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-yellow-500">{anime.rating}</TableCell>
+                          <TableCell className="text-yellow-500">
+                            {anime.rating}
+                          </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
                               <Button
@@ -1026,7 +1234,9 @@ export default function UltimateAdmin() {
           <TabsContent value="api-import" className="space-y-6">
             <Card className="bg-anime-card border-anime-accent/20">
               <CardHeader>
-                <CardTitle className="text-white">API'den Anime İçe Aktarma</CardTitle>
+                <CardTitle className="text-white">
+                  API'den Anime İçe Aktarma
+                </CardTitle>
                 <CardDescription className="text-gray-400">
                   MyAnimeList ve AniList'ten anime ara ve ekle
                 </CardDescription>
@@ -1038,7 +1248,7 @@ export default function UltimateAdmin() {
                     value={apiSearchQuery}
                     onChange={(e) => setApiSearchQuery(e.target.value)}
                     className="flex-1 bg-anime-dark border-anime-accent/30"
-                    onKeyPress={(e) => e.key === 'Enter' && handleApiSearch()}
+                    onKeyPress={(e) => e.key === "Enter" && handleApiSearch()}
                   />
                   <Button
                     onClick={handleApiSearch}
@@ -1057,22 +1267,33 @@ export default function UltimateAdmin() {
                 {apiSearchResults.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-white font-medium">Arama Sonuçları ({apiSearchResults.length})</h3>
+                      <h3 className="text-white font-medium">
+                        Arama Sonuçları ({apiSearchResults.length})
+                      </h3>
                       <div className="flex items-center gap-2">
                         <Switch
                           checked={includeEpisodes}
                           onCheckedChange={setIncludeEpisodes}
                         />
-                        <Label className="text-gray-400 text-sm">Bölümleri de ekle</Label>
+                        <Label className="text-gray-400 text-sm">
+                          Bölümleri de ekle
+                        </Label>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {apiSearchResults.map((anime, index) => (
-                        <Card key={index} className="bg-anime-dark border-anime-accent/20">
+                        <Card
+                          key={index}
+                          className="bg-anime-dark border-anime-accent/20"
+                        >
                           <div className="flex">
                             <img
-                              src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || anime.coverImage?.large}
+                              src={
+                                anime.images?.jpg?.large_image_url ||
+                                anime.images?.jpg?.image_url ||
+                                anime.coverImage?.large
+                              }
                               alt={anime.title}
                               className="w-24 h-32 object-cover rounded-l"
                             />
@@ -1081,13 +1302,23 @@ export default function UltimateAdmin() {
                                 {anime.title || anime.title?.romaji}
                               </h4>
                               <div className="text-xs text-gray-400 space-y-1 mb-3">
-                                <p>Yıl: {anime.year || anime.startDate?.year || 'Bilinmiyor'}</p>
-                                <p>Puan: {anime.score || anime.averageScore || 'N/A'}</p>
+                                <p>
+                                  Yıl:{" "}
+                                  {anime.year ||
+                                    anime.startDate?.year ||
+                                    "Bilinmiyor"}
+                                </p>
+                                <p>
+                                  Puan:{" "}
+                                  {anime.score || anime.averageScore || "N/A"}
+                                </p>
                                 <p>Durum: {anime.status || anime.status}</p>
                               </div>
                               <Button
                                 size="sm"
-                                onClick={() => addAnimeFromApi(anime, includeEpisodes)}
+                                onClick={() =>
+                                  addAnimeFromApi(anime, includeEpisodes)
+                                }
                                 className="w-full bg-anime-accent hover:bg-anime-accent/80"
                               >
                                 <Plus className="h-3 w-3 mr-1" />
@@ -1120,16 +1351,18 @@ export default function UltimateAdmin() {
                       checked={includeEpisodes}
                       onCheckedChange={setIncludeEpisodes}
                     />
-                    <Label className="text-gray-400">Bölümleri de içe aktar</Label>
+                    <Label className="text-gray-400">
+                      Bölümleri de içe aktar
+                    </Label>
                   </div>
-                  
+
                   <Textarea
                     placeholder="Her satıra bir anime ismi yazın:&#10;Attack on Titan&#10;Death Note&#10;One Piece&#10;Naruto"
                     value={bulkImportText}
                     onChange={(e) => setBulkImportText(e.target.value)}
                     className="min-h-32 bg-anime-dark border-anime-accent/30"
                   />
-                  
+
                   <Button
                     onClick={handleBulkImport}
                     disabled={isImporting || !bulkImportText.trim()}
@@ -1146,24 +1379,41 @@ export default function UltimateAdmin() {
 
                 {bulkImportProgress.length > 0 && (
                   <div className="mt-6">
-                    <h3 className="text-white font-medium mb-4">İçe Aktarma Durumu</h3>
+                    <h3 className="text-white font-medium mb-4">
+                      İçe Aktarma Durumu
+                    </h3>
                     <div className="space-y-2">
                       {bulkImportProgress.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-anime-dark rounded border border-anime-accent/20">
-                          <span className="text-white text-sm">{item.title}</span>
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 bg-anime-dark rounded border border-anime-accent/20"
+                        >
+                          <span className="text-white text-sm">
+                            {item.title}
+                          </span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">{item.message}</span>
+                            <span className="text-xs text-gray-400">
+                              {item.message}
+                            </span>
                             <Badge
                               variant={
-                                item.status === 'success' ? 'default' :
-                                item.status === 'error' ? 'destructive' :
-                                item.status === 'importing' ? 'secondary' : 'outline'
+                                item.status === "success"
+                                  ? "default"
+                                  : item.status === "error"
+                                    ? "destructive"
+                                    : item.status === "importing"
+                                      ? "secondary"
+                                      : "outline"
                               }
                               className="text-xs"
                             >
-                              {item.status === 'success' ? 'Başarılı' :
-                               item.status === 'error' ? 'Hata' :
-                               item.status === 'importing' ? 'İ��e Aktarılıyor' : 'Bekliyor'}
+                              {item.status === "success"
+                                ? "Başarılı"
+                                : item.status === "error"
+                                  ? "Hata"
+                                  : item.status === "importing"
+                                    ? "İ��e Aktarılıyor"
+                                    : "Bekliyor"}
                             </Badge>
                           </div>
                         </div>
@@ -1187,7 +1437,12 @@ export default function UltimateAdmin() {
               <CardContent>
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex gap-4">
-                    <Select value={selectedAnime?.id || ''} onValueChange={(value) => setSelectedAnime(animes.find(a => a.id === value))}>
+                    <Select
+                      value={selectedAnime?.id || ""}
+                      onValueChange={(value) =>
+                        setSelectedAnime(animes.find((a) => a.id === value))
+                      }
+                    >
                       <SelectTrigger className="w-64 bg-anime-dark border-anime-accent/30">
                         <SelectValue placeholder="Anime seçin..." />
                       </SelectTrigger>
@@ -1200,7 +1455,7 @@ export default function UltimateAdmin() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Button
                     onClick={() => {
                       if (!selectedAnime) {
@@ -1213,14 +1468,14 @@ export default function UltimateAdmin() {
                       }
                       setEditingEpisode({
                         episodeNumber: 1,
-                        title: '',
-                        titleEn: '',
-                        description: '',
-                        descriptionEn: '',
-                        videoUrl: '',
-                        duration: '24min',
-                        airDate: new Date().toISOString().split('T')[0],
-                        animeId: selectedAnime.id
+                        title: "",
+                        titleEn: "",
+                        description: "",
+                        descriptionEn: "",
+                        videoUrl: "",
+                        duration: "24min",
+                        airDate: new Date().toISOString().split("T")[0],
+                        animeId: selectedAnime.id,
                       });
                       setShowEpisodeDialog(true);
                     }}
@@ -1240,26 +1495,43 @@ export default function UltimateAdmin() {
                         className="w-16 h-20 object-cover rounded"
                       />
                       <div>
-                        <h3 className="text-white font-medium">{selectedAnime.title}</h3>
-                        <p className="text-gray-400 text-sm">{selectedAnime.titleEn}</p>
-                        <p className="text-gray-400 text-xs">{selectedAnime.year} • {selectedAnime.episodes} bölüm</p>
+                        <h3 className="text-white font-medium">
+                          {selectedAnime.title}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          {selectedAnime.titleEn}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          {selectedAnime.year} • {selectedAnime.episodes} bölüm
+                        </p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       {episodes
-                        .filter(ep => ep.animeId === selectedAnime.id)
+                        .filter((ep) => ep.animeId === selectedAnime.id)
                         .sort((a, b) => a.episodeNumber - b.episodeNumber)
                         .map((episode) => (
-                          <div key={episode.id} className="flex items-center justify-between p-4 bg-anime-dark rounded border border-anime-accent/20">
+                          <div
+                            key={episode.id}
+                            className="flex items-center justify-between p-4 bg-anime-dark rounded border border-anime-accent/20"
+                          >
                             <div className="flex items-center gap-4">
                               <div className="w-12 h-12 bg-anime-accent rounded flex items-center justify-center">
-                                <span className="text-white font-bold">{episode.episodeNumber}</span>
+                                <span className="text-white font-bold">
+                                  {episode.episodeNumber}
+                                </span>
                               </div>
                               <div>
-                                <h4 className="text-white font-medium">{episode.title}</h4>
-                                <p className="text-gray-400 text-sm">{episode.titleEn}</p>
-                                <p className="text-gray-400 text-xs">{episode.duration} • {episode.airDate}</p>
+                                <h4 className="text-white font-medium">
+                                  {episode.title}
+                                </h4>
+                                <p className="text-gray-400 text-sm">
+                                  {episode.titleEn}
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                  {episode.duration} • {episode.airDate}
+                                </p>
                               </div>
                             </div>
                             <div className="flex gap-2">
@@ -1277,7 +1549,11 @@ export default function UltimateAdmin() {
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => {
-                                  if (confirm('Bu bölümü silmek istediğinize emin misiniz?')) {
+                                  if (
+                                    confirm(
+                                      "Bu bölümü silmek istediğinize emin misiniz?",
+                                    )
+                                  ) {
                                     deleteEpisode(episode.id);
                                   }
                                 }}
@@ -1287,8 +1563,9 @@ export default function UltimateAdmin() {
                             </div>
                           </div>
                         ))}
-                      
-                      {episodes.filter(ep => ep.animeId === selectedAnime.id).length === 0 && (
+
+                      {episodes.filter((ep) => ep.animeId === selectedAnime.id)
+                        .length === 0 && (
                         <div className="text-center py-8 text-gray-400">
                           Bu anime için henüz bölüm eklenmemiş
                         </div>
@@ -1345,11 +1622,17 @@ export default function UltimateAdmin() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-gray-400">Kullanıcı</TableHead>
+                        <TableHead className="text-gray-400">
+                          Kullanıcı
+                        </TableHead>
                         <TableHead className="text-gray-400">Email</TableHead>
-                        <TableHead className="text-gray-400">Kayıt Tarihi</TableHead>
+                        <TableHead className="text-gray-400">
+                          Kayıt Tarihi
+                        </TableHead>
                         <TableHead className="text-gray-400">Durum</TableHead>
-                        <TableHead className="text-gray-400">İşlemler</TableHead>
+                        <TableHead className="text-gray-400">
+                          İşlemler
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1361,16 +1644,26 @@ export default function UltimateAdmin() {
                             </div>
                             <div>
                               <p className="font-medium">admin</p>
-                              <p className="text-gray-400 text-sm">Discord: Bağlı</p>
+                              <p className="text-gray-400 text-sm">
+                                Discord: Bağlı
+                              </p>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-gray-300">admin@aniwa.com</TableCell>
-                        <TableCell className="text-gray-300">2024-01-01</TableCell>
+                        <TableCell className="text-gray-300">
+                          admin@aniwa.com
+                        </TableCell>
+                        <TableCell className="text-gray-300">
+                          2024-01-01
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            <Badge className="bg-red-600 text-white">Admin</Badge>
-                            <Badge className="bg-yellow-600 text-white">Premium</Badge>
+                            <Badge className="bg-red-600 text-white">
+                              Admin
+                            </Badge>
+                            <Badge className="bg-yellow-600 text-white">
+                              Premium
+                            </Badge>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -1401,10 +1694,10 @@ export default function UltimateAdmin() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-anime-card border-anime-accent/20">
           <DialogHeader>
             <DialogTitle className="text-white">
-              {editingAnime?.id ? 'Anime Düzenle' : 'Yeni Anime Ekle'}
+              {editingAnime?.id ? "Anime Düzenle" : "Yeni Anime Ekle"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {editingAnime && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1412,16 +1705,26 @@ export default function UltimateAdmin() {
                   <Label className="text-gray-400">Türkçe Başlık *</Label>
                   <Input
                     value={editingAnime.title}
-                    onChange={(e) => setEditingAnime({...editingAnime, title: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        title: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">İngilizce Başlık</Label>
                   <Input
                     value={editingAnime.titleEn}
-                    onChange={(e) => setEditingAnime({...editingAnime, titleEn: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        titleEn: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1431,7 +1734,12 @@ export default function UltimateAdmin() {
                 <Label className="text-gray-400">Türkçe Açıklama</Label>
                 <Textarea
                   value={editingAnime.description}
-                  onChange={(e) => setEditingAnime({...editingAnime, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditingAnime({
+                      ...editingAnime,
+                      description: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                   rows={3}
                 />
@@ -1441,7 +1749,12 @@ export default function UltimateAdmin() {
                 <Label className="text-gray-400">İngilizce Açıklama</Label>
                 <Textarea
                   value={editingAnime.descriptionEn}
-                  onChange={(e) => setEditingAnime({...editingAnime, descriptionEn: e.target.value})}
+                  onChange={(e) =>
+                    setEditingAnime({
+                      ...editingAnime,
+                      descriptionEn: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                   rows={3}
                 />
@@ -1452,16 +1765,26 @@ export default function UltimateAdmin() {
                   <Label className="text-gray-400">Poster URL</Label>
                   <Input
                     value={editingAnime.poster}
-                    onChange={(e) => setEditingAnime({...editingAnime, poster: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        poster: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Banner URL</Label>
                   <Input
                     value={editingAnime.banner}
-                    onChange={(e) => setEditingAnime({...editingAnime, banner: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        banner: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1476,36 +1799,56 @@ export default function UltimateAdmin() {
                     max="10"
                     step="0.1"
                     value={editingAnime.rating}
-                    onChange={(e) => setEditingAnime({...editingAnime, rating: parseFloat(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        rating: parseFloat(e.target.value),
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Yıl</Label>
                   <Input
                     type="number"
                     value={editingAnime.year}
-                    onChange={(e) => setEditingAnime({...editingAnime, year: parseInt(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        year: parseInt(e.target.value),
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Bölüm Sayısı</Label>
                   <Input
                     type="number"
                     value={editingAnime.episodes}
-                    onChange={(e) => setEditingAnime({...editingAnime, episodes: parseInt(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        episodes: parseInt(e.target.value),
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Süre</Label>
                   <Input
                     value={editingAnime.duration}
-                    onChange={(e) => setEditingAnime({...editingAnime, duration: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        duration: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1514,11 +1857,11 @@ export default function UltimateAdmin() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-gray-400">Durum</Label>
-                  <Select 
-                    value={editingAnime.status} 
-                    onValueChange={(value: 'ongoing' | 'completed' | 'upcoming') => 
-                      setEditingAnime({...editingAnime, status: value})
-                    }
+                  <Select
+                    value={editingAnime.status}
+                    onValueChange={(
+                      value: "ongoing" | "completed" | "upcoming",
+                    ) => setEditingAnime({ ...editingAnime, status: value })}
                   >
                     <SelectTrigger className="bg-anime-dark border-anime-accent/30">
                       <SelectValue />
@@ -1530,13 +1873,13 @@ export default function UltimateAdmin() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Kategori</Label>
-                  <Select 
-                    value={editingAnime.category} 
-                    onValueChange={(value: 'anime' | 'movie') => 
-                      setEditingAnime({...editingAnime, category: value})
+                  <Select
+                    value={editingAnime.category}
+                    onValueChange={(value: "anime" | "movie") =>
+                      setEditingAnime({ ...editingAnime, category: value })
                     }
                   >
                     <SelectTrigger className="bg-anime-dark border-anime-accent/30">
@@ -1555,16 +1898,26 @@ export default function UltimateAdmin() {
                   <Label className="text-gray-400">Stüdyo</Label>
                   <Input
                     value={editingAnime.studio}
-                    onChange={(e) => setEditingAnime({...editingAnime, studio: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        studio: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Yapımcı</Label>
                   <Input
                     value={editingAnime.producer}
-                    onChange={(e) => setEditingAnime({...editingAnime, producer: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        producer: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1575,16 +1928,26 @@ export default function UltimateAdmin() {
                   <Label className="text-gray-400">Sezon</Label>
                   <Input
                     value={editingAnime.season}
-                    onChange={(e) => setEditingAnime({...editingAnime, season: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        season: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Kaynak</Label>
                   <Input
                     value={editingAnime.source}
-                    onChange={(e) => setEditingAnime({...editingAnime, source: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAnime({
+                        ...editingAnime,
+                        source: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1594,46 +1957,65 @@ export default function UltimateAdmin() {
                 <Label className="text-gray-400">Trailer URL</Label>
                 <Input
                   value={editingAnime.trailer}
-                  onChange={(e) => setEditingAnime({...editingAnime, trailer: e.target.value})}
+                  onChange={(e) =>
+                    setEditingAnime({
+                      ...editingAnime,
+                      trailer: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-400">Türkçe Türler (virgülle ayırın)</Label>
+                <Label className="text-gray-400">
+                  Türkçe Türler (virgülle ayırın)
+                </Label>
                 <Input
-                  value={editingAnime.genre.join(', ')}
-                  onChange={(e) => setEditingAnime({
-                    ...editingAnime, 
-                    genre: e.target.value.split(',').map(g => g.trim()).filter(g => g)
-                  })}
+                  value={editingAnime.genre.join(", ")}
+                  onChange={(e) =>
+                    setEditingAnime({
+                      ...editingAnime,
+                      genre: e.target.value
+                        .split(",")
+                        .map((g) => g.trim())
+                        .filter((g) => g),
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                   placeholder="Aksiyon, Macera, Drama"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-400">İngilizce Türler (virgülle ayırın)</Label>
+                <Label className="text-gray-400">
+                  İngilizce Türler (virgülle ayırın)
+                </Label>
                 <Input
-                  value={editingAnime.genreEn.join(', ')}
-                  onChange={(e) => setEditingAnime({
-                    ...editingAnime, 
-                    genreEn: e.target.value.split(',').map(g => g.trim()).filter(g => g)
-                  })}
+                  value={editingAnime.genreEn.join(", ")}
+                  onChange={(e) =>
+                    setEditingAnime({
+                      ...editingAnime,
+                      genreEn: e.target.value
+                        .split(",")
+                        .map((g) => g.trim())
+                        .filter((g) => g),
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                   placeholder="Action, Adventure, Drama"
                 />
               </div>
 
               <div className="flex justify-end gap-4 pt-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowAnimeDialog(false)}
                   className="border-anime-accent/30"
                 >
                   İptal
                 </Button>
-                <Button 
+                <Button
                   onClick={saveAnime}
                   className="bg-anime-accent hover:bg-anime-accent/80"
                 >
@@ -1651,10 +2033,10 @@ export default function UltimateAdmin() {
         <DialogContent className="max-w-2xl bg-anime-card border-anime-accent/20">
           <DialogHeader>
             <DialogTitle className="text-white">
-              {editingEpisode?.id ? 'Bölüm Düzenle' : 'Yeni Bölüm Ekle'}
+              {editingEpisode?.id ? "Bölüm Düzenle" : "Yeni Bölüm Ekle"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {editingEpisode && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1663,16 +2045,26 @@ export default function UltimateAdmin() {
                   <Input
                     type="number"
                     value={editingEpisode.episodeNumber}
-                    onChange={(e) => setEditingEpisode({...editingEpisode, episodeNumber: parseInt(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingEpisode({
+                        ...editingEpisode,
+                        episodeNumber: parseInt(e.target.value),
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">Süre</Label>
                   <Input
                     value={editingEpisode.duration}
-                    onChange={(e) => setEditingEpisode({...editingEpisode, duration: e.target.value})}
+                    onChange={(e) =>
+                      setEditingEpisode({
+                        ...editingEpisode,
+                        duration: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1683,16 +2075,26 @@ export default function UltimateAdmin() {
                   <Label className="text-gray-400">Türkçe Başlık *</Label>
                   <Input
                     value={editingEpisode.title}
-                    onChange={(e) => setEditingEpisode({...editingEpisode, title: e.target.value})}
+                    onChange={(e) =>
+                      setEditingEpisode({
+                        ...editingEpisode,
+                        title: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-gray-400">İngilizce Başlık</Label>
                   <Input
                     value={editingEpisode.titleEn}
-                    onChange={(e) => setEditingEpisode({...editingEpisode, titleEn: e.target.value})}
+                    onChange={(e) =>
+                      setEditingEpisode({
+                        ...editingEpisode,
+                        titleEn: e.target.value,
+                      })
+                    }
                     className="bg-anime-dark border-anime-accent/30"
                   />
                 </div>
@@ -1702,7 +2104,12 @@ export default function UltimateAdmin() {
                 <Label className="text-gray-400">Türkçe Açıklama</Label>
                 <Textarea
                   value={editingEpisode.description}
-                  onChange={(e) => setEditingEpisode({...editingEpisode, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditingEpisode({
+                      ...editingEpisode,
+                      description: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                   rows={3}
                 />
@@ -1712,7 +2119,12 @@ export default function UltimateAdmin() {
                 <Label className="text-gray-400">İngilizce Açıklama</Label>
                 <Textarea
                   value={editingEpisode.descriptionEn}
-                  onChange={(e) => setEditingEpisode({...editingEpisode, descriptionEn: e.target.value})}
+                  onChange={(e) =>
+                    setEditingEpisode({
+                      ...editingEpisode,
+                      descriptionEn: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                   rows={3}
                 />
@@ -1722,7 +2134,12 @@ export default function UltimateAdmin() {
                 <Label className="text-gray-400">Video URL</Label>
                 <Input
                   value={editingEpisode.videoUrl}
-                  onChange={(e) => setEditingEpisode({...editingEpisode, videoUrl: e.target.value})}
+                  onChange={(e) =>
+                    setEditingEpisode({
+                      ...editingEpisode,
+                      videoUrl: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                 />
               </div>
@@ -1732,20 +2149,25 @@ export default function UltimateAdmin() {
                 <Input
                   type="date"
                   value={editingEpisode.airDate}
-                  onChange={(e) => setEditingEpisode({...editingEpisode, airDate: e.target.value})}
+                  onChange={(e) =>
+                    setEditingEpisode({
+                      ...editingEpisode,
+                      airDate: e.target.value,
+                    })
+                  }
                   className="bg-anime-dark border-anime-accent/30"
                 />
               </div>
 
               <div className="flex justify-end gap-4 pt-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowEpisodeDialog(false)}
                   className="border-anime-accent/30"
                 >
                   İptal
                 </Button>
-                <Button 
+                <Button
                   onClick={saveEpisode}
                   className="bg-anime-accent hover:bg-anime-accent/80"
                 >

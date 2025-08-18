@@ -55,7 +55,7 @@ export default function AnimeDetails() {
   useEffect(() => {
     if (!anime) {
       // Try to find anime by id first before redirecting
-      const foundAnime = animes.find(a => a.id === id);
+      const foundAnime = animes.find((a) => a.id === id);
       if (!foundAnime) {
         toast({
           title: "Anime Bulunamadı",
@@ -83,7 +83,10 @@ export default function AnimeDetails() {
           <h1 className="text-2xl font-bold text-white mb-4">
             Anime Bulunamadı
           </h1>
-          <Button onClick={() => navigate("/")} className="bg-anime-accent hover:bg-anime-accent/80 text-white">
+          <Button
+            onClick={() => navigate("/")}
+            className="bg-anime-accent hover:bg-anime-accent/80 text-white"
+          >
             Ana Sayfaya Dön
           </Button>
         </div>
@@ -170,7 +173,8 @@ export default function AnimeDetails() {
       setSelectedTab("details");
       toast({
         title: "Bölüm Bulunamadı",
-        description: "Bu anime için henüz bölüm eklenmemiş. Detayları görüntüleniyor.",
+        description:
+          "Bu anime için henüz bölüm eklenmemiş. Detayları görüntüleniyor.",
       });
     }
   };
@@ -225,13 +229,13 @@ export default function AnimeDetails() {
                 {
                   label: "Türkçe",
                   src: "/subtitles/turkish.vtt",
-                  srcLang: "tr"
+                  srcLang: "tr",
                 },
                 {
                   label: "English",
                   src: "/subtitles/english.vtt",
-                  srcLang: "en"
-                }
+                  srcLang: "en",
+                },
               ]}
               onProgress={(progress) =>
                 updateWatchProgress(anime.id, selectedEpisode, progress)

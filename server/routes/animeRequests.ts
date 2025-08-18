@@ -1,7 +1,7 @@
-import { RequestHandler } from 'express';
-import { neon } from '@neondatabase/serverless';
+import { RequestHandler } from "express";
+import { neon } from "@neondatabase/serverless";
 
-const sql = neon(process.env.DATABASE_URL || '');
+const sql = neon(process.env.DATABASE_URL || "");
 
 // Create anime_requests table if not exists
 const initializeRequestsTable = async () => {
@@ -30,7 +30,7 @@ const initializeRequestsTable = async () => {
       )
     `;
   } catch (error) {
-    console.error('Failed to initialize anime requests tables:', error);
+    console.error("Failed to initialize anime requests tables:", error);
   }
 };
 
@@ -53,7 +53,7 @@ export const getAnimeRequests: RequestHandler = async (req, res) => {
       ORDER BY ar.created_at DESC
     `;
 
-    const transformedRequests = requests.map(request => ({
+    const transformedRequests = requests.map((request) => ({
       id: request.id.toString(),
       animeName: request.anime_name,
       description: request.description,
@@ -62,18 +62,18 @@ export const getAnimeRequests: RequestHandler = async (req, res) => {
       timestamp: request.created_at,
       votes: parseInt(request.votes) || 0,
       status: request.status,
-      userVoted: false // This would need to be calculated per user
+      userVoted: false, // This would need to be calculated per user
     }));
 
     res.json({
       success: true,
-      data: transformedRequests
+      data: transformedRequests,
     });
   } catch (error) {
-    console.error('Get anime requests error:', error);
+    console.error("Get anime requests error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get anime requests'
+      message: "Failed to get anime requests",
     });
   }
 };
@@ -86,13 +86,13 @@ export const createAnimeRequest: RequestHandler = async (req, res) => {
     if (!animeName || !requestedBy) {
       return res.status(400).json({
         success: false,
-        message: 'Anime name and requester are required'
+        message: "Anime name and requester are required",
       });
     }
 
     const newRequest = await sql`
       INSERT INTO anime_requests (anime_name, description, requested_by, requested_by_id)
-      VALUES (${animeName}, ${description || ''}, ${requestedBy}, ${requestedById || null})
+      VALUES (${animeName}, ${description || ""}, ${requestedBy}, ${requestedById || null})
       RETURNING *
     `;
 
@@ -107,22 +107,21 @@ export const createAnimeRequest: RequestHandler = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Anime request created successfully',
+      message: "Anime request created successfully",
       data: {
         id: newRequest[0].id,
         animeName: newRequest[0].anime_name,
         description: newRequest[0].description,
         requestedBy: newRequest[0].requested_by,
         status: newRequest[0].status,
-        createdAt: newRequest[0].created_at
-      }
+        createdAt: newRequest[0].created_at,
+      },
     });
-
   } catch (error) {
-    console.error('Create anime request error:', error);
+    console.error("Create anime request error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create anime request'
+      message: "Failed to create anime request",
     });
   }
 };
@@ -136,7 +135,7 @@ export const voteOnRequest: RequestHandler = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: 'User ID is required'
+        message: "User ID is required",
       });
     }
 
@@ -169,18 +168,17 @@ export const voteOnRequest: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Vote updated successfully',
+      message: "Vote updated successfully",
       data: {
         votes: parseInt(voteCount[0].count) || 0,
-        userVoted: existingVote.length === 0
-      }
+        userVoted: existingVote.length === 0,
+      },
     });
-
   } catch (error) {
-    console.error('Vote on request error:', error);
+    console.error("Vote on request error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update vote'
+      message: "Failed to update vote",
     });
   }
 };
@@ -191,11 +189,11 @@ export const updateRequestStatus: RequestHandler = async (req, res) => {
     const { requestId } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ['pending', 'approved', 'rejected', 'added'];
+    const validStatuses = ["pending", "approved", "rejected", "added"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status'
+        message: "Invalid status",
       });
     }
 
@@ -207,14 +205,13 @@ export const updateRequestStatus: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Request status updated successfully'
+      message: "Request status updated successfully",
     });
-
   } catch (error) {
-    console.error('Update request status error:', error);
+    console.error("Update request status error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update request status'
+      message: "Failed to update request status",
     });
   }
 };
@@ -236,7 +233,7 @@ export const getPendingRequests: RequestHandler = async (req, res) => {
       ORDER BY vote_counts.vote_count DESC, ar.created_at DESC
     `;
 
-    const transformedRequests = pendingRequests.map(request => ({
+    const transformedRequests = pendingRequests.map((request) => ({
       id: request.id.toString(),
       animeName: request.anime_name,
       description: request.description,
@@ -244,18 +241,18 @@ export const getPendingRequests: RequestHandler = async (req, res) => {
       requestedById: request.requested_by_id,
       timestamp: request.created_at,
       votes: parseInt(request.votes) || 0,
-      status: request.status
+      status: request.status,
     }));
 
     res.json({
       success: true,
-      data: transformedRequests
+      data: transformedRequests,
     });
   } catch (error) {
-    console.error('Get pending requests error:', error);
+    console.error("Get pending requests error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get pending requests'
+      message: "Failed to get pending requests",
     });
   }
 };
@@ -272,14 +269,13 @@ export const deleteAnimeRequest: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Request deleted successfully'
+      message: "Request deleted successfully",
     });
-
   } catch (error) {
-    console.error('Delete request error:', error);
+    console.error("Delete request error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete request'
+      message: "Failed to delete request",
     });
   }
 };

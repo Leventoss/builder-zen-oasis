@@ -1,15 +1,15 @@
-import { RequestHandler } from 'express';
-import { createAnime } from '../lib/database';
+import { RequestHandler } from "express";
+import { createAnime } from "../lib/database";
 
 // Enhanced anime import from external APIs
 export const handleEnhancedImport: RequestHandler = async (req, res) => {
   try {
     const { title, includeEpisodes = false } = req.body;
-    
+
     if (!title) {
       return res.status(400).json({
         success: false,
-        message: 'Anime title is required'
+        message: "Anime title is required",
       });
     }
 
@@ -18,18 +18,18 @@ export const handleEnhancedImport: RequestHandler = async (req, res) => {
     const mockAnimeData = {
       title: title,
       titleEn: title,
-      poster: 'https://via.placeholder.com/400x600',
-      banner: 'https://via.placeholder.com/800x300',
+      poster: "https://via.placeholder.com/400x600",
+      banner: "https://via.placeholder.com/800x300",
       rating: 8.0,
       year: new Date().getFullYear(),
       episodes: 12,
-      genre: ['Aksiyon'],
-      genreEn: ['Action'],
-      duration: '24min',
+      genre: ["Aksiyon"],
+      genreEn: ["Action"],
+      duration: "24min",
       description: `${title} - Gelişmiş API ile eklendi`,
       descriptionEn: `${title} - Added with enhanced API`,
-      status: 'ongoing',
-      category: 'anime'
+      status: "ongoing",
+      category: "anime",
     };
 
     // Save to database
@@ -37,17 +37,16 @@ export const handleEnhancedImport: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Anime successfully imported with enhanced API',
+      message: "Anime successfully imported with enhanced API",
       data: savedAnime,
-      episodesIncluded: includeEpisodes
+      episodesIncluded: includeEpisodes,
     });
-
   } catch (error) {
-    console.error('Enhanced import error:', error);
+    console.error("Enhanced import error:", error);
     res.status(500).json({
       success: false,
-      message: 'Enhanced import failed',
-      error: error.message
+      message: "Enhanced import failed",
+      error: error.message,
     });
   }
 };
@@ -56,11 +55,11 @@ export const handleEnhancedImport: RequestHandler = async (req, res) => {
 export const handleBulkImport: RequestHandler = async (req, res) => {
   try {
     const { titles } = req.body;
-    
+
     if (!titles || !Array.isArray(titles)) {
       return res.status(400).json({
         success: false,
-        message: 'Titles array is required'
+        message: "Titles array is required",
       });
     }
 
@@ -72,32 +71,31 @@ export const handleBulkImport: RequestHandler = async (req, res) => {
         const mockAnimeData = {
           title: title.trim(),
           titleEn: title.trim(),
-          poster: 'https://via.placeholder.com/400x600',
-          banner: 'https://via.placeholder.com/800x300',
+          poster: "https://via.placeholder.com/400x600",
+          banner: "https://via.placeholder.com/800x300",
           rating: Math.floor(Math.random() * 3) + 7, // 7-10 rating
           year: new Date().getFullYear(),
           episodes: Math.floor(Math.random() * 24) + 12, // 12-36 episodes
-          genre: ['Aksiyon'],
-          genreEn: ['Action'],
-          duration: '24min',
+          genre: ["Aksiyon"],
+          genreEn: ["Action"],
+          duration: "24min",
           description: `${title.trim()} - Toplu içe aktarma ile eklendi`,
           descriptionEn: `${title.trim()} - Added with bulk import`,
-          status: 'ongoing',
-          category: 'anime'
+          status: "ongoing",
+          category: "anime",
         };
 
         const savedAnime = await createAnime(mockAnimeData);
         results.push({
           title: title.trim(),
-          status: 'success',
-          data: savedAnime
+          status: "success",
+          data: savedAnime,
         });
-
       } catch (error) {
         errors.push({
           title: title.trim(),
-          status: 'error',
-          message: error.message
+          status: "error",
+          message: error.message,
         });
       }
     }
@@ -109,15 +107,14 @@ export const handleBulkImport: RequestHandler = async (req, res) => {
       errors: errors.length > 0 ? errors : undefined,
       totalProcessed: titles.length,
       successCount: results.length,
-      errorCount: errors.length
+      errorCount: errors.length,
     });
-
   } catch (error) {
-    console.error('Bulk import error:', error);
+    console.error("Bulk import error:", error);
     res.status(500).json({
       success: false,
-      message: 'Bulk import failed',
-      error: error.message
+      message: "Bulk import failed",
+      error: error.message,
     });
   }
 };
@@ -126,11 +123,11 @@ export const handleBulkImport: RequestHandler = async (req, res) => {
 export const handleImageEnhancement: RequestHandler = async (req, res) => {
   try {
     const { animeId } = req.params;
-    
+
     if (!animeId) {
       return res.status(400).json({
         success: false,
-        message: 'Anime ID is required'
+        message: "Anime ID is required",
       });
     }
 
@@ -139,22 +136,21 @@ export const handleImageEnhancement: RequestHandler = async (req, res) => {
       animeId,
       posterImproved: Math.random() > 0.5,
       bannerImproved: Math.random() > 0.5,
-      newPosterUrl: 'https://via.placeholder.com/400x600?text=Enhanced+Poster',
-      newBannerUrl: 'https://via.placeholder.com/800x300?text=Enhanced+Banner'
+      newPosterUrl: "https://via.placeholder.com/400x600?text=Enhanced+Poster",
+      newBannerUrl: "https://via.placeholder.com/800x300?text=Enhanced+Banner",
     };
 
     res.json({
       success: true,
-      message: 'Image enhancement completed',
-      data: enhancementResult
+      message: "Image enhancement completed",
+      data: enhancementResult,
     });
-
   } catch (error) {
-    console.error('Image enhancement error:', error);
+    console.error("Image enhancement error:", error);
     res.status(500).json({
       success: false,
-      message: 'Image enhancement failed',
-      error: error.message
+      message: "Image enhancement failed",
+      error: error.message,
     });
   }
 };
@@ -170,20 +166,19 @@ export const handleImportStats: RequestHandler = async (req, res) => {
       enhancedImports: 95,
       bulkImports: 45,
       lastImportDate: new Date().toISOString(),
-      averageQualityScore: 8.7
+      averageQualityScore: 8.7,
     };
 
     res.json({
       success: true,
-      data: stats
+      data: stats,
     });
-
   } catch (error) {
-    console.error('Import stats error:', error);
+    console.error("Import stats error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get import statistics',
-      error: error.message
+      message: "Failed to get import statistics",
+      error: error.message,
     });
   }
 };

@@ -52,19 +52,20 @@ export default function AnimeRequestFixed() {
 
   const loadRequests = async () => {
     try {
-      const response = await fetch('/api/anime-requests');
+      const response = await fetch("/api/anime-requests");
       if (response.ok) {
         const data = await response.json();
         setRequests(data.data || []);
       }
     } catch (error) {
-      console.error('Failed to load requests:', error);
+      console.error("Failed to load requests:", error);
       // Fallback to mock data
       setRequests([
         {
           id: "1",
           animeName: "One Piece Film: Red",
-          description: "One Piece serisinin yeni filmi. Shanks ve Uta'nın hikayesi",
+          description:
+            "One Piece serisinin yeni filmi. Shanks ve Uta'nın hikayesi",
           requestedBy: "AnimeOtaku2024",
           requestedById: 1,
           timestamp: "2024-01-15T10:30:00Z",
@@ -129,17 +130,17 @@ export default function AnimeRequestFixed() {
         requestedById: user?.id || 0,
       };
 
-      const response = await fetch('/api/anime-requests', {
-        method: 'POST',
+      const response = await fetch("/api/anime-requests", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestData),
       });
 
       if (response.ok) {
         const result = await response.json();
-        
+
         // Add to local state
         const newRequest: AnimeRequest = {
           id: result.data.id.toString(),
@@ -159,16 +160,18 @@ export default function AnimeRequestFixed() {
 
         toast({
           title: "İstek Gönderildi",
-          description: "Anime isteğiniz başarıyla gönderildi ve admin paneline iletildi!",
+          description:
+            "Anime isteğiniz başarıyla gönderildi ve admin paneline iletildi!",
         });
       } else {
-        throw new Error('Failed to submit request');
+        throw new Error("Failed to submit request");
       }
     } catch (error) {
-      console.error('Submit request error:', error);
+      console.error("Submit request error:", error);
       toast({
         title: "Hata",
-        description: "İstek gönderilirken bir hata oluştu. Lütfen tekrar deneyin.",
+        description:
+          "İstek gönderilirken bir hata oluştu. Lütfen tekrar deneyin.",
         variant: "destructive",
       });
     } finally {
@@ -188,16 +191,16 @@ export default function AnimeRequestFixed() {
 
     try {
       const response = await fetch(`/api/anime-requests/${requestId}/vote`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ userId: user?.id }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        
+
         // Update local state
         setRequests((prev) =>
           prev.map((req) => {
@@ -219,7 +222,7 @@ export default function AnimeRequestFixed() {
         });
       }
     } catch (error) {
-      console.error('Vote error:', error);
+      console.error("Vote error:", error);
       toast({
         title: "Hata",
         description: "Oy verirken bir hata oluştu.",
@@ -457,11 +460,12 @@ export default function AnimeRequestFixed() {
                           )}
                         </div>
 
-                        {request.status === "pending" && request.votes >= 50 && (
-                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                            Yüksek öncelik!
-                          </Badge>
-                        )}
+                        {request.status === "pending" &&
+                          request.votes >= 50 && (
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                              Yüksek öncelik!
+                            </Badge>
+                          )}
                       </div>
                     </CardContent>
                   </Card>

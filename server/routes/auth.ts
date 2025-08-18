@@ -23,14 +23,14 @@ export const handleDiscordAuth: RequestHandler = async (req, res) => {
   try {
     const clientId = process.env.DISCORD_CLIENT_ID;
     // Use current domain for redirect URI
-    const protocol = req.get('x-forwarded-proto') || req.protocol;
-    const host = req.get('host');
+    const protocol = req.get("x-forwarded-proto") || req.protocol;
+    const host = req.get("host");
     const redirectUri = `${protocol}://${host}/api/auth/discord/callback`;
 
     if (!clientId) {
       return res.status(500).json({
         success: false,
-        error: 'Discord OAuth is not configured. Please set DISCORD_CLIENT_ID.'
+        error: "Discord OAuth is not configured. Please set DISCORD_CLIENT_ID.",
       });
     }
 
@@ -38,10 +38,10 @@ export const handleDiscordAuth: RequestHandler = async (req, res) => {
 
     res.redirect(discordAuthUrl);
   } catch (error) {
-    console.error('Discord auth error:', error);
+    console.error("Discord auth error:", error);
     res.status(500).json({
       success: false,
-      message: 'Discord giriş hatası'
+      message: "Discord giriş hatası",
     });
   }
 };
@@ -52,24 +52,24 @@ export const handleDiscordCallback: RequestHandler = async (req, res) => {
     const { code } = req.query;
     const clientId = process.env.DISCORD_CLIENT_ID;
     const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-    const protocol = req.get('x-forwarded-proto') || req.protocol;
-    const host = req.get('host');
+    const protocol = req.get("x-forwarded-proto") || req.protocol;
+    const host = req.get("host");
     const redirectUri = `${protocol}://${host}/api/auth/discord/callback`;
 
     if (!code || !clientId || !clientSecret) {
-      return res.redirect('/?error=discord_auth_failed');
+      return res.redirect("/?error=discord_auth_failed");
     }
 
     // Exchange code for access token
-    const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
-      method: 'POST',
+    const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
         client_id: clientId,
         client_secret: clientSecret,
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         code: code as string,
         redirect_uri: redirectUri,
       }),
@@ -78,11 +78,11 @@ export const handleDiscordCallback: RequestHandler = async (req, res) => {
     const tokenData = await tokenResponse.json();
 
     if (!tokenData.access_token) {
-      return res.redirect('/?error=discord_auth_failed');
+      return res.redirect("/?error=discord_auth_failed");
     }
 
     // Get user info from Discord
-    const userResponse = await fetch('https://discord.com/api/users/@me', {
+    const userResponse = await fetch("https://discord.com/api/users/@me", {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
       },
@@ -91,7 +91,7 @@ export const handleDiscordCallback: RequestHandler = async (req, res) => {
     const discordUser = await userResponse.json();
 
     if (!discordUser.id) {
-      return res.redirect('/?error=discord_auth_failed');
+      return res.redirect("/?error=discord_auth_failed");
     }
 
     // Check if user exists in our database
@@ -101,11 +101,13 @@ export const handleDiscordCallback: RequestHandler = async (req, res) => {
       // Create new user with Discord info
       const passwordHash = await bcrypt.hash(Math.random().toString(36), 10);
       user = await createUser(
-        discordUser.username || discordUser.global_name || `discord_${discordUser.id}`,
+        discordUser.username ||
+          discordUser.global_name ||
+          `discord_${discordUser.id}`,
         discordUser.email,
         passwordHash,
         discordUser.id,
-        discordUser.username
+        discordUser.username,
       );
     }
 
@@ -117,8 +119,8 @@ export const handleDiscordCallback: RequestHandler = async (req, res) => {
     // Redirect with token in URL (in production, use secure cookie)
     res.redirect(`/?discord_auth=success&token=${encodeURIComponent(token)}`);
   } catch (error) {
-    console.error('Discord callback error:', error);
-    res.redirect('/?error=discord_auth_failed');
+    console.error("Discord callback error:", error);
+    res.redirect("/?error=discord_auth_failed");
   }
 };
 

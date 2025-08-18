@@ -49,7 +49,8 @@ export default function AnimeCard({
   const { language } = useLanguage();
 
   // Ensure rating is a valid number - provide default of 8.0 if invalid
-  const safeRating = typeof rating === "number" && !isNaN(rating) && rating > 0 ? rating : 8.0;
+  const safeRating =
+    typeof rating === "number" && !isNaN(rating) && rating > 0 ? rating : 8.0;
 
   const sizeClasses = {
     sm: "w-48 h-72",

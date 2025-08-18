@@ -6,8 +6,8 @@ export interface AnimeApiData {
   title_japanese?: string;
   title_turkish?: string;
   images?: {
-    jpg?: { image_url?: string; large_image_url?: string; };
-    webp?: { image_url?: string; large_image_url?: string; };
+    jpg?: { image_url?: string; large_image_url?: string };
+    webp?: { image_url?: string; large_image_url?: string };
   };
   score?: number;
   year?: number;
@@ -73,16 +73,19 @@ export interface BulkImportResult {
 }
 
 class AdvancedAnimeAPI {
-  private jikanBase = 'https://api.jikan.moe/v4';
-  private anilistBase = 'https://graphql.anilist.co';
+  private jikanBase = "https://api.jikan.moe/v4";
+  private anilistBase = "https://graphql.anilist.co";
   private lastRequestTime = 0;
   private requestDelay = 1000; // Rate limiting
-  
+
   private async delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
+  private async makeRequest(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<any> {
     // Rate limiting
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
@@ -94,8 +97,8 @@ class AdvancedAnimeAPI {
     try {
       const response = await fetch(url, {
         headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'AnimeManager/1.0',
+          "Content-Type": "application/json",
+          "User-Agent": "AnimeManager/1.0",
           ...options.headers,
         },
         ...options,
@@ -107,19 +110,22 @@ class AdvancedAnimeAPI {
 
       return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error("API request failed:", error);
       throw error;
     }
   }
 
   // Jikan API methods
-  async searchAnimeJikan(query: string, limit: number = 25): Promise<AnimeApiData[]> {
+  async searchAnimeJikan(
+    query: string,
+    limit: number = 25,
+  ): Promise<AnimeApiData[]> {
     try {
       const url = `${this.jikanBase}/anime?q=${encodeURIComponent(query)}&limit=${limit}&order_by=score&sort=desc`;
       const data = await this.makeRequest(url);
       return data.data || [];
     } catch (error) {
-      console.error('Jikan search failed:', error);
+      console.error("Jikan search failed:", error);
       return [];
     }
   }
@@ -130,18 +136,21 @@ class AdvancedAnimeAPI {
       const data = await this.makeRequest(url);
       return data.data || null;
     } catch (error) {
-      console.error('Jikan get by ID failed:', error);
+      console.error("Jikan get by ID failed:", error);
       return null;
     }
   }
 
-  async getAnimeEpisodesJikan(id: number, page: number = 1): Promise<AnimeEpisodeData[]> {
+  async getAnimeEpisodesJikan(
+    id: number,
+    page: number = 1,
+  ): Promise<AnimeEpisodeData[]> {
     try {
       const url = `${this.jikanBase}/anime/${id}/episodes?page=${page}`;
       const data = await this.makeRequest(url);
       return data.data || [];
     } catch (error) {
-      console.error('Jikan episodes failed:', error);
+      console.error("Jikan episodes failed:", error);
       return [];
     }
   }
@@ -159,7 +168,7 @@ class AdvancedAnimeAPI {
         } else {
           allEpisodes = [...allEpisodes, ...episodes];
           page++;
-          
+
           // Safety limit
           if (page > 50) break;
         }
@@ -167,7 +176,7 @@ class AdvancedAnimeAPI {
 
       return allEpisodes;
     } catch (error) {
-      console.error('Get all episodes failed:', error);
+      console.error("Get all episodes failed:", error);
       return [];
     }
   }
@@ -224,47 +233,51 @@ class AdvancedAnimeAPI {
       `;
 
       const data = await this.makeRequest(this.anilistBase, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({
           query: graphqlQuery,
-          variables: { search: query, perPage: limit }
-        })
+          variables: { search: query, perPage: limit },
+        }),
       });
 
       return data.data?.Page?.media || [];
     } catch (error) {
-      console.error('AniList search failed:', error);
+      console.error("AniList search failed:", error);
       return [];
     }
   }
 
   // Enhanced search with multiple sources
-  async enhancedSearch(query: string, limit: number = 20): Promise<AnimeApiData[]> {
+  async enhancedSearch(
+    query: string,
+    limit: number = 20,
+  ): Promise<AnimeApiData[]> {
     try {
       const [jikanResults, anilistResults] = await Promise.allSettled([
         this.searchAnimeJikan(query, Math.ceil(limit / 2)),
-        this.searchAnimeAniList(query, Math.ceil(limit / 2))
+        this.searchAnimeAniList(query, Math.ceil(limit / 2)),
       ]);
 
       let combinedResults: AnimeApiData[] = [];
 
       // Add Jikan results
-      if (jikanResults.status === 'fulfilled') {
+      if (jikanResults.status === "fulfilled") {
         combinedResults = [...combinedResults, ...jikanResults.value];
       }
 
       // Convert and add AniList results
-      if (anilistResults.status === 'fulfilled') {
-        const convertedAniList = anilistResults.value.map((anilistData: any) => this.convertAniListToStandard(anilistData));
+      if (anilistResults.status === "fulfilled") {
+        const convertedAniList = anilistResults.value.map((anilistData: any) =>
+          this.convertAniListToStandard(anilistData),
+        );
         combinedResults = [...combinedResults, ...convertedAniList];
       }
 
       // Remove duplicates and sort by score
       const uniqueResults = this.removeDuplicates(combinedResults);
       return uniqueResults.slice(0, limit);
-
     } catch (error) {
-      console.error('Enhanced search failed:', error);
+      console.error("Enhanced search failed:", error);
       return [];
     }
   }
@@ -273,44 +286,47 @@ class AdvancedAnimeAPI {
   private convertAniListToStandard(anilistData: any): AnimeApiData {
     return {
       mal_id: anilistData.id,
-      title: anilistData.title?.romaji || anilistData.title?.english || '',
+      title: anilistData.title?.romaji || anilistData.title?.english || "",
       title_english: anilistData.title?.english,
       title_japanese: anilistData.title?.native,
       images: {
         jpg: {
           image_url: anilistData.coverImage?.medium,
           large_image_url: anilistData.coverImage?.large,
-        }
+        },
       },
       score: anilistData.score ? anilistData.score / 10 : undefined,
       year: anilistData.startDate?.year,
       episodes: anilistData.episodes,
       status: this.convertAniListStatus(anilistData.status),
       genres: anilistData.genres?.map((g: string) => ({ name: g })) || [],
-      synopsis: anilistData.description?.replace(/<[^>]*>/g, ''), // Remove HTML tags
+      synopsis: anilistData.description?.replace(/<[^>]*>/g, ""), // Remove HTML tags
       duration: anilistData.duration ? `${anilistData.duration}min` : undefined,
-      type: 'TV', // Default for AniList
-      studios: anilistData.studios?.nodes?.map((s: any) => ({ name: s.name })) || [],
+      type: "TV", // Default for AniList
+      studios:
+        anilistData.studios?.nodes?.map((s: any) => ({ name: s.name })) || [],
       season: anilistData.season?.toLowerCase(),
       source: anilistData.source,
-      external: anilistData.externalLinks?.map((link: any) => ({
-        name: link.site,
-        url: link.url
-      })) || [],
-      streaming: anilistData.streamingEpisodes?.map((ep: any) => ({
-        name: 'Stream',
-        url: ep.url
-      })) || []
+      external:
+        anilistData.externalLinks?.map((link: any) => ({
+          name: link.site,
+          url: link.url,
+        })) || [],
+      streaming:
+        anilistData.streamingEpisodes?.map((ep: any) => ({
+          name: "Stream",
+          url: ep.url,
+        })) || [],
     };
   }
 
   private convertAniListStatus(status: string): string {
     const statusMap: { [key: string]: string } = {
-      'FINISHED': 'Finished Airing',
-      'RELEASING': 'Currently Airing',
-      'NOT_YET_RELEASED': 'Not yet aired',
-      'CANCELLED': 'Cancelled',
-      'HIATUS': 'On Hiatus'
+      FINISHED: "Finished Airing",
+      RELEASING: "Currently Airing",
+      NOT_YET_RELEASED: "Not yet aired",
+      CANCELLED: "Cancelled",
+      HIATUS: "On Hiatus",
     };
     return statusMap[status] || status;
   }
@@ -321,7 +337,9 @@ class AdvancedAnimeAPI {
     const seenTitles = new Set<string>();
 
     for (const anime of animes) {
-      const normalizedTitle = anime.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const normalizedTitle = anime.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
       if (!seenTitles.has(normalizedTitle)) {
         seenTitles.add(normalizedTitle);
         unique.push(anime);
@@ -336,22 +354,22 @@ class AdvancedAnimeAPI {
     try {
       const [currentSeason, topRated] = await Promise.allSettled([
         this.getCurrentSeasonAnime(limit / 2),
-        this.getTopRatedAnime(limit / 2)
+        this.getTopRatedAnime(limit / 2),
       ]);
 
       let results: AnimeApiData[] = [];
 
-      if (currentSeason.status === 'fulfilled') {
+      if (currentSeason.status === "fulfilled") {
         results = [...results, ...currentSeason.value];
       }
 
-      if (topRated.status === 'fulfilled') {
+      if (topRated.status === "fulfilled") {
         results = [...results, ...topRated.value];
       }
 
       return this.removeDuplicates(results).slice(0, limit);
     } catch (error) {
-      console.error('Get trending anime failed:', error);
+      console.error("Get trending anime failed:", error);
       return [];
     }
   }
@@ -364,7 +382,7 @@ class AdvancedAnimeAPI {
       const data = await this.makeRequest(url);
       return data.data || [];
     } catch (error) {
-      console.error('Get current season failed:', error);
+      console.error("Get current season failed:", error);
       return [];
     }
   }
@@ -375,33 +393,36 @@ class AdvancedAnimeAPI {
       const data = await this.makeRequest(url);
       return data.data || [];
     } catch (error) {
-      console.error('Get top rated failed:', error);
+      console.error("Get top rated failed:", error);
       return [];
     }
   }
 
   private getCurrentSeason(): string {
     const month = new Date().getMonth() + 1;
-    if (month >= 1 && month <= 3) return 'winter';
-    if (month >= 4 && month <= 6) return 'spring';
-    if (month >= 7 && month <= 9) return 'summer';
-    return 'fall';
+    if (month >= 1 && month <= 3) return "winter";
+    if (month >= 4 && month <= 6) return "spring";
+    if (month >= 7 && month <= 9) return "summer";
+    return "fall";
   }
 
   // Bulk import functionality
-  async bulkImportAnime(titles: string[], includeEpisodes: boolean = false): Promise<BulkImportResult> {
+  async bulkImportAnime(
+    titles: string[],
+    includeEpisodes: boolean = false,
+  ): Promise<BulkImportResult> {
     const result: BulkImportResult = {
       success: true,
       imported: 0,
       failed: 0,
       errors: [],
-      results: []
+      results: [],
     };
 
     for (const title of titles) {
       try {
         const searchResults = await this.enhancedSearch(title.trim(), 1);
-        
+
         if (searchResults.length > 0) {
           const anime = searchResults[0];
           let episodes: AnimeEpisodeData[] = [];
@@ -418,7 +439,7 @@ class AdvancedAnimeAPI {
           result.failed++;
           result.errors.push({
             title: title.trim(),
-            error: 'Anime not found in any API'
+            error: "Anime not found in any API",
           });
         }
 
@@ -428,7 +449,7 @@ class AdvancedAnimeAPI {
         result.failed++;
         result.errors.push({
           title: title.trim(),
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -438,38 +459,41 @@ class AdvancedAnimeAPI {
   }
 
   // Convert API data to internal format
-  convertToAnimeData(apiData: AnimeApiData, episodes: AnimeEpisodeData[] = []): any {
+  convertToAnimeData(
+    apiData: AnimeApiData,
+    episodes: AnimeEpisodeData[] = [],
+  ): any {
     const genreMapping: { [key: string]: { tr: string; en: string } } = {
-      'Action': { tr: 'Aksiyon', en: 'Action' },
-      'Adventure': { tr: 'Macera', en: 'Adventure' },
-      'Comedy': { tr: 'Komedi', en: 'Comedy' },
-      'Drama': { tr: 'Drama', en: 'Drama' },
-      'Fantasy': { tr: 'Fantastik', en: 'Fantasy' },
-      'Horror': { tr: 'Korku', en: 'Horror' },
-      'Romance': { tr: 'Romantik', en: 'Romance' },
-      'Sci-Fi': { tr: 'Bilim Kurgu', en: 'Sci-Fi' },
-      'Thriller': { tr: 'Gerilim', en: 'Thriller' },
-      'Sports': { tr: 'Spor', en: 'Sports' },
-      'Music': { tr: 'Müzikal', en: 'Musical' },
-      'School': { tr: 'Okul', en: 'School' },
-      'Supernatural': { tr: 'Doğaüstü', en: 'Supernatural' },
-      'Psychological': { tr: 'Psikolojik', en: 'Psychological' },
-      'Historical': { tr: 'Tarihi', en: 'Historical' },
-      'Military': { tr: 'Askeri', en: 'Military' },
-      'Slice of Life': { tr: 'Yaşam', en: 'Slice of Life' },
-      'Mecha': { tr: 'Mecha', en: 'Mecha' },
-      'Mystery': { tr: 'Gizem', en: 'Mystery' },
-      'Ecchi': { tr: 'Ecchi', en: 'Ecchi' },
-      'Harem': { tr: 'Harem', en: 'Harem' },
-      'Josei': { tr: 'Josei', en: 'Josei' },
-      'Shoujo': { tr: 'Shoujo', en: 'Shoujo' },
-      'Shounen': { tr: 'Shounen', en: 'Shounen' },
-      'Seinen': { tr: 'Seinen', en: 'Seinen' }
+      Action: { tr: "Aksiyon", en: "Action" },
+      Adventure: { tr: "Macera", en: "Adventure" },
+      Comedy: { tr: "Komedi", en: "Comedy" },
+      Drama: { tr: "Drama", en: "Drama" },
+      Fantasy: { tr: "Fantastik", en: "Fantasy" },
+      Horror: { tr: "Korku", en: "Horror" },
+      Romance: { tr: "Romantik", en: "Romance" },
+      "Sci-Fi": { tr: "Bilim Kurgu", en: "Sci-Fi" },
+      Thriller: { tr: "Gerilim", en: "Thriller" },
+      Sports: { tr: "Spor", en: "Sports" },
+      Music: { tr: "Müzikal", en: "Musical" },
+      School: { tr: "Okul", en: "School" },
+      Supernatural: { tr: "Doğaüstü", en: "Supernatural" },
+      Psychological: { tr: "Psikolojik", en: "Psychological" },
+      Historical: { tr: "Tarihi", en: "Historical" },
+      Military: { tr: "Askeri", en: "Military" },
+      "Slice of Life": { tr: "Yaşam", en: "Slice of Life" },
+      Mecha: { tr: "Mecha", en: "Mecha" },
+      Mystery: { tr: "Gizem", en: "Mystery" },
+      Ecchi: { tr: "Ecchi", en: "Ecchi" },
+      Harem: { tr: "Harem", en: "Harem" },
+      Josei: { tr: "Josei", en: "Josei" },
+      Shoujo: { tr: "Shoujo", en: "Shoujo" },
+      Shounen: { tr: "Shounen", en: "Shounen" },
+      Seinen: { tr: "Seinen", en: "Seinen" },
     };
 
-    const genres = apiData.genres?.map(g => g.name) || ['Action'];
-    const genreTr = genres.map(g => genreMapping[g]?.tr || g);
-    const genreEn = genres.map(g => genreMapping[g]?.en || g);
+    const genres = apiData.genres?.map((g) => g.name) || ["Action"];
+    const genreTr = genres.map((g) => genreMapping[g]?.tr || g);
+    const genreEn = genres.map((g) => genreMapping[g]?.en || g);
 
     const status = this.mapStatus(apiData.status);
     const category = this.mapCategory(apiData.type);
@@ -478,31 +502,35 @@ class AdvancedAnimeAPI {
       title: apiData.title_japanese || apiData.title,
       titleEn: apiData.title_english || apiData.title,
       titleTr: apiData.title_turkish || apiData.title,
-      poster: apiData.images?.jpg?.large_image_url || 
-              apiData.images?.jpg?.image_url || 
-              apiData.images?.webp?.large_image_url ||
-              apiData.images?.webp?.image_url ||
-              'https://via.placeholder.com/400x600',
-      banner: apiData.images?.jpg?.large_image_url || 
-              apiData.images?.webp?.large_image_url ||
-              'https://via.placeholder.com/800x300',
+      poster:
+        apiData.images?.jpg?.large_image_url ||
+        apiData.images?.jpg?.image_url ||
+        apiData.images?.webp?.large_image_url ||
+        apiData.images?.webp?.image_url ||
+        "https://via.placeholder.com/400x600",
+      banner:
+        apiData.images?.jpg?.large_image_url ||
+        apiData.images?.webp?.large_image_url ||
+        "https://via.placeholder.com/800x300",
       rating: apiData.score || 7.0,
       year: apiData.year || new Date().getFullYear(),
       episodes: apiData.episodes || episodes.length || 12,
       genre: genreTr,
       genreEn: genreEn,
       duration: this.parseDuration(apiData.duration),
-      description: apiData.synopsis || `${apiData.title} - Açıklama yakında eklenecek`,
-      descriptionEn: apiData.synopsis || `${apiData.title} - Description coming soon`,
+      description:
+        apiData.synopsis || `${apiData.title} - Açıklama yakında eklenecek`,
+      descriptionEn:
+        apiData.synopsis || `${apiData.title} - Description coming soon`,
       status: status,
       category: category,
-      trailer: apiData.trailer?.youtube_id || '',
-      studio: apiData.studios?.map(s => s.name).join(', ') || 'Bilinmiyor',
-      producer: apiData.producers?.map(p => p.name).join(', ') || '',
-      season: apiData.season || '',
-      source: apiData.source || '',
-      aired: apiData.aired?.string || '',
-      broadcast: apiData.broadcast?.string || '',
+      trailer: apiData.trailer?.youtube_id || "",
+      studio: apiData.studios?.map((s) => s.name).join(", ") || "Bilinmiyor",
+      producer: apiData.producers?.map((p) => p.name).join(", ") || "",
+      season: apiData.season || "",
+      source: apiData.source || "",
+      aired: apiData.aired?.string || "",
+      broadcast: apiData.broadcast?.string || "",
       externalLinks: apiData.external || [],
       streamingLinks: apiData.streaming || [],
       malId: apiData.mal_id,
@@ -513,81 +541,88 @@ class AdvancedAnimeAPI {
         description: ep.synopsis || `${index + 1}. bölüm açıklaması`,
         descriptionEn: ep.synopsis || `Episode ${index + 1} description`,
         duration: this.parseDuration(apiData.duration),
-        airDate: ep.aired || new Date().toISOString().split('T')[0],
-        videoUrl: ep.video_url || '',
-        malId: ep.mal_id
-      }))
+        airDate: ep.aired || new Date().toISOString().split("T")[0],
+        videoUrl: ep.video_url || "",
+        malId: ep.mal_id,
+      })),
     };
   }
 
-  private mapStatus(status?: string): 'ongoing' | 'completed' | 'upcoming' {
-    if (!status) return 'upcoming';
+  private mapStatus(status?: string): "ongoing" | "completed" | "upcoming" {
+    if (!status) return "upcoming";
     const statusLower = status.toLowerCase();
-    if (statusLower.includes('airing') || statusLower.includes('currently') || statusLower.includes('releasing')) {
-      return 'ongoing';
+    if (
+      statusLower.includes("airing") ||
+      statusLower.includes("currently") ||
+      statusLower.includes("releasing")
+    ) {
+      return "ongoing";
     }
-    if (statusLower.includes('finished') || statusLower.includes('complete')) {
-      return 'completed';
+    if (statusLower.includes("finished") || statusLower.includes("complete")) {
+      return "completed";
     }
-    return 'upcoming';
+    return "upcoming";
   }
 
-  private mapCategory(type?: string): 'anime' | 'movie' {
-    if (!type) return 'anime';
+  private mapCategory(type?: string): "anime" | "movie" {
+    if (!type) return "anime";
     const typeLower = type.toLowerCase();
-    if (typeLower.includes('movie') || typeLower.includes('film')) {
-      return 'movie';
+    if (typeLower.includes("movie") || typeLower.includes("film")) {
+      return "movie";
     }
-    return 'anime';
+    return "anime";
   }
 
   private parseDuration(duration?: string): string {
-    if (!duration) return '24min';
-    
+    if (!duration) return "24min";
+
     const minutes = duration.match(/(\d+)\s*min/);
     if (minutes) {
       return `${minutes[1]}min`;
     }
-    
+
     const hours = duration.match(/(\d+)\s*hr/);
     if (hours) {
       return `${parseInt(hours[1]) * 60}min`;
     }
-    
+
     // If it's just a number, assume it's minutes
     const numberOnly = duration.match(/^\d+$/);
     if (numberOnly) {
       return `${duration}min`;
     }
-    
-    return duration.includes('min') ? duration : `${duration}min`;
+
+    return duration.includes("min") ? duration : `${duration}min`;
   }
 
   // Image enhancement
   async enhanceImages(anime: any): Promise<any> {
     try {
       const improvements: any = {};
-      
+
       if (anime.malId) {
         const freshData = await this.getAnimeByIdJikan(anime.malId);
         if (freshData) {
-          const newPoster = freshData.images?.jpg?.large_image_url || 
-                           freshData.images?.webp?.large_image_url;
-          
+          const newPoster =
+            freshData.images?.jpg?.large_image_url ||
+            freshData.images?.webp?.large_image_url;
+
           if (newPoster && newPoster !== anime.poster) {
             improvements.poster = newPoster;
           }
-          
-          if (freshData.images?.jpg?.large_image_url && 
-              freshData.images.jpg.large_image_url !== anime.banner) {
+
+          if (
+            freshData.images?.jpg?.large_image_url &&
+            freshData.images.jpg.large_image_url !== anime.banner
+          ) {
             improvements.banner = freshData.images.jpg.large_image_url;
           }
         }
       }
-      
+
       return Object.keys(improvements).length > 0 ? improvements : null;
     } catch (error) {
-      console.error('Image enhancement failed:', error);
+      console.error("Image enhancement failed:", error);
       return null;
     }
   }
@@ -597,17 +632,17 @@ class AdvancedAnimeAPI {
     try {
       const [animeData, episodes] = await Promise.allSettled([
         this.getAnimeByIdJikan(malId),
-        this.getAllEpisodesJikan(malId)
+        this.getAllEpisodesJikan(malId),
       ]);
 
       let anime = null;
       let episodeList: AnimeEpisodeData[] = [];
 
-      if (animeData.status === 'fulfilled' && animeData.value) {
+      if (animeData.status === "fulfilled" && animeData.value) {
         anime = animeData.value;
       }
 
-      if (episodes.status === 'fulfilled') {
+      if (episodes.status === "fulfilled") {
         episodeList = episodes.value;
       }
 
@@ -617,7 +652,7 @@ class AdvancedAnimeAPI {
 
       return null;
     } catch (error) {
-      console.error('Get anime details failed:', error);
+      console.error("Get anime details failed:", error);
       return null;
     }
   }

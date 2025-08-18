@@ -164,14 +164,14 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
   // Initialize with sample data if no animes exist
   useEffect(() => {
     if (animes.length === 0) {
-      const convertedAnimes = sampleAnimes.map(anime => ({
+      const convertedAnimes = sampleAnimes.map((anime) => ({
         ...anime,
-        rating: typeof anime.rating === 'number' ? anime.rating : 8.0,
+        rating: typeof anime.rating === "number" ? anime.rating : 8.0,
         genre: anime.genre || [],
         genreEn: anime.genreEn || [],
         banner: anime.poster,
-        descriptionEn: anime.descriptionEn || anime.description || '',
-        duration: anime.duration || '24min'
+        descriptionEn: anime.descriptionEn || anime.description || "",
+        duration: anime.duration || "24min",
       }));
       setAnimes(convertedAnimes);
     }

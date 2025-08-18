@@ -140,10 +140,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithDiscord = async (): Promise<boolean> => {
     try {
       // Discord OAuth flow will be handled here
-      window.location.href = '/api/auth/discord';
+      window.location.href = "/api/auth/discord";
       return true;
     } catch (error) {
-      console.error('Discord login failed:', error);
+      console.error("Discord login failed:", error);
       return false;
     }
   };
@@ -151,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkPremiumStatus = (): boolean => {
     if (!user?.isPremium) return false;
     if (!user.premiumExpiresAt) return true; // Lifetime premium
-    
+
     const expiryDate = new Date(user.premiumExpiresAt);
     return expiryDate > new Date();
   };
@@ -242,7 +242,9 @@ export function ProtectedRoute({
           <h1 className="text-2xl font-bold text-white mb-4">
             Premium Üyelik Gerekli
           </h1>
-          <p className="text-gray-400 mb-6">Bu özelliği kullanmak için premium üyelik gerekli.</p>
+          <p className="text-gray-400 mb-6">
+            Bu özelliği kullanmak için premium üyelik gerekli.
+          </p>
           <button
             onClick={() => (window.location.href = "/")}
             className="btn-primary"

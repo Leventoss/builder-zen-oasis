@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Plus, 
-  Users, 
-  MessageSquare, 
-  Settings, 
-  Crown, 
-  Check, 
-  X, 
+import {
+  Plus,
+  Users,
+  MessageSquare,
+  Settings,
+  Crown,
+  Check,
+  X,
   Eye,
   EyeOff,
   Shield,
   Star,
   Trash2,
-  Edit
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -99,7 +94,7 @@ export default function CompleteAdmin() {
     totalAnimes: 0,
     totalEpisodes: 0,
     pendingRequests: 0,
-    todayWatches: 0
+    todayWatches: 0,
   });
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -116,28 +111,27 @@ export default function CompleteAdmin() {
     setLoading(true);
     try {
       // Load stats
-      const statsResponse = await fetch('/api/admin/stats');
+      const statsResponse = await fetch("/api/admin/stats");
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
         setStats(statsData.data);
       }
 
       // Load users
-      const usersResponse = await fetch('/api/admin/users');
+      const usersResponse = await fetch("/api/admin/users");
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
         setUsers(usersData.data || []);
       }
 
       // Load anime requests
-      const requestsResponse = await fetch('/api/admin/anime-requests/pending');
+      const requestsResponse = await fetch("/api/admin/anime-requests/pending");
       if (requestsResponse.ok) {
         const requestsData = await requestsResponse.json();
         setAnimeRequests(requestsData.data || []);
       }
-
     } catch (error) {
-      console.error('Failed to load admin data:', error);
+      console.error("Failed to load admin data:", error);
       toast({
         title: "Hata",
         description: "Admin verileri yüklenirken hata oluştu",
@@ -149,30 +143,36 @@ export default function CompleteAdmin() {
   };
 
   // Handle anime request actions
-  const handleRequestAction = async (requestId: string, action: 'approved' | 'rejected' | 'added') => {
+  const handleRequestAction = async (
+    requestId: string,
+    action: "approved" | "rejected" | "added",
+  ) => {
     try {
-      const response = await fetch(`/api/admin/anime-requests/${requestId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/admin/anime-requests/${requestId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: action }),
         },
-        body: JSON.stringify({ status: action }),
-      });
+      );
 
       if (response.ok) {
-        setAnimeRequests(prev => 
-          prev.map(req => 
-            req.id === requestId ? { ...req, status: action } : req
-          )
+        setAnimeRequests((prev) =>
+          prev.map((req) =>
+            req.id === requestId ? { ...req, status: action } : req,
+          ),
         );
 
         toast({
           title: "İstek Güncellendi",
-          description: `İstek ${action === 'approved' ? 'onaylandı' : action === 'rejected' ? 'reddedildi' : 'eklendi olarak işaretlendi'}`,
+          description: `İstek ${action === "approved" ? "onaylandı" : action === "rejected" ? "reddedildi" : "eklendi olarak işaretlendi"}`,
         });
       }
     } catch (error) {
-      console.error('Failed to update request:', error);
+      console.error("Failed to update request:", error);
       toast({
         title: "Hata",
         description: "İstek güncellenirken hata oluştu",
@@ -182,21 +182,27 @@ export default function CompleteAdmin() {
   };
 
   // Handle user premium update
-  const updateUserPremium = async (userId: number, isPremium: boolean, expiryDate?: string) => {
+  const updateUserPremium = async (
+    userId: number,
+    isPremium: boolean,
+    expiryDate?: string,
+  ) => {
     try {
       const response = await fetch(`/api/admin/users/${userId}/premium`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ isPremium, expiryDate }),
       });
 
       if (response.ok) {
-        setUsers(prev => 
-          prev.map(u => 
-            u.id === userId ? { ...u, isPremium, premiumExpiresAt: expiryDate } : u
-          )
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userId
+              ? { ...u, isPremium, premiumExpiresAt: expiryDate }
+              : u,
+          ),
         );
 
         toast({
@@ -205,7 +211,7 @@ export default function CompleteAdmin() {
         });
       }
     } catch (error) {
-      console.error('Failed to update user premium:', error);
+      console.error("Failed to update user premium:", error);
       toast({
         title: "Hata",
         description: "Premium durumu güncellenirken hata oluştu",
@@ -218,18 +224,16 @@ export default function CompleteAdmin() {
   const updateUserAdmin = async (userId: number, isAdmin: boolean) => {
     try {
       const response = await fetch(`/api/admin/users/${userId}/admin`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ isAdmin }),
       });
 
       if (response.ok) {
-        setUsers(prev => 
-          prev.map(u => 
-            u.id === userId ? { ...u, isAdmin } : u
-          )
+        setUsers((prev) =>
+          prev.map((u) => (u.id === userId ? { ...u, isAdmin } : u)),
         );
 
         toast({
@@ -238,7 +242,7 @@ export default function CompleteAdmin() {
         });
       }
     } catch (error) {
-      console.error('Failed to update user admin:', error);
+      console.error("Failed to update user admin:", error);
       toast({
         title: "Hata",
         description: "Admin durumu güncellenirken hata oluştu",
@@ -253,39 +257,41 @@ export default function CompleteAdmin() {
       const animeData = {
         title: request.animeName,
         titleEn: request.animeName,
-        poster: 'https://via.placeholder.com/400x600',
-        banner: 'https://via.placeholder.com/800x300',
+        poster: "https://via.placeholder.com/400x600",
+        banner: "https://via.placeholder.com/800x300",
         rating: 8.0,
         year: new Date().getFullYear(),
         episodes: 12,
-        genre: ['Aksiyon'],
-        genreEn: ['Action'],
-        duration: '24min',
-        description: request.description || `${request.animeName} - İstek üzerine eklendi`,
-        descriptionEn: request.description || `${request.animeName} - Added by request`,
-        status: 'ongoing',
-        category: 'anime'
+        genre: ["Aksiyon"],
+        genreEn: ["Action"],
+        duration: "24min",
+        description:
+          request.description || `${request.animeName} - İstek üzerine eklendi`,
+        descriptionEn:
+          request.description || `${request.animeName} - Added by request`,
+        status: "ongoing",
+        category: "anime",
       };
 
-      const response = await fetch('/api/animes', {
-        method: 'POST',
+      const response = await fetch("/api/animes", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(animeData),
       });
 
       if (response.ok) {
         addAnime(animeData);
-        await handleRequestAction(request.id, 'added');
-        
+        await handleRequestAction(request.id, "added");
+
         toast({
           title: "Anime Eklendi",
           description: `${request.animeName} başarıyla siteye eklendi!`,
         });
       }
     } catch (error) {
-      console.error('Failed to add anime from request:', error);
+      console.error("Failed to add anime from request:", error);
       toast({
         title: "Hata",
         description: "Anime eklenirken hata oluştu",
@@ -324,7 +330,7 @@ export default function CompleteAdmin() {
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold text-white">Tam Admin Paneli</h1>
@@ -333,7 +339,11 @@ export default function CompleteAdmin() {
           </Badge>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="bg-anime-card border border-anime-accent/20">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -341,7 +351,8 @@ export default function CompleteAdmin() {
             </TabsTrigger>
             <TabsTrigger value="requests" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
-              Anime İstekleri ({animeRequests.filter(r => r.status === 'pending').length})
+              Anime İstekleri (
+              {animeRequests.filter((r) => r.status === "pending").length})
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -364,7 +375,9 @@ export default function CompleteAdmin() {
                   <Users className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.totalUsers}
+                  </div>
                   <p className="text-xs text-gray-500">
                     {stats.premiumUsers} premium üye
                   </p>
@@ -379,7 +392,9 @@ export default function CompleteAdmin() {
                   <Star className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.totalAnimes}</div>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.totalAnimes}
+                  </div>
                   <p className="text-xs text-gray-500">
                     {stats.totalEpisodes} bölüm
                   </p>
@@ -394,10 +409,10 @@ export default function CompleteAdmin() {
                   <MessageSquare className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.pendingRequests}</div>
-                  <p className="text-xs text-gray-500">
-                    İnceleme bekliyor
-                  </p>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.pendingRequests}
+                  </div>
+                  <p className="text-xs text-gray-500">İnceleme bekliyor</p>
                 </CardContent>
               </Card>
 
@@ -409,10 +424,10 @@ export default function CompleteAdmin() {
                   <Eye className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.todayWatches}</div>
-                  <p className="text-xs text-gray-500">
-                    Bugün izlenen
-                  </p>
+                  <div className="text-2xl font-bold text-white">
+                    {stats.todayWatches}
+                  </div>
+                  <p className="text-xs text-gray-500">Bugün izlenen</p>
                 </CardContent>
               </Card>
             </div>
@@ -425,14 +440,23 @@ export default function CompleteAdmin() {
                 <CardContent>
                   <div className="space-y-3">
                     {users.slice(0, 5).map((user) => (
-                      <div key={user.id} className="flex items-center justify-between">
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between"
+                      >
                         <div>
-                          <p className="text-white font-medium">{user.username}</p>
+                          <p className="text-white font-medium">
+                            {user.username}
+                          </p>
                           <p className="text-sm text-gray-400">{user.email}</p>
                         </div>
                         <div className="flex gap-1">
-                          {user.isAdmin && <Badge variant="destructive">Admin</Badge>}
-                          {user.isPremium && <Badge className="bg-yellow-600">Premium</Badge>}
+                          {user.isAdmin && (
+                            <Badge variant="destructive">Admin</Badge>
+                          )}
+                          {user.isPremium && (
+                            <Badge className="bg-yellow-600">Premium</Badge>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -447,24 +471,41 @@ export default function CompleteAdmin() {
                 <CardContent>
                   <div className="space-y-3">
                     {animeRequests.slice(0, 5).map((request) => (
-                      <div key={request.id} className="flex items-center justify-between">
+                      <div
+                        key={request.id}
+                        className="flex items-center justify-between"
+                      >
                         <div>
-                          <p className="text-white font-medium">{request.animeName}</p>
+                          <p className="text-white font-medium">
+                            {request.animeName}
+                          </p>
                           <p className="text-sm text-gray-400">
                             {request.requestedBy} • {request.votes} oy
                           </p>
                         </div>
-                        <Badge 
-                          variant={request.status === 'pending' ? 'secondary' : 'default'}
+                        <Badge
+                          variant={
+                            request.status === "pending"
+                              ? "secondary"
+                              : "default"
+                          }
                           className={
-                            request.status === 'pending' ? 'bg-yellow-600' :
-                            request.status === 'approved' ? 'bg-green-600' :
-                            request.status === 'rejected' ? 'bg-red-600' : 'bg-blue-600'
+                            request.status === "pending"
+                              ? "bg-yellow-600"
+                              : request.status === "approved"
+                                ? "bg-green-600"
+                                : request.status === "rejected"
+                                  ? "bg-red-600"
+                                  : "bg-blue-600"
                           }
                         >
-                          {request.status === 'pending' ? 'Bekliyor' :
-                           request.status === 'approved' ? 'Onaylandı' :
-                           request.status === 'rejected' ? 'Reddedildi' : 'Eklendi'}
+                          {request.status === "pending"
+                            ? "Bekliyor"
+                            : request.status === "approved"
+                              ? "Onaylandı"
+                              : request.status === "rejected"
+                                ? "Reddedildi"
+                                : "Eklendi"}
                         </Badge>
                       </div>
                     ))}
@@ -480,57 +521,77 @@ export default function CompleteAdmin() {
               <CardHeader>
                 <CardTitle className="text-white">Anime İstekleri</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Kullanıcılardan gelen anime isteklerini onaylayın, reddedin veya siteye ekleyin
+                  Kullanıcılardan gelen anime isteklerini onaylayın, reddedin
+                  veya siteye ekleyin
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {animeRequests.filter(r => r.status === 'pending').map((request) => (
-                    <div key={request.id} className="bg-anime-dark p-4 rounded-lg border border-anime-accent/20">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-white">{request.animeName}</h3>
-                          <p className="text-gray-300 mt-1">{request.description}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-                            <span>👤 {request.requestedBy}</span>
-                            <span>⭐ {request.votes} oy</span>
-                            <span>📅 {new Date(request.timestamp).toLocaleDateString('tr-TR')}</span>
+                  {animeRequests
+                    .filter((r) => r.status === "pending")
+                    .map((request) => (
+                      <div
+                        key={request.id}
+                        className="bg-anime-dark p-4 rounded-lg border border-anime-accent/20"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-white">
+                              {request.animeName}
+                            </h3>
+                            <p className="text-gray-300 mt-1">
+                              {request.description}
+                            </p>
+                            <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                              <span>👤 {request.requestedBy}</span>
+                              <span>⭐ {request.votes} oy</span>
+                              <span>
+                                📅{" "}
+                                {new Date(request.timestamp).toLocaleDateString(
+                                  "tr-TR",
+                                )}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button
-                          onClick={() => handleRequestAction(request.id, 'approved')}
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Check className="h-4 w-4 mr-1" />
-                          Onayla
-                        </Button>
-                        
-                        <Button
-                          onClick={() => handleRequestAction(request.id, 'rejected')}
-                          size="sm"
-                          variant="destructive"
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Reddet
-                        </Button>
-                        
-                        <Button
-                          onClick={() => quickAddAnimeFromRequest(request)}
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          Hızlı Ekle
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
 
-                  {animeRequests.filter(r => r.status === 'pending').length === 0 && (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            onClick={() =>
+                              handleRequestAction(request.id, "approved")
+                            }
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Onayla
+                          </Button>
+
+                          <Button
+                            onClick={() =>
+                              handleRequestAction(request.id, "rejected")
+                            }
+                            size="sm"
+                            variant="destructive"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Reddet
+                          </Button>
+
+                          <Button
+                            onClick={() => quickAddAnimeFromRequest(request)}
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Hızlı Ekle
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                  {animeRequests.filter((r) => r.status === "pending")
+                    .length === 0 && (
                     <div className="text-center py-8">
                       <MessageSquare className="h-16 w-16 text-gray-600 mx-auto mb-4" />
                       <h3 className="text-xl font-medium text-white mb-2">
@@ -558,34 +619,56 @@ export default function CompleteAdmin() {
               <CardContent>
                 <div className="space-y-3">
                   {users.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 bg-anime-dark rounded-lg border border-anime-accent/20">
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-4 bg-anime-dark rounded-lg border border-anime-accent/20"
+                    >
                       <div className="flex items-center gap-4">
                         <div>
-                          <h4 className="text-white font-medium">{user.username}</h4>
+                          <h4 className="text-white font-medium">
+                            {user.username}
+                          </h4>
                           <p className="text-sm text-gray-400">{user.email}</p>
                           <p className="text-xs text-gray-500">
-                            Kayıt: {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                            Kayıt:{" "}
+                            {new Date(user.createdAt).toLocaleDateString(
+                              "tr-TR",
+                            )}
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          {user.isAdmin && <Badge variant="destructive">Admin</Badge>}
-                          {user.isPremium && <Badge className="bg-yellow-600">Premium</Badge>}
-                          {user.discordUsername && <Badge variant="secondary">Discord</Badge>}
+                          {user.isAdmin && (
+                            <Badge variant="destructive">Admin</Badge>
+                          )}
+                          {user.isPremium && (
+                            <Badge className="bg-yellow-600">Premium</Badge>
+                          )}
+                          {user.discordUsername && (
+                            <Badge variant="secondary">Discord</Badge>
+                          )}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <Button
-                          onClick={() => updateUserPremium(user.id, !user.isPremium)}
+                          onClick={() =>
+                            updateUserPremium(user.id, !user.isPremium)
+                          }
                           size="sm"
-                          className={user.isPremium ? "bg-red-600 hover:bg-red-700" : "bg-yellow-600 hover:bg-yellow-700"}
+                          className={
+                            user.isPremium
+                              ? "bg-red-600 hover:bg-red-700"
+                              : "bg-yellow-600 hover:bg-yellow-700"
+                          }
                         >
                           <Crown className="h-4 w-4 mr-1" />
                           {user.isPremium ? "Premium Kaldır" : "Premium Yap"}
                         </Button>
-                        
+
                         <Button
-                          onClick={() => updateUserAdmin(user.id, !user.isAdmin)}
+                          onClick={() =>
+                            updateUserAdmin(user.id, !user.isAdmin)
+                          }
                           size="sm"
                           variant={user.isAdmin ? "destructive" : "outline"}
                           disabled={user.id === user?.id} // Can't change own admin status
@@ -593,7 +676,7 @@ export default function CompleteAdmin() {
                           <Shield className="h-4 w-4 mr-1" />
                           {user.isAdmin ? "Admin Kaldır" : "Admin Yap"}
                         </Button>
-                        
+
                         <Button
                           onClick={() => {
                             setSelectedUser(user);
@@ -617,28 +700,34 @@ export default function CompleteAdmin() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="bg-anime-card border-anime-accent/20">
                 <CardHeader>
-                  <CardTitle className="text-white">İçerik İstatistikleri</CardTitle>
+                  <CardTitle className="text-white">
+                    İçerik İstatistikleri
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Toplam Anime:</span>
-                      <span className="text-white font-bold">{stats.totalAnimes}</span>
+                      <span className="text-white font-bold">
+                        {stats.totalAnimes}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Toplam Bölüm:</span>
-                      <span className="text-white font-bold">{stats.totalEpisodes}</span>
+                      <span className="text-white font-bold">
+                        {stats.totalEpisodes}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Devam Eden:</span>
                       <span className="text-white font-bold">
-                        {animes.filter(a => a.status === 'ongoing').length}
+                        {animes.filter((a) => a.status === "ongoing").length}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Tamamlanan:</span>
                       <span className="text-white font-bold">
-                        {animes.filter(a => a.status === 'completed').length}
+                        {animes.filter((a) => a.status === "completed").length}
                       </span>
                     </div>
                   </div>
@@ -650,23 +739,25 @@ export default function CompleteAdmin() {
                   <CardTitle className="text-white">Hızlı İşlemler</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button 
+                  <Button
                     className="w-full bg-anime-accent hover:bg-anime-accent/80"
                     onClick={loadAdminData}
                   >
                     Verileri Yenile
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => setActiveTab('requests')}
+                    onClick={() => setActiveTab("requests")}
                   >
-                    İstekleri İncele ({animeRequests.filter(r => r.status === 'pending').length})
+                    İstekleri İncele (
+                    {animeRequests.filter((r) => r.status === "pending").length}
+                    )
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     className="w-full bg-blue-600 hover:bg-blue-700"
-                    onClick={() => window.open('/admin-test', '_blank')}
+                    onClick={() => window.open("/admin-test", "_blank")}
                   >
                     API Durumunu Kontrol Et
                   </Button>
@@ -708,8 +799,10 @@ export default function CompleteAdmin() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={selectedUser.isPremium}
-                    onCheckedChange={(checked) => 
-                      setSelectedUser(prev => prev ? { ...prev, isPremium: checked } : null)
+                    onCheckedChange={(checked) =>
+                      setSelectedUser((prev) =>
+                        prev ? { ...prev, isPremium: checked } : null,
+                      )
                     }
                   />
                   <Label className="text-white">Premium Üye</Label>
@@ -717,8 +810,10 @@ export default function CompleteAdmin() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={selectedUser.isAdmin}
-                    onCheckedChange={(checked) => 
-                      setSelectedUser(prev => prev ? { ...prev, isAdmin: checked } : null)
+                    onCheckedChange={(checked) =>
+                      setSelectedUser((prev) =>
+                        prev ? { ...prev, isAdmin: checked } : null,
+                      )
                     }
                     disabled={selectedUser.id === user?.id}
                   />

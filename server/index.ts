@@ -6,7 +6,13 @@ import bcrypt from "bcryptjs";
 import { sql } from "./lib/database";
 
 // Import new API routes
-import { handleLogin, handleRegister, handleVerifyToken, handleDiscordAuth, handleDiscordCallback } from "./routes/auth";
+import {
+  handleLogin,
+  handleRegister,
+  handleVerifyToken,
+  handleDiscordAuth,
+  handleDiscordCallback,
+} from "./routes/auth";
 import {
   handleGetAnimes,
   handleGetAnime,
@@ -47,11 +53,7 @@ import {
   checkPremiumExpiry,
   getPremiumStats,
 } from "./routes/premium";
-import {
-  handleAIChat,
-  getChatHistory,
-  checkAIHealth,
-} from "./routes/aiChat";
+import { handleAIChat, getChatHistory, checkAIHealth } from "./routes/aiChat";
 import {
   handleDiscordLogin,
   handleDiscordCallback,
@@ -76,12 +78,18 @@ export function createServer() {
   const app = express();
 
   // Middleware
-  app.use(cors({
-    origin: ['http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+  app.use(
+    cors({
+      origin: [
+        "http://localhost:8080",
+        "http://localhost:3000",
+        "http://127.0.0.1:8080",
+      ],
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -96,7 +104,7 @@ export function createServer() {
     res.json({
       success: true,
       message: "API is working!",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 
