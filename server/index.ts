@@ -37,6 +37,21 @@ import {
   handleGetMessages,
   handleUpdateSessionStatus,
 } from "./routes/chat";
+import {
+  getPremiumSettings,
+  updatePremiumSettings,
+  getUsers as getPremiumUsers,
+  updateUserPremium,
+  grantPremium,
+  revokePremium,
+  checkPremiumExpiry,
+  getPremiumStats,
+} from "./routes/premium";
+import {
+  handleAIChat,
+  getChatHistory,
+  checkAIHealth,
+} from "./routes/aiChat";
 
 export function createServer() {
   const app = express();
@@ -88,6 +103,21 @@ export function createServer() {
   app.get("/api/chat/sessions", handleGetSessions);
   app.get("/api/chat/sessions/:sessionId/messages", handleGetMessages);
   app.put("/api/chat/sessions/:sessionId/status", handleUpdateSessionStatus);
+
+  // AI Chat routes
+  app.post("/api/chat/ai", handleAIChat);
+  app.get("/api/chat/history/:sessionId", getChatHistory);
+  app.get("/api/chat/health", checkAIHealth);
+
+  // Premium routes
+  app.get("/api/admin/premium-settings", getPremiumSettings);
+  app.put("/api/admin/premium-settings", updatePremiumSettings);
+  app.get("/api/admin/users", getPremiumUsers);
+  app.put("/api/admin/users/:userId/premium", updateUserPremium);
+  app.post("/api/admin/users/grant-premium", grantPremium);
+  app.delete("/api/admin/users/:userId/premium", revokePremium);
+  app.post("/api/admin/check-premium-expiry", checkPremiumExpiry);
+  app.get("/api/admin/premium-stats", getPremiumStats);
 
   // Admin setup endpoint - for initial setup only
   app.post("/api/setup/admin", async (req, res) => {
