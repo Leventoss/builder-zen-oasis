@@ -102,7 +102,7 @@ const AppContent = () => {
               path="/admin"
               element={
                 <ProtectedRoute requireAdmin={true}>
-                  <CompleteAdmin />
+                  <UltimateAdmin />
                 </ProtectedRoute>
               }
             />
