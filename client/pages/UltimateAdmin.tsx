@@ -709,10 +709,851 @@ export default function UltimateAdmin() {
             </div>
           </TabsContent>
 
-          {/* Continue with other tabs... */}
-          {/* This is getting quite long, so I'll break here and continue in the next part */}
+          {/* Anime Management Tab */}
+          <TabsContent value="anime-management" className="space-y-6">
+            <Card className="bg-anime-card border-anime-accent/20">
+              <CardHeader>
+                <CardTitle className="text-white">Anime Yönetimi</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Tüm animeleri görüntüle, düzenle ve yönet
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col lg:flex-row gap-4 mb-6">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Anime ara..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="bg-anime-dark border-anime-accent/30"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="w-32 bg-anime-dark border-anime-accent/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tüm Durumlar</SelectItem>
+                        <SelectItem value="ongoing">Devam Eden</SelectItem>
+                        <SelectItem value="completed">Biten</SelectItem>
+                        <SelectItem value="upcoming">Yakında</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={filterCategory} onValueChange={setFilterCategory}>
+                      <SelectTrigger className="w-32 bg-anime-dark border-anime-accent/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tüm Kategoriler</SelectItem>
+                        <SelectItem value="anime">Anime</SelectItem>
+                        <SelectItem value="movie">Film</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-32 bg-anime-dark border-anime-accent/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="title">İsim</SelectItem>
+                        <SelectItem value="year">Yıl</SelectItem>
+                        <SelectItem value="rating">Puan</SelectItem>
+                        <SelectItem value="episodes">Bölüm</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                      className="border-anime-accent/30"
+                    >
+                      {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {filteredAnimes.map((anime) => (
+                      <Card key={anime.id} className="bg-anime-dark border-anime-accent/20 hover:border-anime-accent/50 transition-colors">
+                        <div className="relative">
+                          <img
+                            src={anime.poster}
+                            alt={anime.title}
+                            className="w-full h-64 object-cover rounded-t"
+                          />
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                setEditingAnime(anime);
+                                setShowAnimeDialog(true);
+                              }}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteAnime(anime.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="text-white font-medium text-sm mb-2 line-clamp-2">
+                            {anime.title}
+                          </h3>
+                          <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                            <span>{anime.year}</span>
+                            <span>{anime.episodes} bölüm</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="text-xs">
+                              {anime.status === 'ongoing' ? 'Devam' : 
+                               anime.status === 'completed' ? 'Bitti' : 'Yakında'}
+                            </Badge>
+                            <div className="flex items-center gap-1 text-yellow-500 text-xs">
+                              <Star className="h-3 w-3 fill-current" />
+                              {anime.rating}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-gray-400">Poster</TableHead>
+                        <TableHead className="text-gray-400">Başlık</TableHead>
+                        <TableHead className="text-gray-400">Yıl</TableHead>
+                        <TableHead className="text-gray-400">Durum</TableHead>
+                        <TableHead className="text-gray-400">Puan</TableHead>
+                        <TableHead className="text-gray-400">İşlemler</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAnimes.map((anime) => (
+                        <TableRow key={anime.id}>
+                          <TableCell>
+                            <img
+                              src={anime.poster}
+                              alt={anime.title}
+                              className="w-12 h-16 object-cover rounded"
+                            />
+                          </TableCell>
+                          <TableCell className="text-white">
+                            <div>
+                              <p className="font-medium">{anime.title}</p>
+                              <p className="text-gray-400 text-sm">{anime.titleEn}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-gray-300">{anime.year}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {anime.status === 'ongoing' ? 'Devam' : 
+                               anime.status === 'completed' ? 'Bitti' : 'Yakında'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-yellow-500">{anime.rating}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingAnime(anime);
+                                  setShowAnimeDialog(true);
+                                }}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => enhanceAnimeImages(anime.id)}
+                                title="Resimleri Geliştir"
+                              >
+                                <Image className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDeleteAnime(anime.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+
+                {filteredAnimes.length === 0 && (
+                  <div className="text-center py-8 text-gray-400">
+                    Anime bulunamadı
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* API Import Tab */}
+          <TabsContent value="api-import" className="space-y-6">
+            <Card className="bg-anime-card border-anime-accent/20">
+              <CardHeader>
+                <CardTitle className="text-white">API'den Anime İçe Aktarma</CardTitle>
+                <CardDescription className="text-gray-400">
+                  MyAnimeList ve AniList'ten anime ara ve ekle
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 mb-6">
+                  <Input
+                    placeholder="Anime ara (örn: Attack on Titan)..."
+                    value={apiSearchQuery}
+                    onChange={(e) => setApiSearchQuery(e.target.value)}
+                    className="flex-1 bg-anime-dark border-anime-accent/30"
+                    onKeyPress={(e) => e.key === 'Enter' && handleApiSearch()}
+                  />
+                  <Button
+                    onClick={handleApiSearch}
+                    disabled={isApiSearching}
+                    className="bg-anime-accent hover:bg-anime-accent/80"
+                  >
+                    {isApiSearching ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Search className="h-4 w-4 mr-2" />
+                    )}
+                    Ara
+                  </Button>
+                </div>
+
+                {apiSearchResults.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-white font-medium">Arama Sonuçları ({apiSearchResults.length})</h3>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={includeEpisodes}
+                          onCheckedChange={setIncludeEpisodes}
+                        />
+                        <Label className="text-gray-400 text-sm">Bölümleri de ekle</Label>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {apiSearchResults.map((anime, index) => (
+                        <Card key={index} className="bg-anime-dark border-anime-accent/20">
+                          <div className="flex">
+                            <img
+                              src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || anime.coverImage?.large}
+                              alt={anime.title}
+                              className="w-24 h-32 object-cover rounded-l"
+                            />
+                            <div className="flex-1 p-4">
+                              <h4 className="text-white font-medium text-sm mb-2 line-clamp-2">
+                                {anime.title || anime.title?.romaji}
+                              </h4>
+                              <div className="text-xs text-gray-400 space-y-1 mb-3">
+                                <p>Yıl: {anime.year || anime.startDate?.year || 'Bilinmiyor'}</p>
+                                <p>Puan: {anime.score || anime.averageScore || 'N/A'}</p>
+                                <p>Durum: {anime.status || anime.status}</p>
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() => addAnimeFromApi(anime, includeEpisodes)}
+                                className="w-full bg-anime-accent hover:bg-anime-accent/80"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Ekle
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Bulk Operations Tab */}
+          <TabsContent value="bulk-operations" className="space-y-6">
+            <Card className="bg-anime-card border-anime-accent/20">
+              <CardHeader>
+                <CardTitle className="text-white">Toplu İşlemler</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Birden fazla animeyi aynı anda içe aktar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Switch
+                      checked={includeEpisodes}
+                      onCheckedChange={setIncludeEpisodes}
+                    />
+                    <Label className="text-gray-400">Bölümleri de içe aktar</Label>
+                  </div>
+                  
+                  <Textarea
+                    placeholder="Her satıra bir anime ismi yazın:&#10;Attack on Titan&#10;Death Note&#10;One Piece&#10;Naruto"
+                    value={bulkImportText}
+                    onChange={(e) => setBulkImportText(e.target.value)}
+                    className="min-h-32 bg-anime-dark border-anime-accent/30"
+                  />
+                  
+                  <Button
+                    onClick={handleBulkImport}
+                    disabled={isImporting || !bulkImportText.trim()}
+                    className="w-full bg-anime-accent hover:bg-anime-accent/80"
+                  >
+                    {isImporting ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4 mr-2" />
+                    )}
+                    Toplu İçe Aktarma Başlat
+                  </Button>
+                </div>
+
+                {bulkImportProgress.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-white font-medium mb-4">İçe Aktarma Durumu</h3>
+                    <div className="space-y-2">
+                      {bulkImportProgress.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-anime-dark rounded border border-anime-accent/20">
+                          <span className="text-white text-sm">{item.title}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400">{item.message}</span>
+                            <Badge
+                              variant={
+                                item.status === 'success' ? 'default' :
+                                item.status === 'error' ? 'destructive' :
+                                item.status === 'importing' ? 'secondary' : 'outline'
+                              }
+                              className="text-xs"
+                            >
+                              {item.status === 'success' ? 'Başarılı' :
+                               item.status === 'error' ? 'Hata' :
+                               item.status === 'importing' ? 'İçe Aktarılıyor' : 'Bekliyor'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Episodes Tab */}
+          <TabsContent value="episodes" className="space-y-6">
+            <Card className="bg-anime-card border-anime-accent/20">
+              <CardHeader>
+                <CardTitle className="text-white">Bölüm Yönetimi</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Anime bölümlerini ekle, düzenle ve yönet
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex gap-4">
+                    <Select value={selectedAnime?.id || ''} onValueChange={(value) => setSelectedAnime(animes.find(a => a.id === value))}>
+                      <SelectTrigger className="w-64 bg-anime-dark border-anime-accent/30">
+                        <SelectValue placeholder="Anime seçin..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {animes.map((anime) => (
+                          <SelectItem key={anime.id} value={anime.id}>
+                            {anime.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <Button
+                    onClick={() => {
+                      if (!selectedAnime) {
+                        toast({
+                          title: "Hata",
+                          description: "Önce bir anime seçin",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      setEditingEpisode({
+                        episodeNumber: 1,
+                        title: '',
+                        titleEn: '',
+                        description: '',
+                        descriptionEn: '',
+                        videoUrl: '',
+                        duration: '24min',
+                        airDate: new Date().toISOString().split('T')[0],
+                        animeId: selectedAnime.id
+                      });
+                      setShowEpisodeDialog(true);
+                    }}
+                    className="bg-anime-accent hover:bg-anime-accent/80"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Yeni Bölüm
+                  </Button>
+                </div>
+
+                {selectedAnime && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-4 bg-anime-dark rounded border border-anime-accent/20">
+                      <img
+                        src={selectedAnime.poster}
+                        alt={selectedAnime.title}
+                        className="w-16 h-20 object-cover rounded"
+                      />
+                      <div>
+                        <h3 className="text-white font-medium">{selectedAnime.title}</h3>
+                        <p className="text-gray-400 text-sm">{selectedAnime.titleEn}</p>
+                        <p className="text-gray-400 text-xs">{selectedAnime.year} • {selectedAnime.episodes} bölüm</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {episodes
+                        .filter(ep => ep.animeId === selectedAnime.id)
+                        .sort((a, b) => a.episodeNumber - b.episodeNumber)
+                        .map((episode) => (
+                          <div key={episode.id} className="flex items-center justify-between p-4 bg-anime-dark rounded border border-anime-accent/20">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-anime-accent rounded flex items-center justify-center">
+                                <span className="text-white font-bold">{episode.episodeNumber}</span>
+                              </div>
+                              <div>
+                                <h4 className="text-white font-medium">{episode.title}</h4>
+                                <p className="text-gray-400 text-sm">{episode.titleEn}</p>
+                                <p className="text-gray-400 text-xs">{episode.duration} • {episode.airDate}</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingEpisode(episode);
+                                  setShowEpisodeDialog(true);
+                                }}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  if (confirm('Bu bölümü silmek istediğinize emin misiniz?')) {
+                                    deleteEpisode(episode.id);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      
+                      {episodes.filter(ep => ep.animeId === selectedAnime.id).length === 0 && (
+                        <div className="text-center py-8 text-gray-400">
+                          Bu anime için henüz bölüm eklenmemiş
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {!selectedAnime && (
+                  <div className="text-center py-8 text-gray-400">
+                    Bölümleri görüntülemek için bir anime seçin
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Anime Edit Dialog */}
+      <Dialog open={showAnimeDialog} onOpenChange={setShowAnimeDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-anime-card border-anime-accent/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {editingAnime?.id ? 'Anime Düzenle' : 'Yeni Anime Ekle'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editingAnime && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Türkçe Başlık *</Label>
+                  <Input
+                    value={editingAnime.title}
+                    onChange={(e) => setEditingAnime({...editingAnime, title: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">İngilizce Başlık</Label>
+                  <Input
+                    value={editingAnime.titleEn}
+                    onChange={(e) => setEditingAnime({...editingAnime, titleEn: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">Türkçe Açıklama</Label>
+                <Textarea
+                  value={editingAnime.description}
+                  onChange={(e) => setEditingAnime({...editingAnime, description: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">İngilizce Açıklama</Label>
+                <Textarea
+                  value={editingAnime.descriptionEn}
+                  onChange={(e) => setEditingAnime({...editingAnime, descriptionEn: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Poster URL</Label>
+                  <Input
+                    value={editingAnime.poster}
+                    onChange={(e) => setEditingAnime({...editingAnime, poster: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Banner URL</Label>
+                  <Input
+                    value={editingAnime.banner}
+                    onChange={(e) => setEditingAnime({...editingAnime, banner: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Puan</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    value={editingAnime.rating}
+                    onChange={(e) => setEditingAnime({...editingAnime, rating: parseFloat(e.target.value)})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Yıl</Label>
+                  <Input
+                    type="number"
+                    value={editingAnime.year}
+                    onChange={(e) => setEditingAnime({...editingAnime, year: parseInt(e.target.value)})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Bölüm Sayısı</Label>
+                  <Input
+                    type="number"
+                    value={editingAnime.episodes}
+                    onChange={(e) => setEditingAnime({...editingAnime, episodes: parseInt(e.target.value)})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Süre</Label>
+                  <Input
+                    value={editingAnime.duration}
+                    onChange={(e) => setEditingAnime({...editingAnime, duration: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Durum</Label>
+                  <Select 
+                    value={editingAnime.status} 
+                    onValueChange={(value: 'ongoing' | 'completed' | 'upcoming') => 
+                      setEditingAnime({...editingAnime, status: value})
+                    }
+                  >
+                    <SelectTrigger className="bg-anime-dark border-anime-accent/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ongoing">Devam Eden</SelectItem>
+                      <SelectItem value="completed">Tamamlanan</SelectItem>
+                      <SelectItem value="upcoming">Yakında</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Kategori</Label>
+                  <Select 
+                    value={editingAnime.category} 
+                    onValueChange={(value: 'anime' | 'movie') => 
+                      setEditingAnime({...editingAnime, category: value})
+                    }
+                  >
+                    <SelectTrigger className="bg-anime-dark border-anime-accent/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="anime">Anime</SelectItem>
+                      <SelectItem value="movie">Film</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Stüdyo</Label>
+                  <Input
+                    value={editingAnime.studio}
+                    onChange={(e) => setEditingAnime({...editingAnime, studio: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Yapımcı</Label>
+                  <Input
+                    value={editingAnime.producer}
+                    onChange={(e) => setEditingAnime({...editingAnime, producer: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Sezon</Label>
+                  <Input
+                    value={editingAnime.season}
+                    onChange={(e) => setEditingAnime({...editingAnime, season: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Kaynak</Label>
+                  <Input
+                    value={editingAnime.source}
+                    onChange={(e) => setEditingAnime({...editingAnime, source: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">Trailer URL</Label>
+                <Input
+                  value={editingAnime.trailer}
+                  onChange={(e) => setEditingAnime({...editingAnime, trailer: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">Türkçe Türler (virgülle ayırın)</Label>
+                <Input
+                  value={editingAnime.genre.join(', ')}
+                  onChange={(e) => setEditingAnime({
+                    ...editingAnime, 
+                    genre: e.target.value.split(',').map(g => g.trim()).filter(g => g)
+                  })}
+                  className="bg-anime-dark border-anime-accent/30"
+                  placeholder="Aksiyon, Macera, Drama"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">İngilizce Türler (virgülle ayırın)</Label>
+                <Input
+                  value={editingAnime.genreEn.join(', ')}
+                  onChange={(e) => setEditingAnime({
+                    ...editingAnime, 
+                    genreEn: e.target.value.split(',').map(g => g.trim()).filter(g => g)
+                  })}
+                  className="bg-anime-dark border-anime-accent/30"
+                  placeholder="Action, Adventure, Drama"
+                />
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAnimeDialog(false)}
+                  className="border-anime-accent/30"
+                >
+                  İptal
+                </Button>
+                <Button 
+                  onClick={saveAnime}
+                  className="bg-anime-accent hover:bg-anime-accent/80"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Kaydet
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Episode Edit Dialog */}
+      <Dialog open={showEpisodeDialog} onOpenChange={setShowEpisodeDialog}>
+        <DialogContent className="max-w-2xl bg-anime-card border-anime-accent/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {editingEpisode?.id ? 'Bölüm Düzenle' : 'Yeni Bölüm Ekle'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editingEpisode && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Bölüm Numarası *</Label>
+                  <Input
+                    type="number"
+                    value={editingEpisode.episodeNumber}
+                    onChange={(e) => setEditingEpisode({...editingEpisode, episodeNumber: parseInt(e.target.value)})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Süre</Label>
+                  <Input
+                    value={editingEpisode.duration}
+                    onChange={(e) => setEditingEpisode({...editingEpisode, duration: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400">Türkçe Başlık *</Label>
+                  <Input
+                    value={editingEpisode.title}
+                    onChange={(e) => setEditingEpisode({...editingEpisode, title: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-gray-400">İngilizce Başlık</Label>
+                  <Input
+                    value={editingEpisode.titleEn}
+                    onChange={(e) => setEditingEpisode({...editingEpisode, titleEn: e.target.value})}
+                    className="bg-anime-dark border-anime-accent/30"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">Türkçe Açıklama</Label>
+                <Textarea
+                  value={editingEpisode.description}
+                  onChange={(e) => setEditingEpisode({...editingEpisode, description: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">İngilizce Açıklama</Label>
+                <Textarea
+                  value={editingEpisode.descriptionEn}
+                  onChange={(e) => setEditingEpisode({...editingEpisode, descriptionEn: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">Video URL</Label>
+                <Input
+                  value={editingEpisode.videoUrl}
+                  onChange={(e) => setEditingEpisode({...editingEpisode, videoUrl: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400">Yayın Tarihi</Label>
+                <Input
+                  type="date"
+                  value={editingEpisode.airDate}
+                  onChange={(e) => setEditingEpisode({...editingEpisode, airDate: e.target.value})}
+                  className="bg-anime-dark border-anime-accent/30"
+                />
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEpisodeDialog(false)}
+                  className="border-anime-accent/30"
+                >
+                  İptal
+                </Button>
+                <Button 
+                  onClick={saveEpisode}
+                  className="bg-anime-accent hover:bg-anime-accent/80"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Kaydet
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
