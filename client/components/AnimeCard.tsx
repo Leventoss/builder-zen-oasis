@@ -60,7 +60,7 @@ export default function AnimeCard({
   const handleWatchClick = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     // Navigate to anime details/watch page
-    window.location.href = `/anime/${id}`;
+    window.location.href = `/anime-details/${id}`;
   };
 
   const handleWatchlistToggle = () => {
@@ -132,7 +132,7 @@ export default function AnimeCard({
             >
               <Button
                 size="lg"
-                className="btn-primary"
+                className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold"
                 onClick={(e) => handleWatchClick(e)}
               >
                 <Play className="h-5 w-5 mr-2" />
@@ -144,7 +144,7 @@ export default function AnimeCard({
                   variant="ghost"
                   size="sm"
                   onClick={handleWatchlistToggle}
-                  className="text-white hover:text-neon-blue"
+                  className="text-white hover:text-anime-accent bg-black/50 hover:bg-anime-accent/20"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -153,7 +153,7 @@ export default function AnimeCard({
                   variant="ghost"
                   size="sm"
                   onClick={handleLikeToggle}
-                  className={`${
+                  className={`bg-black/50 hover:bg-red-500/20 ${
                     isLiked
                       ? "text-red-500 hover:text-red-400"
                       : "text-white hover:text-red-500"
@@ -485,7 +485,7 @@ export const sampleAnimes = [
     genreEn: ["Drama", "Mecha", "Military"],
     duration: "25min",
     description:
-      "Lelouch'un Geass gücüyle Britanya İmparatorluğuna karşı isyanı.",
+      "Lelouch'un Geass gücüyle Britanya İmparatorluğuna karş�� isyanı.",
     descriptionEn:
       "Lelouch's rebellion against the Britannia Empire with the power of Geass.",
     status: "completed" as const,
