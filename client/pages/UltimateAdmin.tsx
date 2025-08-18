@@ -215,12 +215,16 @@ export default function UltimateAdmin() {
     .sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
-      
+
       if (sortBy === 'rating') {
-        aValue = parseFloat(aValue) || 0;
-        bValue = parseFloat(bValue) || 0;
+        aValue = typeof aValue === 'number' && !isNaN(aValue) ? aValue : 0;
+        bValue = typeof bValue === 'number' && !isNaN(bValue) ? bValue : 0;
       }
-      
+
+      // Ensure we have valid values for comparison
+      if (aValue === undefined || aValue === null) aValue = '';
+      if (bValue === undefined || bValue === null) bValue = '';
+
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;
       } else {
