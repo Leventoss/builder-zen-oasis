@@ -113,6 +113,32 @@ export function createServer() {
     }
   });
 
+  // Fix admin password endpoint
+  app.post("/api/setup/fix-admin", async (req, res) => {
+    try {
+      const password = "admin123";
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Update admin password
+      const updatedAdmin = await sql`
+        UPDATE users
+        SET password_hash = ${passwordHash}
+        WHERE email = 'admin@aniwa.com' OR is_admin = true
+        RETURNING id, username, email, is_admin
+      `;
+
+      res.json({
+        success: true,
+        message: "Admin şifresi güncellendi",
+        admin: updatedAdmin[0],
+        loginCredentials: { email: "admin@aniwa.com", password }
+      });
+    } catch (error) {
+      console.error("Admin password fix error:", error);
+      res.status(500).json({ success: false, message: "Şifre güncelleme hatası" });
+    }
+  });
+
   // Database status endpoint
   app.get("/api/debug/database", async (req, res) => {
     try {
