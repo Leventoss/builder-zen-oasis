@@ -15,6 +15,7 @@ import Browse from "./pages/Browse";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AnimeRequest from "./pages/AnimeRequest";
+import Chat from "./pages/Chat";
 
 const queryClient = new QueryClient();
 
