@@ -48,6 +48,9 @@ export default function AnimeCard({
   const [isLiked, setIsLiked] = useState(false);
   const { language } = useLanguage();
 
+  // Ensure rating is a valid number
+  const safeRating = typeof rating === 'number' && !isNaN(rating) ? rating : 0;
+
   const sizeClasses = {
     sm: "w-48 h-72",
     md: "w-56 h-80",
