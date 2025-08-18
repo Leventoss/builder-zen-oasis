@@ -75,5 +75,71 @@ export function createServer() {
   app.post("/api/users/:userId/list", handleAddToUserList);
   app.delete("/api/users/:userId/list", handleRemoveFromUserList);
 
+  // Admin setup endpoint - for initial setup only
+  app.post("/api/setup/admin", async (req, res) => {
+    try {
+      const { email = "admin@aniwa.com", password = "admin123", username = "admin" } = req.body;
+
+      // Check if any admin exists
+      const existingAdmin = await sql`SELECT * FROM users WHERE is_admin = true LIMIT 1`;
+
+      if (existingAdmin.length > 0) {
+        return res.json({
+          success: false,
+          message: "Admin kullanıcı zaten mevcut",
+          admin: existingAdmin[0]
+        });
+      }
+
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Create admin user
+      const adminUser = await sql`
+        INSERT INTO users (username, email, password_hash, is_admin)
+        VALUES (${username}, ${email}, ${passwordHash}, true)
+        RETURNING id, username, email, is_admin
+      `;
+
+      res.json({
+        success: true,
+        message: "Admin kullanıcı oluşturuldu",
+        admin: adminUser[0],
+        loginCredentials: { email, password }
+      });
+    } catch (error) {
+      console.error("Admin creation error:", error);
+      res.status(500).json({ success: false, message: "Admin oluşturma hatası" });
+    }
+  });
+
+  // Database status endpoint
+  app.get("/api/debug/database", async (req, res) => {
+    try {
+      const tables = await sql`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+      `;
+
+      const users = await sql`SELECT id, username, email, is_admin FROM users`;
+      const animes = await sql`SELECT id, title, title_en, rating, year FROM animes`;
+
+      res.json({
+        success: true,
+        tables: tables.map(t => t.table_name),
+        users: users,
+        animes: animes,
+        counts: {
+          users: users.length,
+          animes: animes.length
+        }
+      });
+    } catch (error) {
+      console.error("Database check error:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+
   return app;
 }
