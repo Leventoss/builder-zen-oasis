@@ -1201,6 +1201,94 @@ export default function UltimateAdmin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users" className="space-y-6">
+            <Card className="bg-anime-card border-anime-accent/20">
+              <CardHeader>
+                <CardTitle className="text-white">Kullanıcı Yönetimi</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Tüm kullanıcıları görüntüle ve yönet
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-4">
+                      <Input
+                        placeholder="Kullanıcı ara..."
+                        className="w-64 bg-anime-dark border-anime-accent/30"
+                      />
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-40 bg-anime-dark border-anime-accent/30">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tüm Kullanıcılar</SelectItem>
+                          <SelectItem value="admin">Adminler</SelectItem>
+                          <SelectItem value="premium">Premium</SelectItem>
+                          <SelectItem value="regular">Normal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Button className="bg-anime-accent hover:bg-anime-accent/80 text-white">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Yeni Kullanıcı
+                    </Button>
+                  </div>
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-gray-400">Kullanıcı</TableHead>
+                        <TableHead className="text-gray-400">Email</TableHead>
+                        <TableHead className="text-gray-400">Kayıt Tarihi</TableHead>
+                        <TableHead className="text-gray-400">Durum</TableHead>
+                        <TableHead className="text-gray-400">İşlemler</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="text-white">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-anime-accent rounded-full flex items-center justify-center">
+                              <User className="h-4 w-4 text-white" />
+                            </div>
+                            <div>
+                              <p className="font-medium">admin</p>
+                              <p className="text-gray-400 text-sm">Discord: Bağlı</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-gray-300">admin@aniwa.com</TableCell>
+                        <TableCell className="text-gray-300">2024-01-01</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Badge className="bg-red-600 text-white">Admin</Badge>
+                            <Badge className="bg-yellow-600 text-white">Premium</Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Settings className="h-3 w-3" />
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
