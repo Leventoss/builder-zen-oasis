@@ -1,0 +1,7 @@
+admin@aniwa.com
+admin@gmail.com
+test@gmail.com
+support@aniwa.com
+developer@gmail.com
+user1@gmail.com
+user2@gmail.com
