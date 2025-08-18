@@ -10,8 +10,9 @@ export const sql = neon(connectionString);
 // Database utility functions
 export async function getUserByEmail(email: string) {
   const users = await sql`
-    SELECT id, username, email, password_hash, is_admin, created_at
-    FROM users 
+    SELECT id, username, email, password_hash, is_admin, is_premium,
+           premium_expires_at, discord_id, discord_username, created_at
+    FROM users
     WHERE email = ${email}
     LIMIT 1
   `;
@@ -24,16 +25,18 @@ export async function createUser(
   passwordHash: string,
 ) {
   const users = await sql`
-    INSERT INTO users (username, email, password_hash, is_admin)
-    VALUES (${username}, ${email}, ${passwordHash}, false)
-    RETURNING id, username, email, is_admin, created_at
+    INSERT INTO users (username, email, password_hash, is_admin, is_premium)
+    VALUES (${username}, ${email}, ${passwordHash}, false, false)
+    RETURNING id, username, email, is_admin, is_premium, premium_expires_at,
+             discord_id, discord_username, created_at
   `;
   return users[0];
 }
 
 export async function getAllUsers() {
   return await sql`
-    SELECT id, username, email, is_admin, created_at
+    SELECT id, username, email, is_admin, is_premium, premium_expires_at,
+           discord_id, discord_username, created_at
     FROM users
     ORDER BY created_at DESC
   `;
@@ -41,8 +44,9 @@ export async function getAllUsers() {
 
 export async function getUserStats() {
   const stats = await sql`
-    SELECT 
+    SELECT
       (SELECT COUNT(*) FROM users) as total_users,
+      (SELECT COUNT(*) FROM users WHERE is_premium = true) as premium_users,
       (SELECT COUNT(*) FROM animes) as total_animes,
       (SELECT COUNT(*) FROM episodes) as total_episodes,
       (SELECT COUNT(*) FROM watch_progress WHERE DATE(last_watched) = CURRENT_DATE) as today_watches
