@@ -3,7 +3,7 @@ import { neon } from "@neondatabase/serverless";
 // Database connection
 const connectionString =
   process.env.DATABASE_URL ||
-  "postgresql://neondb_owner:npg_UOqmtxn2y4hE@ep-orange-math-aelrf30d-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
+  "postgresql://neondb_owner:npg_ycnCME0N1GXk@ep-orange-cloud-aei26sw0-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
 
 export const sql = neon(connectionString);
 
