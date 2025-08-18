@@ -62,7 +62,12 @@ export function createServer() {
   const app = express();
 
   // Middleware
-  app.use(cors());
+  app.use(cors({
+    origin: ['http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -70,6 +75,15 @@ export function createServer() {
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });
+  });
+
+  // Test endpoint for debugging
+  app.get("/api/test", (_req, res) => {
+    res.json({
+      success: true,
+      message: "API is working!",
+      timestamp: new Date().toISOString()
+    });
   });
 
   app.get("/api/demo", handleDemo);
