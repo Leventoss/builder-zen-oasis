@@ -586,7 +586,7 @@ export function createServer() {
             VALUES (
               ${anime.title}, ${anime.titleEn}, ${anime.poster},
               ${anime.poster}, ${anime.rating}, ${anime.year},
-              ${anime.episodes}, ${JSON.stringify(anime.genre)}, ${JSON.stringify(anime.genreEn)},
+              ${anime.episodes}, ${anime.genre}, ${anime.genreEn},
               ${anime.duration}, ${anime.description}, ${anime.descriptionEn},
               ${anime.status}, ${anime.category}
             )
