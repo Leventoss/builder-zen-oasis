@@ -96,7 +96,7 @@ export default function AnimeCard({
         <div className="absolute top-3 left-3">
           <Badge className="bg-black/70 text-neon-blue border-neon-blue/30 flex items-center gap-1">
             <Star className="h-3 w-3 fill-neon-blue" />
-            {rating.toFixed(1)}
+            {Number(rating).toFixed(1)}
           </Badge>
         </div>
 
