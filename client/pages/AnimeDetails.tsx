@@ -74,7 +74,7 @@ export default function AnimeDetails() {
           <h1 className="text-2xl font-bold text-white mb-4">
             Anime Bulunamadı
           </h1>
-          <Button onClick={() => navigate("/")} className="btn-primary">
+          <Button onClick={() => navigate("/")} className="bg-anime-accent hover:bg-anime-accent/80 text-white">
             Ana Sayfaya Dön
           </Button>
         </div>
@@ -201,7 +201,7 @@ export default function AnimeDetails() {
           <div className="relative h-full">
             <Button
               onClick={() => setShowPlayer(false)}
-              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70"
+              className="absolute top-4 right-4 z-10 bg-anime-accent/80 hover:bg-anime-accent text-white"
               size="sm"
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
@@ -298,7 +298,7 @@ export default function AnimeDetails() {
               <div className="flex flex-wrap items-center gap-4">
                 <Button
                   size="lg"
-                  className="btn-primary"
+                  className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold"
                   onClick={handleStartWatching}
                 >
                   <Play className="h-5 w-5 mr-2" />
