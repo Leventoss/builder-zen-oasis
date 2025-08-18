@@ -183,7 +183,31 @@ export default function UltimateAdmin() {
   // Load data
   useEffect(() => {
     updateStats();
-  }, [animes, episodes]);
+    if (activeTab === 'users') {
+      loadUsers();
+    }
+  }, [animes, episodes, activeTab]);
+
+  // Load users from API
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const response = await fetch('/api/admin/users');
+      if (response.ok) {
+        const result = await response.json();
+        setUsers(result.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      toast({
+        title: "Kullanıcı Yükleme Hatası",
+        description: "Kullanıcılar yüklenirken hata oluştu",
+        variant: "destructive",
+      });
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 
   const updateStats = () => {
     const totalAnimes = animes.length || 0;
@@ -1139,7 +1163,7 @@ export default function UltimateAdmin() {
                             >
                               {item.status === 'success' ? 'Başarılı' :
                                item.status === 'error' ? 'Hata' :
-                               item.status === 'importing' ? 'İçe Aktarılıyor' : 'Bekliyor'}
+                               item.status === 'importing' ? 'İ��e Aktarılıyor' : 'Bekliyor'}
                             </Badge>
                           </div>
                         </div>
