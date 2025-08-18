@@ -179,13 +179,16 @@ export default function UltimateAdmin() {
   }, [animes, episodes]);
 
   const updateStats = () => {
-    const totalAnimes = animes.length;
-    const totalEpisodes = episodes.length;
-    const ongoing = animes.filter(a => a.status === 'ongoing').length;
-    const completed = animes.filter(a => a.status === 'completed').length;
-    const movies = animes.filter(a => a.category === 'movie').length;
-    const averageRating = totalAnimes > 0 ? 
-      animes.reduce((sum, a) => sum + (a.rating || 0), 0) / totalAnimes : 0;
+    const totalAnimes = animes.length || 0;
+    const totalEpisodes = episodes.length || 0;
+    const ongoing = animes.filter(a => a.status === 'ongoing').length || 0;
+    const completed = animes.filter(a => a.status === 'completed').length || 0;
+    const movies = animes.filter(a => a.category === 'movie').length || 0;
+
+    // Safe rating calculation with NaN protection
+    const validRatings = animes.filter(a => typeof a.rating === 'number' && !isNaN(a.rating) && a.rating > 0);
+    const averageRating = validRatings.length > 0 ?
+      validRatings.reduce((sum, a) => sum + a.rating, 0) / validRatings.length : 0;
 
     setStats({
       totalAnimes,
@@ -193,7 +196,7 @@ export default function UltimateAdmin() {
       ongoing,
       completed,
       movies,
-      averageRating: parseFloat(averageRating.toFixed(1))
+      averageRating: isNaN(averageRating) ? 0 : Number(averageRating.toFixed(1))
     });
   };
 
