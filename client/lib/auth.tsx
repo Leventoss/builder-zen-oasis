@@ -13,6 +13,10 @@ export interface User {
   username: string;
   email: string;
   isAdmin: boolean;
+  isPremium: boolean;
+  premiumExpiresAt?: string;
+  discordId?: string;
+  discordUsername?: string;
 }
 
 // Auth context tipi
@@ -24,10 +28,13 @@ interface AuthContextType {
     email: string,
     password: string,
   ) => Promise<boolean>;
+  loginWithDiscord: () => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isPremium: boolean;
   loading: boolean;
+  checkPremiumStatus: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,6 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               username: response.user.username,
               email: response.user.email,
               isAdmin: response.user.isAdmin,
+              isPremium: response.user.isPremium || false,
+              premiumExpiresAt: response.user.premiumExpiresAt,
+              discordId: response.user.discordId,
+              discordUsername: response.user.discordUsername,
             });
           } else {
             authToken.remove();
@@ -82,6 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: response.user.username,
           email: response.user.email,
           isAdmin: response.user.isAdmin,
+          isPremium: response.user.isPremium || false,
+          premiumExpiresAt: response.user.premiumExpiresAt,
+          discordId: response.user.discordId,
+          discordUsername: response.user.discordUsername,
         });
         return true;
       }
@@ -107,6 +122,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: response.user.username,
           email: response.user.email,
           isAdmin: response.user.isAdmin,
+          isPremium: response.user.isPremium || false,
+          premiumExpiresAt: response.user.premiumExpiresAt,
+          discordId: response.user.discordId,
+          discordUsername: response.user.discordUsername,
         });
         return true;
       }
@@ -118,6 +137,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithDiscord = async (): Promise<boolean> => {
+    try {
+      // Discord OAuth flow will be handled here
+      window.location.href = '/api/auth/discord';
+      return true;
+    } catch (error) {
+      console.error('Discord login failed:', error);
+      return false;
+    }
+  };
+
+  const checkPremiumStatus = (): boolean => {
+    if (!user?.isPremium) return false;
+    if (!user.premiumExpiresAt) return true; // Lifetime premium
+    
+    const expiryDate = new Date(user.premiumExpiresAt);
+    return expiryDate > new Date();
+  };
+
   const logout = () => {
     authAPI.logout();
     setUser(null);
@@ -127,10 +165,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     login,
     register,
+    loginWithDiscord,
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.isAdmin || false,
+    isPremium: checkPremiumStatus(),
     loading,
+    checkPremiumStatus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -148,11 +189,13 @@ export function useAuth() {
 export function ProtectedRoute({
   children,
   requireAdmin = false,
+  requirePremium = false,
 }: {
   children: ReactNode;
   requireAdmin?: boolean;
+  requirePremium?: boolean;
 }) {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isPremium } = useAuth();
 
   if (!isAuthenticated) {
     return (
@@ -180,7 +223,26 @@ export function ProtectedRoute({
           <h1 className="text-2xl font-bold text-white mb-4">
             Yetkisiz Erişim
           </h1>
-          <p className="text-gray-400 mb-6">Bu sayfaya erişim yetkiniz yok.</p>
+          <p className="text-gray-400 mb-6">Bu sayfaya eri��im yetkiniz yok.</p>
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="btn-primary"
+          >
+            Ana Sayfaya Git
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (requirePremium && !isPremium) {
+    return (
+      <div className="min-h-screen bg-anime-dark flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">
+            Premium Üyelik Gerekli
+          </h1>
+          <p className="text-gray-400 mb-6">Bu özelliği kullanmak için premium üyelik gerekli.</p>
           <button
             onClick={() => (window.location.href = "/")}
             className="btn-primary"
