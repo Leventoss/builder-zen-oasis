@@ -52,7 +52,9 @@ export const handleDiscordCallback: RequestHandler = async (req, res) => {
     const { code } = req.query;
     const clientId = process.env.DISCORD_CLIENT_ID;
     const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-    const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/discord/callback`;
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const host = req.get('host');
+    const redirectUri = `${protocol}://${host}/api/auth/discord/callback`;
 
     if (!code || !clientId || !clientSecret) {
       return res.redirect('/?error=discord_auth_failed');
