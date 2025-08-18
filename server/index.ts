@@ -78,16 +78,21 @@ export function createServer() {
   // Admin setup endpoint - for initial setup only
   app.post("/api/setup/admin", async (req, res) => {
     try {
-      const { email = "admin@aniwa.com", password = "admin123", username = "admin" } = req.body;
+      const {
+        email = "admin@aniwa.com",
+        password = "admin123",
+        username = "admin",
+      } = req.body;
 
       // Check if any admin exists
-      const existingAdmin = await sql`SELECT * FROM users WHERE is_admin = true LIMIT 1`;
+      const existingAdmin =
+        await sql`SELECT * FROM users WHERE is_admin = true LIMIT 1`;
 
       if (existingAdmin.length > 0) {
         return res.json({
           success: false,
           message: "Admin kullanıcı zaten mevcut",
-          admin: existingAdmin[0]
+          admin: existingAdmin[0],
         });
       }
 
@@ -105,11 +110,13 @@ export function createServer() {
         success: true,
         message: "Admin kullanıcı oluşturuldu",
         admin: adminUser[0],
-        loginCredentials: { email, password }
+        loginCredentials: { email, password },
       });
     } catch (error) {
       console.error("Admin creation error:", error);
-      res.status(500).json({ success: false, message: "Admin oluşturma hatası" });
+      res
+        .status(500)
+        .json({ success: false, message: "Admin oluşturma hatası" });
     }
   });
 
@@ -131,11 +138,13 @@ export function createServer() {
         success: true,
         message: "Admin şifresi güncellendi",
         admin: updatedAdmin[0],
-        loginCredentials: { email: "admin@aniwa.com", password }
+        loginCredentials: { email: "admin@aniwa.com", password },
       });
     } catch (error) {
       console.error("Admin password fix error:", error);
-      res.status(500).json({ success: false, message: "Şifre güncelleme hatası" });
+      res
+        .status(500)
+        .json({ success: false, message: "Şifre güncelleme hatası" });
     }
   });
 
@@ -149,17 +158,18 @@ export function createServer() {
       `;
 
       const users = await sql`SELECT id, username, email, is_admin FROM users`;
-      const animes = await sql`SELECT id, title, title_en, rating, year FROM animes`;
+      const animes =
+        await sql`SELECT id, title, title_en, rating, year FROM animes`;
 
       res.json({
         success: true,
-        tables: tables.map(t => t.table_name),
+        tables: tables.map((t) => t.table_name),
         users: users,
         animes: animes,
         counts: {
           users: users.length,
-          animes: animes.length
-        }
+          animes: animes.length,
+        },
       });
     } catch (error) {
       console.error("Database check error:", error);
@@ -182,8 +192,10 @@ export function createServer() {
           genre: ["Aksiyon", "Drama", "Fantastik"],
           genreEn: ["Action", "Drama", "Fantasy"],
           duration: "24min",
-          description: "İnsanlığın devasa titanlarla hayatta kalma mücadelesini konu alan epik bir anime.",
-          descriptionEn: "An epic anime about humanity's struggle for survival against giant titans.",
+          description:
+            "İnsanlığın devasa titanlarla hayatta kalma mücadelesini konu alan epik bir anime.",
+          descriptionEn:
+            "An epic anime about humanity's struggle for survival against giant titans.",
           status: "completed",
           category: "anime",
         },
@@ -198,7 +210,8 @@ export function createServer() {
           genreEn: ["Action", "Supernatural"],
           duration: "23min",
           description: "Demon avcısı Tanjiro'nun kardeşini kurtarma yolculuğu.",
-          descriptionEn: "The journey of demon slayer Tanjiro to save his sister.",
+          descriptionEn:
+            "The journey of demon slayer Tanjiro to save his sister.",
           status: "ongoing",
           category: "anime",
         },
@@ -243,7 +256,8 @@ export function createServer() {
           genreEn: ["Action", "Martial Arts", "Shonen"],
           duration: "23min",
           description: "Naruto'nun ninja dünyasında güçlü olmaya giden yolu.",
-          descriptionEn: "Naruto's path to becoming powerful in the ninja world.",
+          descriptionEn:
+            "Naruto's path to becoming powerful in the ninja world.",
           status: "completed",
           category: "anime",
         },
@@ -257,8 +271,10 @@ export function createServer() {
           genre: ["Aksiyon", "Okul", "Süper Kahraman"],
           genreEn: ["Action", "School", "Superhero"],
           duration: "24min",
-          description: "Süper güçlerin normal olduğu bir dünyada kahraman olmaya çalışan Deku.",
-          descriptionEn: "Deku trying to become a hero in a world where superpowers are normal.",
+          description:
+            "Süper güçlerin normal olduğu bir dünyada kahraman olmaya çalışan Deku.",
+          descriptionEn:
+            "Deku trying to become a hero in a world where superpowers are normal.",
           status: "ongoing",
           category: "anime",
         },
@@ -272,7 +288,8 @@ export function createServer() {
           genre: ["Aksiyon", "Korku", "Doğaüstü"],
           genreEn: ["Action", "Horror", "Supernatural"],
           duration: "24min",
-          description: "Denji'nin şeytan avcısı olarak hayatta kalma mücadelesi.",
+          description:
+            "Denji'nin şeytan avcısı olarak hayatta kalma mücadelesi.",
           descriptionEn: "Denji's struggle to survive as a devil hunter.",
           status: "ongoing",
           category: "anime",
@@ -303,7 +320,8 @@ export function createServer() {
           genreEn: ["Action", "Comedy", "Superhero"],
           duration: "24min",
           description: "Tek yumrukla her düşmanını yenen Saitama'nın hikayesi.",
-          descriptionEn: "The story of Saitama who defeats every enemy with one punch.",
+          descriptionEn:
+            "The story of Saitama who defeats every enemy with one punch.",
           status: "ongoing",
           category: "anime",
         },
@@ -317,8 +335,10 @@ export function createServer() {
           genre: ["Gerilim", "Doğaüstü", "Psikolojik"],
           genreEn: ["Thriller", "Supernatural", "Psychological"],
           duration: "23min",
-          description: "Light Yagami'nin Death Note ile adaleti sağlama çabası.",
-          descriptionEn: "Light Yagami's attempt to create justice with the Death Note.",
+          description:
+            "Light Yagami'nin Death Note ile adaleti sağlama çabası.",
+          descriptionEn:
+            "Light Yagami's attempt to create justice with the Death Note.",
           status: "completed",
           category: "anime",
         },
@@ -332,8 +352,10 @@ export function createServer() {
           genre: ["Aksiyon", "Macera", "Shonen"],
           genreEn: ["Action", "Adventure", "Shonen"],
           duration: "23min",
-          description: "Goku ve arkadaşlarının yeni evrensel savaşlar ve güçlü düşmanlarla karşılaştığı macera.",
-          descriptionEn: "The adventure of Goku and friends facing new universal battles and powerful enemies.",
+          description:
+            "Goku ve arkadaşlarının yeni evrensel savaşlar ve güçlü düşmanlarla karşılaştığı macera.",
+          descriptionEn:
+            "The adventure of Goku and friends facing new universal battles and powerful enemies.",
           status: "ongoing",
           category: "anime",
         },
@@ -347,8 +369,10 @@ export function createServer() {
           genre: ["Macera", "Aksiyon", "Shonen"],
           genreEn: ["Adventure", "Action", "Shonen"],
           duration: "23min",
-          description: "Gon Freecss'in babasını bulmak için Hunter olma yolculuğu.",
-          descriptionEn: "Gon Freecss's journey to become a Hunter to find his father.",
+          description:
+            "Gon Freecss'in babasını bulmak için Hunter olma yolculuğu.",
+          descriptionEn:
+            "Gon Freecss's journey to become a Hunter to find his father.",
           status: "completed",
           category: "anime",
         },
@@ -362,8 +386,10 @@ export function createServer() {
           genre: ["Aksiyon", "Drama", "Fantastik"],
           genreEn: ["Action", "Drama", "Fantasy"],
           duration: "24min",
-          description: "Edward ve Alphonse Elric kardeşlerin felsefe taşını arama hikayesi.",
-          descriptionEn: "The story of brothers Edward and Alphonse Elric searching for the philosopher's stone.",
+          description:
+            "Edward ve Alphonse Elric kardeşlerin felsefe taşını arama hikayesi.",
+          descriptionEn:
+            "The story of brothers Edward and Alphonse Elric searching for the philosopher's stone.",
           status: "completed",
           category: "anime",
         },
@@ -377,7 +403,8 @@ export function createServer() {
           genre: ["Korku", "Aksiyon", "Doğaüstü"],
           genreEn: ["Horror", "Action", "Supernatural"],
           duration: "24min",
-          description: "Ken Kaneki'nin ghoul dünyasında hayatta kalma mücadelesi.",
+          description:
+            "Ken Kaneki'nin ghoul dünyasında hayatta kalma mücadelesi.",
           descriptionEn: "Ken Kaneki's struggle to survive in the ghoul world.",
           status: "completed",
           category: "anime",
@@ -392,8 +419,10 @@ export function createServer() {
           genre: ["Aksiyon", "Doğaüstü", "Shonen"],
           genreEn: ["Action", "Supernatural", "Shonen"],
           duration: "24min",
-          description: "Ichigo'nun Quincy'lerle olan son savaşındaki destansı macerası.",
-          descriptionEn: "Ichigo's epic adventure in the final battle against the Quincies.",
+          description:
+            "Ichigo'nun Quincy'lerle olan son savaşındaki destansı macerası.",
+          descriptionEn:
+            "Ichigo's epic adventure in the final battle against the Quincies.",
           status: "ongoing",
           category: "anime",
         },
@@ -407,8 +436,10 @@ export function createServer() {
           genre: ["Drama", "Romantik", "Fantastik"],
           genreEn: ["Drama", "Romance", "Fantasy"],
           duration: "24min",
-          description: "Eski savaş veteranı Violet'in duyguları öğrenme yolculuğu.",
-          descriptionEn: "Former war veteran Violet's journey to learn emotions.",
+          description:
+            "Eski savaş veteranı Violet'in duyguları öğrenme yolculuğu.",
+          descriptionEn:
+            "Former war veteran Violet's journey to learn emotions.",
           status: "completed",
           category: "anime",
         },
@@ -422,8 +453,10 @@ export function createServer() {
           genre: ["Drama", "Mecha", "Askeri"],
           genreEn: ["Drama", "Mecha", "Military"],
           duration: "25min",
-          description: "Lelouch'un Geass gücüyle Britanya İmparatorluğuna karşı isyanı.",
-          descriptionEn: "Lelouch's rebellion against the Britannia Empire with the power of Geass.",
+          description:
+            "Lelouch'un Geass gücüyle Britanya İmparatorluğuna karşı isyanı.",
+          descriptionEn:
+            "Lelouch's rebellion against the Britannia Empire with the power of Geass.",
           status: "completed",
           category: "anime",
         },
@@ -437,8 +470,10 @@ export function createServer() {
           genre: ["Komedi", "Aksiyon", "Aile"],
           genreEn: ["Comedy", "Action", "Family"],
           duration: "24min",
-          description: "Sahte aile kuran casus, suikastçı ve telepat kızın komik maceraları.",
-          descriptionEn: "Comic adventures of a spy, assassin, and telepathic girl forming a fake family.",
+          description:
+            "Sahte aile kuran casus, suikastçı ve telepat kızın komik maceraları.",
+          descriptionEn:
+            "Comic adventures of a spy, assassin, and telepathic girl forming a fake family.",
           status: "ongoing",
           category: "anime",
         },
@@ -452,8 +487,10 @@ export function createServer() {
           genre: ["Spor", "Okul", "Komedi"],
           genreEn: ["Sports", "School", "Comedy"],
           duration: "24min",
-          description: "Hinata ve Kageyama'nın voleybolda zirveye çıkma hikayesi.",
-          descriptionEn: "The story of Hinata and Kageyama rising to the top in volleyball.",
+          description:
+            "Hinata ve Kageyama'nın voleybolda zirveye çıkma hikayesi.",
+          descriptionEn:
+            "The story of Hinata and Kageyama rising to the top in volleyball.",
           status: "completed",
           category: "anime",
         },
@@ -467,8 +504,10 @@ export function createServer() {
           genre: ["Macera", "Fantastik", "Aksiyon"],
           genreEn: ["Adventure", "Fantasy", "Action"],
           duration: "24min",
-          description: "Yedi Ölümcül Günah şövalyelerinin krallığı kurtarma macerası.",
-          descriptionEn: "The adventure of the Seven Deadly Sins knights to save the kingdom.",
+          description:
+            "Yedi Ölümcül Günah şövalyelerinin krallığı kurtarma macerası.",
+          descriptionEn:
+            "The adventure of the Seven Deadly Sins knights to save the kingdom.",
           status: "completed",
           category: "anime",
         },
@@ -484,7 +523,8 @@ export function createServer() {
           genreEn: ["Romance", "Drama", "Supernatural"],
           duration: "106min",
           description: "İki gencin vücut değiştirme macerası ve aşk hikayesi.",
-          descriptionEn: "The body-swapping adventure and love story of two teenagers.",
+          descriptionEn:
+            "The body-swapping adventure and love story of two teenagers.",
           status: "completed",
           category: "movie",
         },
@@ -543,8 +583,10 @@ export function createServer() {
           genre: ["Macera", "Drama", "Fantastik"],
           genreEn: ["Adventure", "Drama", "Fantasy"],
           duration: "134min",
-          description: "Doğa ve sanayi arasındaki çatışmayı anlatan epik hikaye.",
-          descriptionEn: "Epic tale of the conflict between nature and industry.",
+          description:
+            "Doğa ve sanayi arasındaki çatışmayı anlatan epik hikaye.",
+          descriptionEn:
+            "Epic tale of the conflict between nature and industry.",
           status: "completed",
           category: "movie",
         },
@@ -558,8 +600,10 @@ export function createServer() {
           genre: ["Romantik", "Drama", "Doğaüstü"],
           genreEn: ["Romance", "Drama", "Supernatural"],
           duration: "112min",
-          description: "Hava durumunu kontrol edebilen kızla tanışan gencin hikayesi.",
-          descriptionEn: "The story of a boy who meets a girl who can control the weather.",
+          description:
+            "Hava durumunu kontrol edebilen kızla tanışan gencin hikayesi.",
+          descriptionEn:
+            "The story of a boy who meets a girl who can control the weather.",
           status: "completed",
           category: "movie",
         },
@@ -602,9 +646,8 @@ export function createServer() {
         message: `${addedCount} anime başarıyla eklendi`,
         addedCount,
         totalAnimes: sampleAnimes.length,
-        errors: errors.length > 0 ? errors : undefined
+        errors: errors.length > 0 ? errors : undefined,
       });
-
     } catch (error) {
       console.error("Anime restore error:", error);
       res.status(500).json({ success: false, message: error.message });

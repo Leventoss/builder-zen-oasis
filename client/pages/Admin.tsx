@@ -631,7 +631,6 @@ export default function Admin() {
     });
   };
 
-
   const handleQuickAdd = async () => {
     if (!quickAddTitle.trim()) return;
 
