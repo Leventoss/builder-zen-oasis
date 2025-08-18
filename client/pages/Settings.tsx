@@ -77,8 +77,8 @@ export default function Settings() {
             <p className="text-gray-400 mb-6">
               Ayarları görmek için giriş yapmalısınız.
             </p>
-            <Button 
-              onClick={() => window.location.href = "/"}
+            <Button
+              onClick={() => (window.location.href = "/")}
               className="btn-primary"
             >
               Ana Sayfaya Git
@@ -141,7 +141,11 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) {
+    if (
+      confirm(
+        "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      )
+    ) {
       try {
         // TODO: Implement API call to delete account
         toast({
@@ -179,7 +183,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="pt-16">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="mb-8">
@@ -234,7 +238,7 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-white mb-4">
                   Profil Bilgileri
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
@@ -288,7 +292,11 @@ export default function Settings() {
                           className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                           onClick={() => setShowPasswords(!showPasswords)}
                         >
-                          {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showPasswords ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -307,7 +315,10 @@ export default function Settings() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="confirm-password" className="text-white">
+                        <Label
+                          htmlFor="confirm-password"
+                          className="text-white"
+                        >
                           Şifre Tekrar
                         </Label>
                         <Input
@@ -333,17 +344,19 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-red-400 mb-4">
                   Tehlikeli Bölge
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Verileri Dışa Aktar</h4>
+                      <h4 className="text-white font-medium">
+                        Verileri Dışa Aktar
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         Tüm kişisel verilerinizi indirin
                       </p>
                     </div>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={handleExportData}
                       className="border-white/20 text-white"
                     >
@@ -361,10 +374,7 @@ export default function Settings() {
                         Hesabınızı ve tüm verilerinizi kalıcı olarak silin
                       </p>
                     </div>
-                    <Button 
-                      variant="destructive" 
-                      onClick={handleDeleteAccount}
-                    >
+                    <Button variant="destructive" onClick={handleDeleteAccount}>
                       <Trash2 className="h-4 w-4 mr-2" />
                       Hesabı Sil
                     </Button>
@@ -379,11 +389,13 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-white mb-4">
                   Bildirim Ayarları
                 </h3>
-                
+
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Email Bildirimleri</h4>
+                      <h4 className="text-white font-medium">
+                        Email Bildirimleri
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         Email ile bildirim almayı tercih edin
                       </p>
@@ -396,7 +408,9 @@ export default function Settings() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Push Bildirimleri</h4>
+                      <h4 className="text-white font-medium">
+                        Push Bildirimleri
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         Tarayıcı bildirimleri alın
                       </p>
@@ -409,7 +423,9 @@ export default function Settings() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Yeni Bölüm Uyarıları</h4>
+                      <h4 className="text-white font-medium">
+                        Yeni Bölüm Uyarıları
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         İzlediğiniz animelerin yeni bölümleri için bildirim
                       </p>
@@ -422,7 +438,9 @@ export default function Settings() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Watchlist Güncellemeleri</h4>
+                      <h4 className="text-white font-medium">
+                        Watchlist Güncellemeleri
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         İzleme listenizle ilgili güncellemeler
                       </p>
@@ -447,19 +465,18 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-white mb-4">
                   Oynatma Ayarları
                 </h3>
-                
+
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Otomatik Oynatma</h4>
+                      <h4 className="text-white font-medium">
+                        Otomatik Oynatma
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         Videoları otomatik olarak başlat
                       </p>
                     </div>
-                    <Switch
-                      checked={autoplay}
-                      onCheckedChange={setAutoplay}
-                    />
+                    <Switch checked={autoplay} onCheckedChange={setAutoplay} />
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -477,7 +494,10 @@ export default function Settings() {
 
                   <div className="space-y-2">
                     <Label className="text-white">Varsayılan Kalite</Label>
-                    <Select value={defaultQuality} onValueChange={setDefaultQuality}>
+                    <Select
+                      value={defaultQuality}
+                      onValueChange={setDefaultQuality}
+                    >
                       <SelectTrigger className="bg-black/50 border-white/20 text-white">
                         <SelectValue />
                       </SelectTrigger>
@@ -493,7 +513,10 @@ export default function Settings() {
 
                   <div className="space-y-2">
                     <Label className="text-white">Altyazı Dili</Label>
-                    <Select value={subtitleLanguage} onValueChange={setSubtitleLanguage}>
+                    <Select
+                      value={subtitleLanguage}
+                      onValueChange={setSubtitleLanguage}
+                    >
                       <SelectTrigger className="bg-black/50 border-white/20 text-white">
                         <SelectValue />
                       </SelectTrigger>
@@ -506,7 +529,9 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-white">Ses Seviyesi: {volume}%</Label>
+                    <Label className="text-white">
+                      Ses Seviyesi: {volume}%
+                    </Label>
                     <Slider
                       value={[volume]}
                       onValueChange={(value) => setVolume(value[0])}
@@ -530,17 +555,22 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-white mb-4">
                   Gizlilik Ayarları
                 </h3>
-                
+
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-white">Profil Görünürlüğü</Label>
-                    <Select value={profileVisibility} onValueChange={setProfileVisibility}>
+                    <Select
+                      value={profileVisibility}
+                      onValueChange={setProfileVisibility}
+                    >
                       <SelectTrigger className="bg-black/50 border-white/20 text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-anime-card border-white/10">
                         <SelectItem value="public">Herkese Açık</SelectItem>
-                        <SelectItem value="friends">Sadece Arkadaşlar</SelectItem>
+                        <SelectItem value="friends">
+                          Sadece Arkadaşlar
+                        </SelectItem>
                         <SelectItem value="private">Özel</SelectItem>
                       </SelectContent>
                     </Select>
@@ -548,7 +578,9 @@ export default function Settings() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">İzleme Geçmişi Görünür</h4>
+                      <h4 className="text-white font-medium">
+                        İzleme Geçmişi Görünür
+                      </h4>
                       <p className="text-gray-400 text-sm">
                         İzleme geçmişinizi diğer kullanıcılara göster
                       </p>
@@ -561,9 +593,12 @@ export default function Settings() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium">Öneriler İçin İzin</h4>
+                      <h4 className="text-white font-medium">
+                        Öneriler İçin İzin
+                      </h4>
                       <p className="text-gray-400 text-sm">
-                        İzleme verilerinizi kullanarak kişiselleştirilmiş öneriler
+                        İzleme verilerinizi kullanarak kişiselleştirilmiş
+                        öneriler
                       </p>
                     </div>
                     <Switch
@@ -586,7 +621,7 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-white mb-4">
                   Dil ve Tema Ayarları
                 </h3>
-                
+
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-white">Dil</Label>

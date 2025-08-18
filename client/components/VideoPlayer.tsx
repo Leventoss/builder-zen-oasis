@@ -208,7 +208,7 @@ export default function VideoPlayer({
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
@@ -322,7 +322,11 @@ export default function VideoPlayer({
               onClick={togglePlay}
               className="text-white hover:text-neon-blue"
             >
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              {isPlaying ? (
+                <Pause className="h-5 w-5" />
+              ) : (
+                <Play className="h-5 w-5" />
+              )}
             </Button>
 
             {/* Skip Buttons */}

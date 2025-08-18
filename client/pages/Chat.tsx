@@ -54,17 +54,25 @@ export default function Chat() {
   ];
 
   const categoryGreetings = {
-    "anime-ekletme": "Merhaba! Anime ekletme talepleriniz için buradayım. Eklemek istediğiniz animeyi ve detaylarını yazınız.",
-    "anime-sorun": "Merhaba! Anime izlerken veya playerda yaşadığınız sorunları detaylıca yazarsanız hızlıca yardımcı olabilirim.",
-    "site-isleyisi": "Merhaba! Sitemizin işleyişiyle ilgili sorularınızı ve önerilerinizi buradan iletebilirsiniz.",
-    "premium": "Merhaba! Premium üyelik ve özel destek için sorularınızı bekliyorum."
+    "anime-ekletme":
+      "Merhaba! Anime ekletme talepleriniz için buradayım. Eklemek istediğiniz animeyi ve detaylarını yazınız.",
+    "anime-sorun":
+      "Merhaba! Anime izlerken veya playerda yaşadığınız sorunları detaylıca yazarsanız hızlıca yardımcı olabilirim.",
+    "site-isleyisi":
+      "Merhaba! Sitemizin işleyişiyle ilgili sorularınızı ve önerilerinizi buradan iletebilirsiniz.",
+    premium:
+      "Merhaba! Premium üyelik ve özel destek için sorularınızı bekliyorum.",
   };
 
   const categoryTips = {
-    "anime-ekletme": "İpucu: Ekletmek istediğiniz anime adını, sezonunu ve varsa özel isteğinizi belirtin.",
-    "anime-sorun": "İpucu: Sorununuzu detaylıca yazarsanız daha hızlı çözüm bulabilirim.",
-    "site-isleyisi": "İpucu: Siteyle ilgili öneri veya şikayetlerinizi açıkça belirtin.",
-    "premium": "İpucu: Premium üyelik avantajları ve ödeme sorunları için buradayım."
+    "anime-ekletme":
+      "İpucu: Ekletmek istediğiniz anime adını, sezonunu ve varsa özel isteğinizi belirtin.",
+    "anime-sorun":
+      "İpucu: Sorununuzu detaylıca yazarsanız daha hızlı çözüm bulabilirim.",
+    "site-isleyisi":
+      "İpucu: Siteyle ilgili öneri veya şikayetlerinizi açıkça belirtin.",
+    premium:
+      "İpucu: Premium üyelik avantajları ve ödeme sorunları için buradayım.",
   };
 
   // Load allowed emails
@@ -74,7 +82,10 @@ export default function Chat() {
         const response = await fetch("/api.txt");
         if (response.ok) {
           const text = await response.text();
-          const emails = text.split("\n").map(email => email.trim()).filter(email => email);
+          const emails = text
+            .split("\n")
+            .map((email) => email.trim())
+            .filter((email) => email);
           setAllowedEmails(emails);
         }
       } catch (error) {
@@ -101,9 +112,9 @@ export default function Chat() {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("tr-TR", { 
-      hour: "2-digit", 
-      minute: "2-digit" 
+    return date.toLocaleTimeString("tr-TR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -137,7 +148,10 @@ export default function Chat() {
         const welcomeMessage: ChatMessage = {
           id: Date.now().toString(),
           sender: "bot",
-          message: categoryGreetings[selectedCategory as keyof typeof categoryGreetings],
+          message:
+            categoryGreetings[
+              selectedCategory as keyof typeof categoryGreetings
+            ],
           timestamp: new Date(),
         };
 
@@ -176,16 +190,20 @@ Yanıtın:
     let categoryInfo = "";
     switch (selectedCategory) {
       case "anime-ekletme":
-        categoryInfo = "Kullanıcı anime ekletmek istiyor. Ekletmek istediği animeyi, sezonu, bölümü ve varsa özel isteğini sor.";
+        categoryInfo =
+          "Kullanıcı anime ekletmek istiyor. Ekletmek istediği animeyi, sezonu, bölümü ve varsa özel isteğini sor.";
         break;
       case "anime-sorun":
-        categoryInfo = "Kullanıcı anime izlerken veya playerda sorun yaşıyor. Sorunu detaylıca anlamaya çalış, teknik destek ver.";
+        categoryInfo =
+          "Kullanıcı anime izlerken veya playerda sorun yaşıyor. Sorunu detaylıca anlamaya çalış, teknik destek ver.";
         break;
       case "site-isleyisi":
-        categoryInfo = "Kullanıcı site işleyişiyle ilgili soru soruyor. Site kullanımı, hesap işlemleri, öneriler ve geri bildirimler için yardımcı ol.";
+        categoryInfo =
+          "Kullanıcı site işleyişiyle ilgili soru soruyor. Site kullanımı, hesap işlemleri, öneriler ve geri bildirimler için yardımcı ol.";
         break;
       case "premium":
-        categoryInfo = "Kullanıcı premium destek istiyor. Premium üyelik, avantajlar, ödeme ve özel destek hakkında bilgi ver.";
+        categoryInfo =
+          "Kullanıcı premium destek istiyor. Premium üyelik, avantajlar, ödeme ve özel destek hakkında bilgi ver.";
         break;
       default:
         categoryInfo = "Anime izleme sitesiyle ilgili destek ver.";
@@ -213,32 +231,38 @@ Yanıtın:
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setCurrentMessage("");
     setSelectedImage(null);
     setIsLoading(true);
 
     try {
       const prompt = buildPrompt(userMessage.message);
-      
-      const response = await fetch("https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5IZkJDMlNyYUVUTjIyZVN3UWFNX3BFTU85SWpCM2NUMUk3T2dxejhLSzBhNWNMMXNzZlp3c09BSTR6YW1Sc1BmdGNTVk1GY0liT1RoWDZZX1lNZlZ0Z1dqd3c9PQ==", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
+
+      const response = await fetch(
+        "https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5IZkJDMlNyYUVUTjIyZVN3UWFNX3BFTU85SWpCM2NUMUk3T2dxejhLSzBhNWNMMXNzZlp3c09BSTR6YW1Sc1BmdGNTVk1GY0liT1RoWDZZX1lNZlZ0Z1dqd3c9PQ==",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+        },
+      );
 
       if (response.ok) {
         const data = await response.json();
-        
+
         const botMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           sender: "bot",
-          message: data.status === "success" ? data.text : "Bir hata oluştu. Lütfen tekrar deneyin.",
+          message:
+            data.status === "success"
+              ? data.text
+              : "Bir hata oluştu. Lütfen tekrar deneyin.",
           timestamp: new Date(),
           isError: data.status !== "success",
         };
 
-        setMessages(prev => [...prev, botMessage]);
+        setMessages((prev) => [...prev, botMessage]);
 
         // Log to admin (send to backend)
         if (sessionId) {
@@ -271,7 +295,7 @@ Yanıtın:
           timestamp: new Date(),
           isError: true,
         };
-        setMessages(prev => [...prev, errorMessage]);
+        setMessages((prev) => [...prev, errorMessage]);
       }
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -282,7 +306,7 @@ Yanıtın:
         timestamp: new Date(),
         isError: true,
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -315,8 +339,8 @@ Yanıtın:
             <p className="text-gray-400 mb-6">
               Destek chat'ini kullanmak için giriş yapmalısınız.
             </p>
-            <Button 
-              onClick={() => window.location.href = "/"}
+            <Button
+              onClick={() => (window.location.href = "/")}
               className="btn-primary"
             >
               Ana Sayfaya Git
@@ -338,14 +362,14 @@ Yanıtın:
               Erişim Kısıtlı
             </h1>
             <p className="text-gray-400 mb-6">
-              Bu özellik sadece kayıtlı kullanıcılar için kullanılabilir.
-              Lütfen kayıtlı bir Gmail hesabı ile giriş yapın.
+              Bu özellik sadece kayıtlı kullanıcılar için kullanılabilir. Lütfen
+              kayıtlı bir Gmail hesabı ile giriş yapın.
             </p>
             <p className="text-sm text-gray-500 mb-6">
               Mevcut email: {user?.email}
             </p>
-            <Button 
-              onClick={() => window.location.href = "/"}
+            <Button
+              onClick={() => (window.location.href = "/")}
               className="btn-primary"
             >
               Ana Sayfaya Git
@@ -359,7 +383,7 @@ Yanıtın:
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="pt-16">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="text-center mb-8">
@@ -378,14 +402,17 @@ Yanıtın:
                   <label className="text-white font-semibold block mb-2">
                     Destek Kategorisi Seçin:
                   </label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
                     <SelectTrigger className="bg-black/50 border-white/20 text-white">
                       <SelectValue placeholder="Kategori seçiniz" />
                     </SelectTrigger>
                     <SelectContent className="bg-anime-card border-white/10">
                       {categories.map((category) => (
-                        <SelectItem 
-                          key={category.value} 
+                        <SelectItem
+                          key={category.value}
                           value={category.value}
                           className="text-white"
                         >
@@ -429,31 +456,35 @@ Yanıtın:
                         message.sender === "user" ? "flex-row-reverse" : ""
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        message.sender === "user" 
-                          ? "bg-neon-blue text-black" 
-                          : message.isError 
-                            ? "bg-red-500 text-white"
-                            : "bg-neon-purple text-white"
-                      }`}>
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          message.sender === "user"
+                            ? "bg-neon-blue text-black"
+                            : message.isError
+                              ? "bg-red-500 text-white"
+                              : "bg-neon-purple text-white"
+                        }`}
+                      >
                         {message.sender === "user" ? (
                           <User className="h-4 w-4" />
                         ) : (
                           <Bot className="h-4 w-4" />
                         )}
                       </div>
-                      
-                      <div className={`max-w-md rounded-lg p-3 ${
-                        message.sender === "user"
-                          ? "bg-neon-blue text-black ml-auto"
-                          : message.isError
-                            ? "bg-red-900/50 text-red-200"
-                            : "bg-white/10 text-white"
-                      }`}>
+
+                      <div
+                        className={`max-w-md rounded-lg p-3 ${
+                          message.sender === "user"
+                            ? "bg-neon-blue text-black ml-auto"
+                            : message.isError
+                              ? "bg-red-900/50 text-red-200"
+                              : "bg-white/10 text-white"
+                        }`}
+                      >
                         <div className="whitespace-pre-wrap break-words">
                           {message.message}
                         </div>
-                        
+
                         {message.imageUrl && (
                           <img
                             src={message.imageUrl}
@@ -461,16 +492,20 @@ Yanıtın:
                             className="mt-2 rounded-lg max-w-xs"
                           />
                         )}
-                        
-                        <div className={`text-xs mt-1 opacity-70 ${
-                          message.sender === "user" ? "text-black" : "text-gray-300"
-                        }`}>
+
+                        <div
+                          className={`text-xs mt-1 opacity-70 ${
+                            message.sender === "user"
+                              ? "text-black"
+                              : "text-gray-300"
+                          }`}
+                        >
                           {formatTime(message.timestamp)}
                         </div>
                       </div>
                     </div>
                   ))}
-                  
+
                   {isLoading && (
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-neon-purple text-white flex items-center justify-center">
@@ -519,7 +554,10 @@ Yanıtın:
                     />
                     {selectedImage && (
                       <div className="mt-2 flex items-center gap-2">
-                        <Badge variant="outline" className="border-neon-blue text-neon-blue">
+                        <Badge
+                          variant="outline"
+                          className="border-neon-blue text-neon-blue"
+                        >
                           Görsel seçildi: {selectedImage.name}
                         </Badge>
                         <Button
@@ -536,7 +574,9 @@ Yanıtın:
 
                   <Button
                     onClick={sendMessage}
-                    disabled={(!currentMessage.trim() && !selectedImage) || isLoading}
+                    disabled={
+                      (!currentMessage.trim() && !selectedImage) || isLoading
+                    }
                     className="btn-primary"
                   >
                     <Send className="h-4 w-4" />
