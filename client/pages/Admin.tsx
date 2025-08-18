@@ -631,13 +631,6 @@ export default function Admin() {
     });
   };
 
-  const refreshData = () => {
-    setLastUpdate(new Date());
-    toast({
-      title: "Güncellendi",
-      description: "Veriler başarıyla güncellendi!",
-    });
-  };
 
   const handleQuickAdd = async () => {
     if (!quickAddTitle.trim()) return;
