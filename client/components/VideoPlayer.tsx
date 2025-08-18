@@ -1,219 +1,207 @@
 import { useState, useRef, useEffect } from "react";
-import { 
-  Play, Pause, Volume2, VolumeX, Maximize, Minimize, 
-  Settings, SkipBack, SkipForward, RotateCcw, Clock,
-  Heart, Share, Download, MessageSquare, Star
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  SkipBack,
+  SkipForward,
+  Settings,
+  Download,
+  Share2,
+  Heart,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useLanguage } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
 
 interface VideoPlayerProps {
-  src: string;
+  videoUrl: string;
   title: string;
   episode?: number;
-  poster?: string;
-  onNext?: () => void;
-  onPrevious?: () => void;
-  hasNext?: boolean;
-  hasPrevious?: boolean;
+  animeId?: string;
+  onTimeUpdate?: (time: number) => void;
+  onComplete?: () => void;
+  subtitleUrls?: { language: string; url: string; label: string }[];
+  downloadUrl?: string;
 }
 
-export default function VideoPlayer({ 
-  src, 
-  title, 
-  episode = 1, 
-  poster,
-  onNext,
-  onPrevious,
-  hasNext = true,
-  hasPrevious = false
+export default function VideoPlayer({
+  videoUrl,
+  title,
+  episode,
+  animeId,
+  onTimeUpdate,
+  onComplete,
+  subtitleUrls = [],
+  downloadUrl,
 }: VideoPlayerProps) {
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [quality, setQuality] = useState("1080p");
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [showSettings, setShowSettings] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [selectedSubtitle, setSelectedSubtitle] = useState<string>("off");
+  const [quality, setQuality] = useState("auto");
   const [isLiked, setIsLiked] = useState(false);
-  
-  const { t } = useLanguage();
-  
-  const hideControlsTimer = useRef<NodeJS.Timeout>();
 
-  // Auto-hide controls
-  useEffect(() => {
-    const resetTimer = () => {
-      if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current);
-      }
-      setShowControls(true);
-      hideControlsTimer.current = setTimeout(() => {
-        if (isPlaying) setShowControls(false);
-      }, 3000);
-    };
+  let hideControlsTimeout: NodeJS.Timeout;
 
-    const handleMouseMove = () => resetTimer();
-    const handleMouseLeave = () => {
-      if (isPlaying) setShowControls(false);
-    };
-
-    if (containerRef.current) {
-      containerRef.current.addEventListener('mousemove', handleMouseMove);
-      containerRef.current.addEventListener('mouseleave', handleMouseLeave);
-    }
-
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.removeEventListener('mousemove', handleMouseMove);
-        containerRef.current.removeEventListener('mouseleave', handleMouseLeave);
-      }
-      if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current);
-      }
-    };
-  }, [isPlaying]);
-
-  // Video event handlers
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
-    const handleDurationChange = () => setDuration(video.duration);
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handleLoadedMetadata = () => {
+      setDuration(video.duration);
+    };
+
+    const handleTimeUpdate = () => {
+      const current = video.currentTime;
+      setCurrentTime(current);
+      onTimeUpdate?.(current);
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      onComplete?.();
+    };
+
     const handleWaiting = () => setIsBuffering(true);
     const handleCanPlay = () => setIsBuffering(false);
 
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('durationchange', handleDurationChange);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('waiting', handleWaiting);
-    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("ended", handleEnded);
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("canplay", handleCanPlay);
 
     return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('durationchange', handleDurationChange);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('waiting', handleWaiting);
-      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("waiting", handleWaiting);
+      video.removeEventListener("canplay", handleCanPlay);
+    };
+  }, [onTimeUpdate, onComplete]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!videoRef.current) return;
-      
-      switch (e.key) {
-        case ' ':
-          e.preventDefault();
-          togglePlay();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          skip(-10);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          skip(10);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setVolume(Math.min(1, volume + 0.1));
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          setVolume(Math.max(0, volume - 0.1));
-          break;
-        case 'm':
-          toggleMute();
-          break;
-        case 'f':
-          toggleFullscreen();
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [volume]);
-
   const togglePlay = () => {
-    if (!videoRef.current) return;
-    
+    const video = videoRef.current;
+    if (!video) return;
+
     if (isPlaying) {
-      videoRef.current.pause();
+      video.pause();
     } else {
-      videoRef.current.play();
+      video.play();
     }
+    setIsPlaying(!isPlaying);
   };
 
-  const skip = (seconds: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime += seconds;
+  const handleSeek = (value: number[]) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const newTime = (value[0] / 100) * duration;
+    video.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
-  const seek = (time: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = time;
+  const handleVolumeChange = (value: number[]) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const newVolume = value[0] / 100;
+    video.volume = newVolume;
+    setVolume(newVolume);
+    setIsMuted(newVolume === 0);
   };
 
   const toggleMute = () => {
-    if (!videoRef.current) return;
-    
+    const video = videoRef.current;
+    if (!video) return;
+
     if (isMuted) {
-      videoRef.current.volume = volume;
+      video.volume = volume;
       setIsMuted(false);
     } else {
-      videoRef.current.volume = 0;
+      video.volume = 0;
       setIsMuted(true);
     }
   };
 
-  const handleVolumeChange = (newVolume: number[]) => {
-    const vol = newVolume[0];
-    setVolume(vol);
-    if (videoRef.current) {
-      videoRef.current.volume = vol;
-      setIsMuted(vol === 0);
-    }
-  };
-
   const toggleFullscreen = () => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    if (!isFullscreen) {
-      containerRef.current.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
+    if (isFullscreen) {
       document.exitFullscreen();
-      setIsFullscreen(false);
+    } else {
+      container.requestFullscreen();
     }
   };
 
-  const changePlaybackSpeed = (speed: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.playbackRate = speed;
-    setPlaybackSpeed(speed);
-    setShowSettings(false);
+  const skipTime = (seconds: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.currentTime += seconds;
+  };
+
+  const handlePlaybackRateChange = (rate: string) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const rateNumber = parseFloat(rate);
+    video.playbackRate = rateNumber;
+    setPlaybackRate(rateNumber);
+  };
+
+  const handleSubtitleChange = (subtitle: string) => {
+    setSelectedSubtitle(subtitle);
+    // Implement subtitle logic here
+  };
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+    clearTimeout(hideControlsTimeout);
+    hideControlsTimeout = setTimeout(() => {
+      if (isPlaying) setShowControls(false);
+    }, 3000);
   };
 
   const formatTime = (time: number) => {
@@ -222,32 +210,71 @@ export default function VideoPlayer({
     const seconds = Math.floor(time % 60);
     
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const progressPercentage = duration ? (currentTime / duration) * 100 : 0;
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log("Share failed:", error);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleDownload = () => {
+    if (downloadUrl) {
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `${title}_${episode ? `Episode_${episode}` : ""}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative w-full bg-black group"
-      style={{ aspectRatio: '16/9' }}
+    <div
+      ref={containerRef}
+      className={`relative group bg-black rounded-lg overflow-hidden ${
+        isFullscreen ? "w-screen h-screen" : "w-full aspect-video"
+      }`}
+      onMouseMove={handleMouseMove}
     >
       {/* Video Element */}
       <video
         ref={videoRef}
-        src={src}
-        poster={poster}
+        src={videoUrl}
         className="w-full h-full object-contain"
         onClick={togglePlay}
-      />
+        onDoubleClick={toggleFullscreen}
+        crossOrigin="anonymous"
+      >
+        {subtitleUrls.map((sub) => (
+          <track
+            key={sub.language}
+            kind="subtitles"
+            src={sub.url}
+            srcLang={sub.language}
+            label={sub.label}
+            default={selectedSubtitle === sub.language}
+          />
+        ))}
+      </video>
 
-      {/* Buffering Spinner */}
+      {/* Loading Spinner */}
       {isBuffering && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+          <div className="w-12 h-12 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
@@ -256,216 +283,230 @@ export default function VideoPlayer({
         <div className="absolute inset-0 flex items-center justify-center">
           <Button
             onClick={togglePlay}
-            className="w-20 h-20 rounded-full bg-black/50 hover:bg-black/70 text-white border-2 border-white/20 hover:border-neon-blue transition-all duration-300"
+            size="lg"
+            className="w-20 h-20 rounded-full bg-neon-blue/80 hover:bg-neon-blue text-black"
           >
             <Play className="h-8 w-8 ml-1" />
           </Button>
         </div>
       )}
 
-      {/* Controls Overlay */}
-      <div 
-        className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
+      {/* Controls */}
+      <div
+        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-opacity duration-300 ${
+          showControls || !isPlaying ? "opacity-100" : "opacity-0"
         }`}
       >
-        {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
-              {episode && (
-                <Badge className="bg-neon-blue/20 text-neon-blue border-neon-blue/50">
-                  Bölüm {episode}
-                </Badge>
-              )}
-            </div>
+        {/* Progress Bar */}
+        <div className="mb-4">
+          <Slider
+            value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
+            onValueChange={handleSeek}
+            max={100}
+            step={0.1}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-300 mt-1">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {/* Control Buttons */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {/* Play/Pause */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={togglePlay}
+              className="text-white hover:text-neon-blue"
+            >
+              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            </Button>
+
+            {/* Skip Buttons */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => skipTime(-10)}
+              className="text-white hover:text-neon-blue"
+            >
+              <SkipBack className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => skipTime(10)}
+              className="text-white hover:text-neon-blue"
+            >
+              <SkipForward className="h-4 w-4" />
+            </Button>
+
+            {/* Volume */}
             <div className="flex items-center space-x-2">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsLiked(!isLiked)}
-                className={`text-white hover:text-red-500 ${isLiked ? 'text-red-500' : ''}`}
+                onClick={toggleMute}
+                className="text-white hover:text-neon-blue"
               >
-                <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
+                {isMuted || volume === 0 ? (
+                  <VolumeX className="h-4 w-4" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
               </Button>
-              <Button variant="ghost" size="sm" className="text-white hover:text-neon-blue">
-                <Share className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-white hover:text-neon-blue">
-                <Download className="h-5 w-5" />
-              </Button>
+              <div className="w-20">
+                <Slider
+                  value={[isMuted ? 0 : volume * 100]}
+                  onValueChange={handleVolumeChange}
+                  max={100}
+                  step={1}
+                />
+              </div>
+            </div>
+
+            {/* Episode Title */}
+            <div className="text-white text-sm font-medium">
+              {title} {episode && `- Bölüm ${episode}`}
             </div>
           </div>
-        </div>
 
-        {/* Bottom Controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          {/* Progress Bar */}
-          <div className="mb-4">
-            <Slider
-              value={[currentTime]}
-              max={duration}
-              step={1}
-              onValueChange={([value]) => seek(value)}
-              className="w-full cursor-pointer"
-            />
-          </div>
+          <div className="flex items-center space-x-2">
+            {/* Like Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsLiked(!isLiked)}
+              className={`${
+                isLiked ? "text-red-500" : "text-white"
+              } hover:text-red-400`}
+            >
+              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+            </Button>
 
-          {/* Control Buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {/* Skip Previous */}
+            {/* Share Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleShare}
+              className="text-white hover:text-neon-blue"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+
+            {/* Download Button */}
+            {downloadUrl && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onPrevious}
-                disabled={!hasPrevious}
-                className="text-white hover:text-neon-blue disabled:opacity-50"
-              >
-                <SkipBack className="h-5 w-5" />
-              </Button>
-
-              {/* Rewind */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => skip(-10)}
+                onClick={handleDownload}
                 className="text-white hover:text-neon-blue"
               >
-                <RotateCcw className="h-5 w-5" />
+                <Download className="h-4 w-4" />
               </Button>
+            )}
 
-              {/* Play/Pause */}
-              <Button
-                onClick={togglePlay}
-                className="w-12 h-12 rounded-full bg-neon-blue hover:bg-neon-blue/80 text-black"
-              >
-                {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-0.5" />}
-              </Button>
-
-              {/* Fast Forward */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => skip(10)}
-                className="text-white hover:text-neon-blue"
-              >
-                <SkipForward className="h-5 w-5" />
-              </Button>
-
-              {/* Skip Next */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNext}
-                disabled={!hasNext}
-                className="text-white hover:text-neon-blue disabled:opacity-50"
-              >
-                <SkipForward className="h-5 w-5" />
-              </Button>
-
-              {/* Volume Controls */}
-              <div className="flex items-center space-x-2">
+            {/* Settings */}
+            <Popover>
+              <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={toggleMute}
                   className="text-white hover:text-neon-blue"
                 >
-                  {isMuted || volume === 0 ? (
-                    <VolumeX className="h-5 w-5" />
-                  ) : (
-                    <Volume2 className="h-5 w-5" />
-                  )}
+                  <Settings className="h-4 w-4" />
                 </Button>
-                <div className="w-24">
-                  <Slider
-                    value={[isMuted ? 0 : volume]}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                    className="w-full"
-                  />
+              </PopoverTrigger>
+              <PopoverContent className="w-80 bg-anime-card border-white/10">
+                <div className="space-y-4">
+                  {/* Playback Speed */}
+                  <div>
+                    <label className="text-white text-sm font-medium">
+                      Oynatma Hızı
+                    </label>
+                    <Select
+                      value={playbackRate.toString()}
+                      onValueChange={handlePlaybackRateChange}
+                    >
+                      <SelectTrigger className="mt-1 bg-black/50 border-white/20 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-anime-card border-white/10">
+                        <SelectItem value="0.25">0.25x</SelectItem>
+                        <SelectItem value="0.5">0.5x</SelectItem>
+                        <SelectItem value="0.75">0.75x</SelectItem>
+                        <SelectItem value="1">Normal</SelectItem>
+                        <SelectItem value="1.25">1.25x</SelectItem>
+                        <SelectItem value="1.5">1.5x</SelectItem>
+                        <SelectItem value="2">2x</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Quality */}
+                  <div>
+                    <label className="text-white text-sm font-medium">
+                      Kalite
+                    </label>
+                    <Select value={quality} onValueChange={setQuality}>
+                      <SelectTrigger className="mt-1 bg-black/50 border-white/20 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-anime-card border-white/10">
+                        <SelectItem value="auto">Otomatik</SelectItem>
+                        <SelectItem value="1080p">1080p</SelectItem>
+                        <SelectItem value="720p">720p</SelectItem>
+                        <SelectItem value="480p">480p</SelectItem>
+                        <SelectItem value="360p">360p</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Subtitles */}
+                  {subtitleUrls.length > 0 && (
+                    <div>
+                      <label className="text-white text-sm font-medium">
+                        Altyazı
+                      </label>
+                      <Select
+                        value={selectedSubtitle}
+                        onValueChange={handleSubtitleChange}
+                      >
+                        <SelectTrigger className="mt-1 bg-black/50 border-white/20 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-anime-card border-white/10">
+                          <SelectItem value="off">Kapalı</SelectItem>
+                          {subtitleUrls.map((sub) => (
+                            <SelectItem key={sub.language} value={sub.language}>
+                              {sub.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </PopoverContent>
+            </Popover>
 
-              {/* Time Display */}
-              <div className="flex items-center space-x-1 text-white text-sm">
-                <Clock className="h-4 w-4" />
-                <span>{formatTime(currentTime)}</span>
-                <span>/</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {/* Settings */}
-              <DropdownMenu open={showSettings} onOpenChange={setShowSettings}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:text-neon-blue"
-                  >
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 bg-anime-card border-white/10">
-                  <div className="p-2">
-                    <div className="text-white text-sm font-medium mb-2">{t.speed}</div>
-                    {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
-                      <DropdownMenuItem
-                        key={speed}
-                        onClick={() => changePlaybackSpeed(speed)}
-                        className={`text-white hover:bg-white/10 ${
-                          playbackSpeed === speed ? 'bg-white/10' : ''
-                        }`}
-                      >
-                        {speed}x
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                  <div className="border-t border-white/10 p-2">
-                    <div className="text-white text-sm font-medium mb-2">{t.quality}</div>
-                    {['1080p', '720p', '480p', '360p'].map((q) => (
-                      <DropdownMenuItem
-                        key={q}
-                        onClick={() => setQuality(q)}
-                        className={`text-white hover:bg-white/10 ${
-                          quality === q ? 'bg-white/10' : ''
-                        }`}
-                      >
-                        {q}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Fullscreen */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleFullscreen}
-                className="text-white hover:text-neon-blue"
-              >
-                {isFullscreen ? (
-                  <Minimize className="h-5 w-5" />
-                ) : (
-                  <Maximize className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
+            {/* Fullscreen */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleFullscreen}
+              className="text-white hover:text-neon-blue"
+            >
+              {isFullscreen ? (
+                <Minimize className="h-4 w-4" />
+              ) : (
+                <Maximize className="h-4 w-4" />
+              )}
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Quality Indicator */}
-      <div className="absolute top-6 right-6">
-        <Badge className="bg-black/50 text-neon-blue border-neon-blue/50">
-          {quality}
-        </Badge>
       </div>
     </div>
   );
