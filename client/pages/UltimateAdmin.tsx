@@ -392,7 +392,7 @@ export default function UltimateAdmin() {
         setShowAnimeDialog(false);
         
         toast({
-          title: "Ba��arılı",
+          title: "Başarılı",
           description: `Anime ${editingAnime.id ? 'güncellendi' : 'eklendi'}`,
         });
       }
@@ -579,6 +579,10 @@ export default function UltimateAdmin() {
             <TabsTrigger value="episodes" className="flex items-center gap-2">
               <Play className="h-4 w-4" />
               Bölüm Yönetimi
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Kullanıcı Yönetimi
             </TabsTrigger>
           </TabsList>
 
