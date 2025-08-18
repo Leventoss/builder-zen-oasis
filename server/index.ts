@@ -82,6 +82,13 @@ export function createServer() {
   app.post("/api/users/:userId/list", handleAddToUserList);
   app.delete("/api/users/:userId/list", handleRemoveFromUserList);
 
+  // Chat routes
+  app.post("/api/chat/session", handleCreateSession);
+  app.post("/api/chat/message", handleAddMessage);
+  app.get("/api/chat/sessions", handleGetSessions);
+  app.get("/api/chat/sessions/:sessionId/messages", handleGetMessages);
+  app.put("/api/chat/sessions/:sessionId/status", handleUpdateSessionStatus);
+
   // Admin setup endpoint - for initial setup only
   app.post("/api/setup/admin", async (req, res) => {
     try {
