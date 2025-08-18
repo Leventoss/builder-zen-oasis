@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Plus, 
-  Users, 
-  Settings, 
-  Crown, 
+import {
+  Plus,
+  Users,
+  Settings,
+  Crown,
   Search,
-  Download, 
-  Upload, 
+  Download,
+  Upload,
   Edit,
   Save,
   Trash2,
@@ -32,7 +32,8 @@ import {
   List,
   Maximize2,
   Copy,
-  ExternalLink
+  ExternalLink,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
