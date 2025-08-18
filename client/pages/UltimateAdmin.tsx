@@ -392,7 +392,7 @@ export default function UltimateAdmin() {
         setShowAnimeDialog(false);
         
         toast({
-          title: "Başarılı",
+          title: "Ba��arılı",
           description: `Anime ${editingAnime.id ? 'güncellendi' : 'eklendi'}`,
         });
       }
@@ -601,7 +601,7 @@ export default function UltimateAdmin() {
                   <Play className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.totalEpisodes}</div>
+                  <div className="text-2xl font-bold text-white">{stats.totalEpisodes || 0}</div>
                 </CardContent>
               </Card>
 
@@ -611,7 +611,7 @@ export default function UltimateAdmin() {
                   <Zap className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.ongoing}</div>
+                  <div className="text-2xl font-bold text-white">{stats.ongoing || 0}</div>
                 </CardContent>
               </Card>
 
@@ -621,7 +621,7 @@ export default function UltimateAdmin() {
                   <Star className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.completed}</div>
+                  <div className="text-2xl font-bold text-white">{stats.completed || 0}</div>
                 </CardContent>
               </Card>
 
@@ -631,7 +631,7 @@ export default function UltimateAdmin() {
                   <Video className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.movies}</div>
+                  <div className="text-2xl font-bold text-white">{stats.movies || 0}</div>
                 </CardContent>
               </Card>
 
@@ -641,7 +641,7 @@ export default function UltimateAdmin() {
                   <Star className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.averageRating}</div>
+                  <div className="text-2xl font-bold text-white">{stats.averageRating || 0}</div>
                 </CardContent>
               </Card>
             </div>
