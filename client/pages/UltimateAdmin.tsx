@@ -261,23 +261,33 @@ export default function UltimateAdmin() {
   // Add anime from API
   const addAnimeFromApi = async (apiAnime: any, includeEpisodes: boolean = false) => {
     try {
-      const animeData = await advancedAnimeAPI.convertToAnimeData(apiAnime, []);
-      
-      // Get episodes if requested
-      if (includeEpisodes && apiAnime.mal_id) {
-        const episodes = await advancedAnimeAPI.getAllEpisodesJikan(apiAnime.mal_id);
-        animeData.episodeList = episodes.map((ep: any, index: number) => ({
-          episodeNumber: index + 1,
-          title: ep.title || `Bölüm ${index + 1}`,
-          titleEn: ep.title || `Episode ${index + 1}`,
-          description: ep.synopsis || '',
-          descriptionEn: ep.synopsis || '',
-          duration: animeData.duration,
-          airDate: ep.aired || new Date().toISOString().split('T')[0],
-          videoUrl: '',
-          animeId: ''
-        }));
-      }
+      // Convert API anime to our format
+      const animeData = {
+        title: apiAnime.title || apiAnime.title?.romaji || 'Bilinmeyen',
+        titleEn: apiAnime.title_english || apiAnime.title?.english || apiAnime.title || 'Unknown',
+        titleTr: apiAnime.title || apiAnime.title?.romaji || 'Bilinmeyen',
+        description: apiAnime.synopsis?.replace(/<[^>]*>/g, '') || apiAnime.description?.replace(/<[^>]*>/g, '') || 'Açıklama mevcut değil',
+        descriptionEn: apiAnime.synopsis?.replace(/<[^>]*>/g, '') || apiAnime.description?.replace(/<[^>]*>/g, '') || 'No description available',
+        poster: apiAnime.images?.jpg?.large_image_url || apiAnime.images?.jpg?.image_url || apiAnime.coverImage?.large || 'https://via.placeholder.com/300x400',
+        banner: apiAnime.images?.jpg?.large_image_url || apiAnime.images?.jpg?.image_url || apiAnime.coverImage?.large || 'https://via.placeholder.com/1200x400',
+        rating: apiAnime.score ? parseFloat(apiAnime.score.toString()) : (apiAnime.averageScore ? apiAnime.averageScore / 10 : 8.0),
+        year: apiAnime.year || apiAnime.aired?.prop?.from?.year || apiAnime.startDate?.year || new Date().getFullYear(),
+        episodes: apiAnime.episodes || 12,
+        duration: apiAnime.duration ? `${apiAnime.duration}min` : '24min',
+        status: apiAnime.status === 'Finished Airing' || apiAnime.status === 'FINISHED' ? 'completed' :
+               apiAnime.status === 'Currently Airing' || apiAnime.status === 'RELEASING' ? 'ongoing' : 'upcoming',
+        category: apiAnime.type === 'Movie' || apiAnime.format === 'MOVIE' ? 'movie' : 'anime',
+        genre: apiAnime.genres?.map((g: any) => g.name || g) || ['Genel'],
+        genreEn: apiAnime.genres?.map((g: any) => g.name || g) || ['General'],
+        studio: apiAnime.studios?.[0]?.name || apiAnime.studios?.nodes?.[0]?.name || 'Bilinmiyor',
+        producer: apiAnime.producers?.[0]?.name || 'Bilinmiyor',
+        season: apiAnime.season?.toLowerCase() || 'unknown',
+        source: apiAnime.source || 'Unknown',
+        trailer: apiAnime.trailer?.url || '',
+        malId: apiAnime.mal_id || apiAnime.id,
+        externalLinks: apiAnime.external_links?.map((link: any) => ({ name: link.name, url: link.url })) || [],
+        streamingLinks: apiAnime.streaming?.map((stream: any) => ({ name: stream.name, url: stream.url })) || []
+      };
 
       // Save to backend
       const response = await fetch('/api/animes', {
@@ -289,21 +299,15 @@ export default function UltimateAdmin() {
       if (response.ok) {
         const result = await response.json();
         animeData.id = result.data.id;
-        
+
         addAnime(animeData);
-        
-        // Add episodes if included
-        if (animeData.episodeList && animeData.episodeList.length > 0) {
-          for (const episode of animeData.episodeList) {
-            episode.animeId = animeData.id;
-            addEpisode(episode);
-          }
-        }
-        
+
         toast({
           title: "Anime Eklendi",
-          description: `${animeData.title} başarıyla eklendi${includeEpisodes ? ` (${animeData.episodeList?.length || 0} bölümle)` : ''}`,
+          description: `${animeData.title} başarıyla eklendi`,
         });
+      } else {
+        throw new Error('API request failed');
       }
     } catch (error) {
       console.error('Add anime from API error:', error);
