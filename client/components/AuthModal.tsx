@@ -91,6 +91,13 @@ export default function AuthModal({
           });
         }
       }
+    } catch (error) {
+      console.error("Auth error:", error);
+      toast({
+        title: "Hata",
+        description: error instanceof Error ? error.message : "Beklenmedik bir hata oluştu",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
