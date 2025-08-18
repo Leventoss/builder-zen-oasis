@@ -57,6 +57,12 @@ import {
   handleDiscordCallback,
   getDiscordConfig,
 } from "./routes/discord";
+import {
+  handleEnhancedImport,
+  handleBulkImport,
+  handleImageEnhancement,
+  handleImportStats,
+} from "./routes/animeImport";
 
 export function createServer() {
   const app = express();
@@ -132,6 +138,12 @@ export function createServer() {
   app.get("/api/auth/discord", handleDiscordLogin);
   app.get("/api/auth/discord/callback", handleDiscordCallback);
   app.get("/api/auth/discord/config", getDiscordConfig);
+
+  // Enhanced anime import routes
+  app.post("/api/admin/import/enhanced", handleEnhancedImport);
+  app.post("/api/admin/import/bulk", handleBulkImport);
+  app.post("/api/admin/animes/:animeId/enhance-images", handleImageEnhancement);
+  app.get("/api/admin/import/stats", handleImportStats);
 
   // Premium routes
   app.get("/api/admin/premium-settings", getPremiumSettings);
