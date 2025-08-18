@@ -157,10 +157,11 @@ export default function AnimeDetails() {
     if (episodes.length > 0) {
       handlePlayEpisode(1);
     } else {
+      // Show anime details instead of error
+      setSelectedTab("details");
       toast({
         title: "Bölüm Bulunamadı",
-        description: "Bu anime için henüz bölüm eklenmemiş",
-        variant: "destructive",
+        description: "Bu anime için henüz bölüm eklenmemiş. Detayları görüntüleniyor.",
       });
     }
   };
