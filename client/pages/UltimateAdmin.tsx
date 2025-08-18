@@ -261,11 +261,30 @@ export default function UltimateAdmin() {
   // Add anime from API
   const addAnimeFromApi = async (apiAnime: any, includeEpisodes: boolean = false) => {
     try {
-      // Convert API anime to our format
+      // Convert API anime to our format with proper title handling
+      const titleEn = apiAnime.title_english || apiAnime.title?.english || apiAnime.title || 'Unknown';
+      const titleTr = apiAnime.title || apiAnime.title?.romaji || titleEn;
+
+      // Check if anime already exists
+      const existingAnime = animes.find(a =>
+        a.titleEn?.toLowerCase() === titleEn.toLowerCase() ||
+        a.title?.toLowerCase() === titleTr.toLowerCase() ||
+        (apiAnime.mal_id && a.malId === apiAnime.mal_id)
+      );
+
+      if (existingAnime) {
+        toast({
+          title: "Anime Zaten Mevcut",
+          description: `${titleTr} zaten eklenmiş`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const animeData = {
-        title: apiAnime.title || apiAnime.title?.romaji || 'Bilinmeyen',
-        titleEn: apiAnime.title_english || apiAnime.title?.english || apiAnime.title || 'Unknown',
-        titleTr: apiAnime.title || apiAnime.title?.romaji || 'Bilinmeyen',
+        title: titleTr, // Use Turkish/Romaji title as primary
+        titleEn: titleEn,
+        titleTr: titleTr,
         description: apiAnime.synopsis?.replace(/<[^>]*>/g, '') || apiAnime.description?.replace(/<[^>]*>/g, '') || 'Açıklama mevcut değil',
         descriptionEn: apiAnime.synopsis?.replace(/<[^>]*>/g, '') || apiAnime.description?.replace(/<[^>]*>/g, '') || 'No description available',
         poster: apiAnime.images?.jpg?.large_image_url || apiAnime.images?.jpg?.image_url || apiAnime.coverImage?.large || 'https://via.placeholder.com/300x400',
@@ -1059,7 +1078,7 @@ export default function UltimateAdmin() {
           <TabsContent value="bulk-operations" className="space-y-6">
             <Card className="bg-anime-card border-anime-accent/20">
               <CardHeader>
-                <CardTitle className="text-white">Toplu İşlemler</CardTitle>
+                <CardTitle className="text-white">Toplu ��şlemler</CardTitle>
                 <CardDescription className="text-gray-400">
                   Birden fazla animeyi aynı anda içe aktar
                 </CardDescription>
