@@ -40,6 +40,10 @@ export const handleGetUsers: RequestHandler = async (req, res) => {
       username: user.username,
       email: user.email,
       isAdmin: user.is_admin,
+      isPremium: user.is_premium || false,
+      premiumExpiresAt: user.premium_expires_at,
+      discordId: user.discord_id,
+      discordUsername: user.discord_username,
       createdAt: user.created_at,
     }));
 
