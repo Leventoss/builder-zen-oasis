@@ -63,6 +63,14 @@ import {
   handleImageEnhancement,
   handleImportStats,
 } from "./routes/animeImport";
+import {
+  getAnimeRequests,
+  createAnimeRequest,
+  voteOnRequest,
+  updateRequestStatus,
+  getPendingRequests,
+  deleteAnimeRequest,
+} from "./routes/animeRequests";
 
 export function createServer() {
   const app = express();
@@ -144,6 +152,14 @@ export function createServer() {
   app.post("/api/admin/import/bulk", handleBulkImport);
   app.post("/api/admin/animes/:animeId/enhance-images", handleImageEnhancement);
   app.get("/api/admin/import/stats", handleImportStats);
+
+  // Anime request routes
+  app.get("/api/anime-requests", getAnimeRequests);
+  app.post("/api/anime-requests", createAnimeRequest);
+  app.post("/api/anime-requests/:requestId/vote", voteOnRequest);
+  app.put("/api/admin/anime-requests/:requestId/status", updateRequestStatus);
+  app.get("/api/admin/anime-requests/pending", getPendingRequests);
+  app.delete("/api/admin/anime-requests/:requestId", deleteAnimeRequest);
 
   // Premium routes
   app.get("/api/admin/premium-settings", getPremiumSettings);
