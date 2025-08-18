@@ -30,6 +30,13 @@ import {
   handleAddToUserList,
   handleRemoveFromUserList,
 } from "./routes/user";
+import {
+  handleCreateSession,
+  handleAddMessage,
+  handleGetSessions,
+  handleGetMessages,
+  handleUpdateSessionStatus,
+} from "./routes/chat";
 
 export function createServer() {
   const app = express();
