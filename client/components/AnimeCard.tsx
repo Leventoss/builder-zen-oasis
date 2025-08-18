@@ -60,7 +60,7 @@ export default function AnimeCard({
   const handleWatchClick = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     // Navigate to anime details/watch page
-    window.location.href = `/anime-details/${id}`;
+    window.location.href = `/anime/${id}`;
   };
 
   const handleWatchlistToggle = () => {
