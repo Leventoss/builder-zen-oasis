@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import bcrypt from "bcryptjs";
+import { sql } from "./lib/database";
 
 // Import new API routes
 import { handleLogin, handleRegister, handleVerifyToken } from "./routes/auth";
