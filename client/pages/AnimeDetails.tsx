@@ -54,18 +54,27 @@ export default function AnimeDetails() {
 
   useEffect(() => {
     if (!anime) {
-      navigate("/");
-      return;
+      // Try to find anime by id first before redirecting
+      const foundAnime = animes.find(a => a.id === id);
+      if (!foundAnime) {
+        toast({
+          title: "Anime Bulunamadı",
+          description: "Aradığınız anime bulunamadı",
+          variant: "destructive",
+        });
+        setTimeout(() => navigate("/"), 2000);
+        return;
+      }
     }
 
     // Check if anime is in user's lists
-    if (isAuthenticated) {
+    if (isAuthenticated && anime) {
       const watchlist = getUserList("user", "watchlist");
       const favorites = getUserList("user", "favorites");
       setIsInWatchlist(watchlist.includes(anime.id));
       setIsFavorite(favorites.includes(anime.id));
     }
-  }, [anime, isAuthenticated, navigate, getUserList]);
+  }, [anime, isAuthenticated, navigate, getUserList, animes, id]);
 
   if (!anime) {
     return (
