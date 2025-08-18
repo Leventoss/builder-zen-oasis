@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Header from "@/components/Header";
 import VideoPlayer from "@/components/VideoPlayer";
+import EnhancedVideoPlayer from "@/components/EnhancedVideoPlayer";
 import AnimeCard from "@/components/AnimeCard";
 import { useAnimeStore } from "@/lib/animeStore";
 import { useLanguage } from "@/lib/i18n";
@@ -194,7 +195,7 @@ export default function AnimeDetails() {
     <div className="min-h-screen bg-anime-dark">
       <Header />
 
-      {/* Video Player Modal */}
+      {/* Enhanced Video Player Modal */}
       {showPlayer && selectedEpisode && (
         <div className="fixed inset-0 z-50 bg-black">
           <div className="relative h-full">
@@ -206,12 +207,35 @@ export default function AnimeDetails() {
               <ChevronLeft className="h-4 w-4 mr-2" />
               Geri
             </Button>
-            <VideoPlayer
+            <EnhancedVideoPlayer
               src={`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`}
+              poster={anime.banner || anime.poster}
               title={`${language === "en" ? anime.titleEn : anime.title} - Bölüm ${selectedEpisode}`}
+              subtitles={[
+                {
+                  label: "Türkçe",
+                  src: "/subtitles/turkish.vtt",
+                  srcLang: "tr"
+                },
+                {
+                  label: "English",
+                  src: "/subtitles/english.vtt",
+                  srcLang: "en"
+                }
+              ]}
               onProgress={(progress) =>
                 updateWatchProgress(anime.id, selectedEpisode, progress)
               }
+              onEnded={() => {
+                // Auto-play next episode
+                if (selectedEpisode < episodes.length) {
+                  setSelectedEpisode(selectedEpisode + 1);
+                  toast({
+                    title: "Sonraki Bölüm",
+                    description: `Bölüm ${selectedEpisode + 1} başlatılıyor...`,
+                  });
+                }
+              }}
             />
           </div>
         </div>
