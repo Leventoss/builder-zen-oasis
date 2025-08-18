@@ -48,8 +48,8 @@ export default function AnimeCard({
   const [isLiked, setIsLiked] = useState(false);
   const { language } = useLanguage();
 
-  // Ensure rating is a valid number
-  const safeRating = typeof rating === "number" && !isNaN(rating) ? rating : 0;
+  // Ensure rating is a valid number - provide default of 8.0 if invalid
+  const safeRating = typeof rating === "number" && !isNaN(rating) && rating > 0 ? rating : 8.0;
 
   const sizeClasses = {
     sm: "w-48 h-72",
@@ -485,7 +485,7 @@ export const sampleAnimes = [
     genreEn: ["Drama", "Mecha", "Military"],
     duration: "25min",
     description:
-      "Lelouch'un Geass gücüyle Britanya İmparatorluğuna karş�� isyanı.",
+      "Lelouch'un Geass gücüyle Britanya İmparatorluğuna karşı isyanı.",
     descriptionEn:
       "Lelouch's rebellion against the Britannia Empire with the power of Geass.",
     status: "completed" as const,
