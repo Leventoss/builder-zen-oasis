@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AdminTest from "./pages/AdminTest";
 import CompleteAdmin from "./pages/CompleteAdmin";
+import UltimateAdmin from "./pages/UltimateAdmin";
 import AnimeRequest from "./pages/AnimeRequest";
 import AnimeRequestFixed from "./pages/AnimeRequestFixed";
 import Chat from "./pages/Chat";
