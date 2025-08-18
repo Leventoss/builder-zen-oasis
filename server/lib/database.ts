@@ -23,10 +23,12 @@ export async function createUser(
   username: string,
   email: string,
   passwordHash: string,
+  discordId?: string,
+  discordUsername?: string,
 ) {
   const users = await sql`
-    INSERT INTO users (username, email, password_hash, is_admin, is_premium)
-    VALUES (${username}, ${email}, ${passwordHash}, false, false)
+    INSERT INTO users (username, email, password_hash, is_admin, is_premium, discord_id, discord_username)
+    VALUES (${username}, ${email}, ${passwordHash}, false, false, ${discordId || null}, ${discordUsername || null})
     RETURNING id, username, email, is_admin, is_premium, premium_expires_at,
              discord_id, discord_username, created_at
   `;
