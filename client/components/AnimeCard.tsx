@@ -99,7 +99,7 @@ export default function AnimeCard({
         <div className="absolute top-3 left-3">
           <Badge className="bg-black/70 text-neon-blue border-neon-blue/30 flex items-center gap-1">
             <Star className="h-3 w-3 fill-neon-blue" />
-            {Number(rating).toFixed(1)}
+            {safeRating.toFixed(1)}
           </Badge>
         </div>
 
@@ -249,7 +249,7 @@ export const sampleAnimes = [
     genre: ["Aksiyon", "Okul", "Doğaüstü"],
     genreEn: ["Action", "School", "Supernatural"],
     duration: "23min",
-    description: "Lanetli ruhlarla savaşan öğrencilerin hikayesi.",
+    description: "Lanetli ruhlarla sava��an öğrencilerin hikayesi.",
     descriptionEn: "The story of students fighting cursed spirits.",
     status: "ongoing" as const,
     category: "anime" as const,
