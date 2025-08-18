@@ -143,9 +143,8 @@ export function createServer() {
   app.get("/api/chat/health", checkAIHealth);
 
   // Discord OAuth routes
-  app.get("/api/auth/discord", handleDiscordLogin);
+  app.get("/api/auth/discord", handleDiscordAuth);
   app.get("/api/auth/discord/callback", handleDiscordCallback);
-  app.get("/api/auth/discord/config", getDiscordConfig);
 
   // Enhanced anime import routes
   app.post("/api/admin/import/enhanced", handleEnhancedImport);
