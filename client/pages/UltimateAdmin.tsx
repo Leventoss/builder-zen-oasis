@@ -591,7 +591,7 @@ export default function UltimateAdmin() {
                   <Film className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">{stats.totalAnimes}</div>
+                  <div className="text-2xl font-bold text-white">{stats.totalAnimes || 0}</div>
                 </CardContent>
               </Card>
 
