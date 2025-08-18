@@ -7,6 +7,7 @@ import {
 } from "react";
 import { animeAPI, adminAPI, userAPI } from "./apiClient";
 import { useAuth } from "./auth";
+import { sampleAnimes } from "@/components/AnimeCard";
 
 export interface AnimeData {
   id: string;
