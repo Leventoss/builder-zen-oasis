@@ -15,8 +15,11 @@ import Browse from "./pages/Browse";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AdminTest from "./pages/AdminTest";
+import CompleteAdmin from "./pages/CompleteAdmin";
 import AnimeRequest from "./pages/AnimeRequest";
+import AnimeRequestFixed from "./pages/AnimeRequestFixed";
 import Chat from "./pages/Chat";
+import ChatFixed from "./pages/ChatFixed";
 import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
@@ -68,7 +71,8 @@ const AppContent = () => {
             <Route path="/anime" element={<Browse />} />
             <Route path="/movies" element={<Browse />} />
             <Route path="/trending" element={<Browse />} />
-            <Route path="/anime-request" element={<AnimeRequest />} />
+            <Route path="/anime-request" element={<AnimeRequestFixed />} />
+            <Route path="/anime-request-old" element={<AnimeRequest />} />
             <Route
               path="/my-list"
               element={
@@ -89,6 +93,14 @@ const AppContent = () => {
               path="/admin"
               element={
                 <ProtectedRoute requireAdmin={true}>
+                  <CompleteAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-old"
+              element={
+                <ProtectedRoute requireAdmin={true}>
                   <Admin />
                 </ProtectedRoute>
               }
@@ -103,6 +115,14 @@ const AppContent = () => {
             />
             <Route
               path="/chat"
+              element={
+                <ProtectedRoute>
+                  <ChatFixed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat-old"
               element={
                 <ProtectedRoute>
                   <Chat />
