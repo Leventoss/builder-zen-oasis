@@ -52,6 +52,11 @@ import {
   getChatHistory,
   checkAIHealth,
 } from "./routes/aiChat";
+import {
+  handleDiscordLogin,
+  handleDiscordCallback,
+  getDiscordConfig,
+} from "./routes/discord";
 
 export function createServer() {
   const app = express();
@@ -108,6 +113,11 @@ export function createServer() {
   app.post("/api/chat/ai", handleAIChat);
   app.get("/api/chat/history/:sessionId", getChatHistory);
   app.get("/api/chat/health", checkAIHealth);
+
+  // Discord OAuth routes
+  app.get("/api/auth/discord", handleDiscordLogin);
+  app.get("/api/auth/discord/callback", handleDiscordCallback);
+  app.get("/api/auth/discord/config", getDiscordConfig);
 
   // Premium routes
   app.get("/api/admin/premium-settings", getPremiumSettings);
