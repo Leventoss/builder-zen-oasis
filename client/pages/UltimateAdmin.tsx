@@ -322,41 +322,91 @@ export default function UltimateAdmin() {
   // Bulk import
   const handleBulkImport = async () => {
     if (!bulkImportText.trim()) return;
-    
-    const titles = bulkImportText.split('\n').filter(t => t.trim());
-    setBulkImportProgress(titles.map(title => ({ title: title.trim(), status: 'pending' })));
+
+    const titles = bulkImportText.split('\n').filter(t => t.trim()).map(t => t.trim());
+    const uniqueTitles = [...new Set(titles)]; // Remove duplicates
+
+    setBulkImportProgress(uniqueTitles.map(title => ({ title, status: 'pending' })));
     setIsImporting(true);
 
+    let importedCount = 0;
+    let failedCount = 0;
+    const results = [];
+
     try {
-      const result = await advancedAnimeAPI.bulkImportAnime(titles, includeEpisodes);
-      
-      // Update progress
-      const newProgress = titles.map((title, index) => {
-        const isSuccess = index < result.imported;
-        const error = result.errors.find(e => e.title === title.trim());
-        
-        return {
-          title: title.trim(),
-          status: isSuccess ? 'success' : 'error' as const,
-          message: error?.error || (isSuccess ? 'Başarılı' : 'Hata'),
-          result: isSuccess ? result.results[index] : null
-        };
-      });
-      
-      setBulkImportProgress(newProgress);
-      
-      // Add successful imports to store
-      for (const item of newProgress) {
-        if (item.status === 'success' && item.result) {
-          addAnime(item.result);
+      // Process one by one to avoid duplicates
+      for (const title of uniqueTitles) {
+        try {
+          setBulkImportProgress(prev => prev.map(item =>
+            item.title === title ? { ...item, status: 'importing' } : item
+          ));
+
+          const searchResults = await advancedAnimeAPI.enhancedSearch(title, 1);
+
+          if (searchResults.length > 0) {
+            const animeData = searchResults[0];
+
+            // Check if anime already exists
+            const existingAnime = animes.find(a =>
+              a.title.toLowerCase().includes(title.toLowerCase()) ||
+              a.titleEn?.toLowerCase().includes(title.toLowerCase())
+            );
+
+            if (existingAnime) {
+              setBulkImportProgress(prev => prev.map(item =>
+                item.title === title ? {
+                  ...item,
+                  status: 'error',
+                  message: 'Zaten mevcut'
+                } : item
+              ));
+              failedCount++;
+              continue;
+            }
+
+            await addAnimeFromApi(animeData);
+
+            setBulkImportProgress(prev => prev.map(item =>
+              item.title === title ? {
+                ...item,
+                status: 'success',
+                message: 'Başarılı'
+              } : item
+            ));
+            importedCount++;
+            results.push(animeData);
+          } else {
+            setBulkImportProgress(prev => prev.map(item =>
+              item.title === title ? {
+                ...item,
+                status: 'error',
+                message: 'Bulunamadı'
+              } : item
+            ));
+            failedCount++;
+          }
+
+          // Small delay to prevent rate limiting
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+        } catch (error) {
+          console.error(`Import failed for ${title}:`, error);
+          setBulkImportProgress(prev => prev.map(item =>
+            item.title === title ? {
+              ...item,
+              status: 'error',
+              message: 'API Hatası'
+            } : item
+          ));
+          failedCount++;
         }
       }
-      
+
       toast({
         title: "Toplu İçe Aktarma Tamamlandı",
-        description: `${result.imported} başarılı, ${result.failed} başarısız`,
+        description: `${importedCount} başarılı, ${failedCount} başarısız`,
       });
-      
+
     } catch (error) {
       console.error('Bulk import error:', error);
       toast({
