@@ -14,6 +14,7 @@ import AnimeDetails from "./pages/AnimeDetails";
 import Browse from "./pages/Browse";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import AdminTest from "./pages/AdminTest";
 import AnimeRequest from "./pages/AnimeRequest";
 import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
@@ -89,6 +90,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin={true}>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-test"
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminTest />
                 </ProtectedRoute>
               }
             />
