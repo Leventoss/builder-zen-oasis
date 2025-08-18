@@ -255,7 +255,7 @@ class AdvancedAnimeAPI {
 
       // Convert and add AniList results
       if (anilistResults.status === 'fulfilled') {
-        const convertedAniList = anilistResults.value.map(this.convertAniListToStandard);
+        const convertedAniList = anilistResults.value.map((anilistData: any) => this.convertAniListToStandard(anilistData));
         combinedResults = [...combinedResults, ...convertedAniList];
       }
 
