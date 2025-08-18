@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { sql } from "./lib/database";
 
 // Import new API routes
-import { handleLogin, handleRegister, handleVerifyToken } from "./routes/auth";
+import { handleLogin, handleRegister, handleVerifyToken, handleDiscordAuth, handleDiscordCallback } from "./routes/auth";
 import {
   handleGetAnimes,
   handleGetAnime,
