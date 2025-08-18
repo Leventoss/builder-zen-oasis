@@ -183,8 +183,8 @@ export default function ChatFixed() {
             <p className="text-sm text-gray-500 mb-6">
               Sadece kayıtlı kullanıcılar destek hattını kullanabilir.
             </p>
-            <Button 
-              className="bg-anime-accent hover:bg-anime-accent/80"
+            <Button
+              className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold"
               onClick={() => window.location.href = '/'}
             >
               Giriş Yap
@@ -242,7 +242,7 @@ export default function ChatFixed() {
               <Button
                 onClick={startChat}
                 disabled={!selectedCategory}
-                className="w-full mt-6 bg-anime-accent hover:bg-anime-accent/80"
+                className="w-full mt-6 bg-anime-accent hover:bg-anime-accent/80 text-white font-bold disabled:bg-gray-600 disabled:text-gray-400"
               >
                 <Bot className="h-4 w-4 mr-2" />
                 Sohbeti Başlat
@@ -371,7 +371,7 @@ export default function ChatFixed() {
                 <Button
                   onClick={sendMessage}
                   disabled={isLoading || (!currentMessage.trim() && !selectedImage)}
-                  className="bg-anime-accent hover:bg-anime-accent/80"
+                  className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold disabled:bg-gray-600 disabled:text-gray-400"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
