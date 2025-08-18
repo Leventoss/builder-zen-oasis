@@ -68,6 +68,14 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/anime-details/:id"
+              element={
+                <ProtectedRoute>
+                  <AnimeDetails />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/anime" element={<Browse />} />
             <Route path="/movies" element={<Browse />} />
             <Route path="/trending" element={<Browse />} />
