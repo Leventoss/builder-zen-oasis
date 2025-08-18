@@ -22,7 +22,10 @@ export interface AuthResponse {
 export const handleDiscordAuth: RequestHandler = async (req, res) => {
   try {
     const clientId = process.env.DISCORD_CLIENT_ID;
-    const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/discord/callback`;
+    // Use current domain for redirect URI
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const host = req.get('host');
+    const redirectUri = `${protocol}://${host}/api/auth/discord/callback`;
 
     if (!clientId) {
       return res.status(500).json({
@@ -31,7 +34,7 @@ export const handleDiscordAuth: RequestHandler = async (req, res) => {
       });
     }
 
-    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email&prompt=consent`;
 
     res.redirect(discordAuthUrl);
   } catch (error) {
