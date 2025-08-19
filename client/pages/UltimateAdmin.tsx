@@ -816,7 +816,7 @@ export default function UltimateAdmin() {
         const result = await response.json();
 
         if (editingEpisode.id) {
-          updateEpisode(editingEpisode.id, editingEpisode);
+          await updateEpisode(editingEpisode.id, editingEpisode);
         } else {
           editingEpisode.id = result.data.id;
           addEpisode(editingEpisode);
