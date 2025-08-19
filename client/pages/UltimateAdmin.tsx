@@ -2747,6 +2747,19 @@ export default function UltimateAdmin() {
         </DialogContent>
       </Dialog>
 
+      {/* Bulk Episode Upload Dialog */}
+      <Dialog open={showBulkEpisodeUpload} onOpenChange={setShowBulkEpisodeUpload}>
+        <DialogContent className="max-w-4xl bg-anime-dark border-anime-accent/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">Toplu Bölüm Yükleme</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Bir seferde birden fazla bölüm ekleyin - 1000 bölümü 30 dakikada!
+            </DialogDescription>
+          </DialogHeader>
+          <BulkEpisodeUpload onClose={() => setShowBulkEpisodeUpload(false)} />
+        </DialogContent>
+      </Dialog>
+
       {/* User Edit Dialog */}
       <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
         <DialogContent className="max-w-md bg-anime-dark border-anime-accent/20">
