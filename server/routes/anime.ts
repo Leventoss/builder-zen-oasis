@@ -238,6 +238,11 @@ export const handleUpdateAnime: RequestHandler = async (req, res) => {
       status: animeData.status,
       category: animeData.category,
       featured: animeData.featured,
+      featuredTitle: animeData.featuredTitle,
+      featuredTitleEn: animeData.featuredTitleEn,
+      featuredDescription: animeData.featuredDescription,
+      featuredDescriptionEn: animeData.featuredDescriptionEn,
+      featuredBanner: animeData.featuredBanner,
     });
 
     if (!updatedAnime) {
