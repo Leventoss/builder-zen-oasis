@@ -1,25 +1,6 @@
 // API Client for communicating with backend
 
-// Determine API base URL based on environment
-const getApiBase = () => {
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-
-    // For Builder.io environment, try to use netlify functions
-    if (hostname.includes('.fly.dev') || hostname.includes('builder.io')) {
-      return '/.netlify/functions/api';
-    }
-
-    // For localhost development
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return '/api';
-    }
-  }
-
-  return '/api';
-};
-
-const API_BASE = getApiBase();
+const API_BASE = "/api";
 
 // Auth token management
 export const authToken = {
