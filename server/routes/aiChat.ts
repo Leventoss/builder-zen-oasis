@@ -133,19 +133,21 @@ function getTopicSpecificResponse(
       break;
 
     case "anime-sorun":
-      if (
-        lowerMessage.includes("çalışmıyor") ||
-        lowerMessage.includes("sorun") ||
-        lowerMessage.includes("problem")
-      ) {
-        return `Player veya anime izleme sorununuz için şu bilgileri paylaşır mısınız:
+      if (hasComplaint || lowerMessage.includes("çalışm��yor") || lowerMessage.includes("açılmıyor")) {
+        const troubleshootingResponses = [
+          `Sorununu hemen çözelim! 🔧\n\nBilmem gerekenler:\n🎯 Hangi anime/bölüm?\n📱 Cihaz türü (telefon/bilgisayar)\n🌐 Tarayıcı (Chrome, Safari, vs.)\n⚡ Sorun türü (açılmıyor, donuyor, ses yok)\n\n%90 sorunları 5 dakikada çözüyoruz!`,
+          `Teknik sorun mu? Hemen bakayım! 👨‍💻\n\nŞu bilgileri paylaşır mısın:\n• Hangi animede problem?\n• Video açılıyor mu?\n• Ses var mı?\n• İnternet hızın nasıl?\n\nÇoğu sorunu anında çözebiliriz.`,
+          `Sorun bildirimi alındı! 🚨\n\nTanı için gerekli:\n📺 Anime/bölüm adı\n💻 Kullandığın platform\n🔊 Ses/görüntü durumu\n📶 Bağlantı kalitesi\n\nProblemi birlikte çözelim!`
+        ];
+        return troubleshootingResponses[Math.floor(Math.random() * troubleshootingResponses.length)];
+      }
 
-1. Hangi anime ve bölümde sorun yaşıyorsunuz?
-2. Sorun nasıl oluşuyor? (video açılmıyor, donuyor, ses yok vs.)
-3. Hangi tarayıcı kullanıyorsunuz?
-4. Mobil mi masaüstü mü kullanıyorsunuz?
+      if (lowerMessage.includes("yavaş") || lowerMessage.includes("yüklemiyor")) {
+        return `Yavaşlık sorunu için hızlı çözümler:\n\n⚡ Sayfayı yenile (F5)\n🔄 Farklı sunucu dene\n📶 İnternet bağlantını kontrol et\n🧹 Tarayıcı cache'ini temizle\n\nGenelde bu adımlardan biri sorunu çözüyor!`;
+      }
 
-Bu bilgilerle size daha iyi yardım edebilirim.`;
+      if (lowerMessage.includes("ses") || lowerMessage.includes("sound")) {
+        return `Ses sorunu için:\n\n🔊 Ses seviyesini kontrol et\n🎧 Kulaklık/hoparlör bağlantısı\n🔇 Tarayıcı ses izinleri\n▶️ Video player ayarları\n\nHangi adımı denedin?`;
       }
       break;
 
