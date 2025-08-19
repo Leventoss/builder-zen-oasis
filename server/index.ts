@@ -761,12 +761,10 @@ export function createServer() {
 }
 
 // Start server if this file is run directly
-if (require.main === module) {
-  const app = createServer();
-  const port = process.env.PORT || 3000;
+const app = createServer();
+const port = process.env.PORT || 3000;
 
-  app.listen(port, () => {
-    console.log(`🚀 Server running on http://localhost:${port}`);
-    console.log(`📋 API endpoints available at http://localhost:${port}/api`);
-  });
-}
+app.listen(port, () => {
+  console.log(`🚀 Server running on http://localhost:${port}`);
+  console.log(`📋 API endpoints available at http://localhost:${port}/api`);
+});
