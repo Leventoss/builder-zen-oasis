@@ -143,6 +143,9 @@ export function createServer() {
   // Admin routes
   app.get("/api/admin/stats", handleGetStats);
   app.get("/api/admin/users", handleGetUsers);
+  app.delete("/api/admin/users/:id", handleDeleteUser);
+  app.put("/api/admin/users/:id", handleUpdateUserRole);
+  app.post("/api/admin/users", handleCreateUser);
   app.get("/api/admin/notifications", handleGetNotifications);
   app.put("/api/admin/notifications/:id/read", handleMarkNotificationRead);
   app.post("/api/admin/notifications", handleCreateNotification);
@@ -625,7 +628,7 @@ export function createServer() {
           genreEn: ["Adventure", "Fantasy", "Action"],
           duration: "24min",
           description:
-            "Yedi Ölümcül Günah şövalyelerinin krallığı kurtarma maceras��.",
+            "Yedi Ölümcül Günah şövalyelerinin krallığı kurtarma macerası.",
           descriptionEn:
             "The adventure of the Seven Deadly Sins knights to save the kingdom.",
           status: "completed",
