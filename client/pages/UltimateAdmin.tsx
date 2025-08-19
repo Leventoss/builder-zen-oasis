@@ -1789,6 +1789,123 @@ export default function UltimateAdmin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Featured Animes Tab */}
+          <TabsContent value="featured" className="space-y-6">
+            <Card className="bg-anime-card border-anime-accent/20">
+              <CardHeader>
+                <CardTitle className="text-white">Öne Çıkan Animeler</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Ana sayfada gösterilecek hero section animelerini seçin (maksimum 3)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Featured Anime Slots */}
+                    {[1, 2, 3].map((slot) => {
+                      const featuredAnime = animes.find(a => a.featured === slot);
+                      return (
+                        <div key={slot} className="space-y-4">
+                          <h3 className="text-white font-medium">Slot {slot}</h3>
+
+                          {featuredAnime ? (
+                            <div className="relative group">
+                              <img
+                                src={featuredAnime.banner || featuredAnime.poster}
+                                alt={featuredAnime.title}
+                                className="w-full h-32 object-cover rounded-lg"
+                              />
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      // Remove from featured
+                                      updateAnime(featuredAnime.id, { featured: undefined });
+                                      toast({
+                                        title: "Kaldırıldı",
+                                        description: `${featuredAnime.title} öne çıkanlardan kaldırıldı`,
+                                      });
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="mt-2">
+                                <p className="text-white font-medium text-sm">{featuredAnime.title}</p>
+                                <p className="text-gray-400 text-xs">⭐ {featuredAnime.rating} • {featuredAnime.year}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="border-2 border-dashed border-anime-accent/30 rounded-lg h-32 flex flex-col items-center justify-center text-gray-400">
+                              <Plus className="h-8 w-8 mb-2" />
+                              <p className="text-sm">Anime Seç</p>
+                              <Select
+                                onValueChange={(animeId) => {
+                                  updateAnime(animeId, { featured: slot });
+                                  toast({
+                                    title: "Eklendi",
+                                    description: `Anime slot ${slot}'a eklendi`,
+                                  });
+                                }}
+                              >
+                                <SelectTrigger className="w-full mt-2 bg-anime-dark border-anime-accent/30">
+                                  <SelectValue placeholder="Anime seçin..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {animes.filter(a => !a.featured).map((anime) => (
+                                    <SelectItem key={anime.id} value={anime.id}>
+                                      {anime.title}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="border-t border-anime-accent/20 pt-6">
+                    <h4 className="text-white font-medium mb-4">Mevcut Animeler</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+                      {animes.filter(a => !a.featured).map((anime) => (
+                        <div key={anime.id} className="group cursor-pointer" onClick={() => {
+                          // Quick add to first available slot
+                          const availableSlot = [1, 2, 3].find(slot => !animes.find(a => a.featured === slot));
+                          if (availableSlot) {
+                            updateAnime(anime.id, { featured: availableSlot });
+                            toast({
+                              title: "Eklendi",
+                              description: `${anime.title} slot ${availableSlot}'a eklendi`,
+                            });
+                          } else {
+                            toast({
+                              title: "Hata",
+                              description: "Tüm slotlar dolu. Önce bir anime kaldırın.",
+                              variant: "destructive",
+                            });
+                          }
+                        }}>
+                          <img
+                            src={anime.poster}
+                            alt={anime.title}
+                            className="w-full h-32 object-cover rounded-lg group-hover:ring-2 group-hover:ring-anime-accent transition-all"
+                          />
+                          <p className="text-white text-sm mt-2 line-clamp-1">{anime.title}</p>
+                          <p className="text-gray-400 text-xs">⭐ {anime.rating} • {anime.year}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
