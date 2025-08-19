@@ -286,6 +286,16 @@ export default function UltimateAdmin() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all");
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [showUserDialog, setShowUserDialog] = useState(false);
+  const [showCreateUserDialog, setShowCreateUserDialog] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    isAdmin: false,
+    isPremium: false,
+  });
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
