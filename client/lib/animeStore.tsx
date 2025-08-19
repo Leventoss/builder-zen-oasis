@@ -149,9 +149,11 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
       console.error("Failed to fetch animes:", error);
 
       // If API is not available, use sample data as fallback
-      if (error instanceof Error &&
-          (error.message.includes('Network error') ||
-           error.message.includes('Cannot connect'))) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("Network error") ||
+          error.message.includes("Cannot connect"))
+      ) {
         console.warn("API not available, using sample data");
         // Only use sample data if we don't already have animes loaded
         if (animes.length === 0) {

@@ -49,18 +49,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
       // Check for Discord auth callback
       const urlParams = new URLSearchParams(window.location.search);
-      const discordToken = urlParams.get('token');
-      const discordAuth = urlParams.get('discord_auth');
+      const discordToken = urlParams.get("token");
+      const discordAuth = urlParams.get("discord_auth");
 
-      if (discordAuth === 'success' && discordToken) {
+      if (discordAuth === "success" && discordToken) {
         // Save Discord token and verify it
         authToken.set(discordToken);
         // Clean URL
-        window.history.replaceState({}, document.title, window.location.pathname);
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
       }
 
       const token = authToken.get();
-      if (token && token.trim() !== '') {
+      if (token && token.trim() !== "") {
         try {
           const response = await authAPI.verifyToken(token);
           if (response.success && response.user) {
@@ -82,11 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error("Token verification failed:", error);
 
           // If it's a network error, don't remove the token - API might be temporarily unavailable
-          if (error instanceof Error &&
-              (error.message.includes('Failed to fetch') ||
-               error.message.includes('Network error') ||
-               error.message.includes('Cannot connect'))) {
-            console.warn("API temporarily unavailable, keeping token for retry");
+          if (
+            error instanceof Error &&
+            (error.message.includes("Failed to fetch") ||
+              error.message.includes("Network error") ||
+              error.message.includes("Cannot connect"))
+          ) {
+            console.warn(
+              "API temporarily unavailable, keeping token for retry",
+            );
             // Set a flag to retry later or show offline mode
             setUser(null); // Don't authenticate but keep token
           } else {

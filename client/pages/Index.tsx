@@ -96,16 +96,26 @@ export default function Index() {
   useEffect(() => {
     // Get featured animes from database (fallback to static data)
     const databaseFeaturedAnimes = animes
-      .filter(anime => anime.featured && anime.featured >= 1 && anime.featured <= 3)
+      .filter(
+        (anime) => anime.featured && anime.featured >= 1 && anime.featured <= 3,
+      )
       .sort((a, b) => (a.featured || 0) - (b.featured || 0))
-      .map(anime => ({
+      .map((anime) => ({
         id: anime.id,
-        title: language === "en" ?
-          (anime.featuredTitleEn || anime.featuredTitle || anime.titleEn || anime.title) :
-          (anime.featuredTitle || anime.title),
-        description: language === "en" ?
-          (anime.featuredDescriptionEn || anime.featuredDescription || anime.descriptionEn || anime.description) :
-          (anime.featuredDescription || anime.description),
+        title:
+          language === "en"
+            ? anime.featuredTitleEn ||
+              anime.featuredTitle ||
+              anime.titleEn ||
+              anime.title
+            : anime.featuredTitle || anime.title,
+        description:
+          language === "en"
+            ? anime.featuredDescriptionEn ||
+              anime.featuredDescription ||
+              anime.descriptionEn ||
+              anime.description
+            : anime.featuredDescription || anime.description,
         poster: anime.poster,
         banner: anime.featuredBanner || anime.banner || anime.poster,
         rating: anime.rating,
@@ -116,7 +126,10 @@ export default function Index() {
       }));
 
     // Use database featured animes if available, otherwise fallback to default
-    const newFeaturedAnimes = databaseFeaturedAnimes.length > 0 ? databaseFeaturedAnimes : defaultFeaturedAnimes;
+    const newFeaturedAnimes =
+      databaseFeaturedAnimes.length > 0
+        ? databaseFeaturedAnimes
+        : defaultFeaturedAnimes;
     setFeaturedAnimes(newFeaturedAnimes);
   }, [animes, language]);
 
@@ -128,7 +141,10 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [featuredAnimes.length]);
 
-  const currentFeature = featuredAnimes[currentHero] || featuredAnimes[0] || defaultFeaturedAnimes[0];
+  const currentFeature =
+    featuredAnimes[currentHero] ||
+    featuredAnimes[0] ||
+    defaultFeaturedAnimes[0];
 
   const nextHero = () => {
     setCurrentHero((prev) => (prev + 1) % featuredAnimes.length);
@@ -170,7 +186,7 @@ export default function Index() {
     const progressMap = new Map();
 
     // Create a map of anime progress
-    userProgress.forEach(progress => {
+    userProgress.forEach((progress) => {
       const existing = progressMap.get(progress.animeId);
       if (!existing || progress.lastWatched > existing.lastWatched) {
         progressMap.set(progress.animeId, progress);
@@ -179,29 +195,35 @@ export default function Index() {
 
     // Convert to anime cards with progress
     return Array.from(progressMap.values())
-      .filter(progress => {
+      .filter((progress) => {
         // Only show animes that are not completed (less than 90% watched)
         const progressPercent = (progress.progress / progress.duration) * 100;
         return progressPercent < 90 && progressPercent > 5;
       })
-      .sort((a, b) => new Date(b.lastWatched).getTime() - new Date(a.lastWatched).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.lastWatched).getTime() - new Date(a.lastWatched).getTime(),
+      )
       .slice(0, 6)
-      .map(progress => {
-        const anime = animes.find(a => a.id === progress.animeId);
+      .map((progress) => {
+        const anime = animes.find((a) => a.id === progress.animeId);
         if (!anime) return null;
 
         return {
           ...anime,
           progress: Math.round((progress.progress / progress.duration) * 100),
           lastWatched: progress.lastWatched,
-          episodeId: progress.episodeId
+          episodeId: progress.episodeId,
         };
       })
       .filter(Boolean);
   }, [animes, watchProgress, isAuthenticated, user, getUserProgress]);
 
   const handleWatchClick = () => {
-    const currentFeature = featuredAnimes[currentHero] || featuredAnimes[0] || defaultFeaturedAnimes[0];
+    const currentFeature =
+      featuredAnimes[currentHero] ||
+      featuredAnimes[0] ||
+      defaultFeaturedAnimes[0];
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;

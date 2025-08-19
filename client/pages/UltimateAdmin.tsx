@@ -145,17 +145,25 @@ interface UserData {
 function FeaturedAnimeEditForm({
   anime,
   slot,
-  onSave
+  onSave,
 }: {
-  anime: any,
-  slot: number,
-  onSave: (data: any) => void
+  anime: any;
+  slot: number;
+  onSave: (data: any) => void;
 }) {
   const [featuredTitle, setFeaturedTitle] = useState(anime.featuredTitle || "");
-  const [featuredTitleEn, setFeaturedTitleEn] = useState(anime.featuredTitleEn || "");
-  const [featuredDescription, setFeaturedDescription] = useState(anime.featuredDescription || "");
-  const [featuredDescriptionEn, setFeaturedDescriptionEn] = useState(anime.featuredDescriptionEn || "");
-  const [featuredBanner, setFeaturedBanner] = useState(anime.featuredBanner || "");
+  const [featuredTitleEn, setFeaturedTitleEn] = useState(
+    anime.featuredTitleEn || "",
+  );
+  const [featuredDescription, setFeaturedDescription] = useState(
+    anime.featuredDescription || "",
+  );
+  const [featuredDescriptionEn, setFeaturedDescriptionEn] = useState(
+    anime.featuredDescriptionEn || "",
+  );
+  const [featuredBanner, setFeaturedBanner] = useState(
+    anime.featuredBanner || "",
+  );
 
   const handleSave = () => {
     onSave({
@@ -178,7 +186,9 @@ function FeaturedAnimeEditForm({
             placeholder={anime.title}
             className="bg-anime-card border-anime-accent/30 text-white"
           />
-          <p className="text-xs text-gray-400">Boş bırakırsanız orijinal başlık kullanılır</p>
+          <p className="text-xs text-gray-400">
+            Boş bırakırsanız orijinal başlık kullanılır
+          </p>
         </div>
         <div className="space-y-2">
           <Label className="text-white">Özel Ba��lık (İngilizce)</Label>
@@ -220,7 +230,9 @@ function FeaturedAnimeEditForm({
           placeholder={anime.banner || anime.poster}
           className="bg-anime-card border-anime-accent/30 text-white"
         />
-        <p className="text-xs text-gray-400">Boş bırakırsanız orijinal banner/poster kullanılır</p>
+        <p className="text-xs text-gray-400">
+          Boş bırakırsanız orijinal banner/poster kullanılır
+        </p>
         {featuredBanner && (
           <div className="mt-2">
             <img
@@ -228,7 +240,7 @@ function FeaturedAnimeEditForm({
               alt="Banner Önizleme"
               className="w-full h-32 object-cover rounded-lg"
               onError={(e) => {
-                e.currentTarget.style.display = 'none';
+                e.currentTarget.style.display = "none";
               }}
             />
           </div>
@@ -248,7 +260,10 @@ function FeaturedAnimeEditForm({
         >
           Temizle
         </Button>
-        <Button onClick={handleSave} className="bg-anime-accent hover:bg-anime-accent/80">
+        <Button
+          onClick={handleSave}
+          className="bg-anime-accent hover:bg-anime-accent/80"
+        >
           <Save className="h-4 w-4 mr-2" />
           Kaydet
         </Button>
@@ -445,12 +460,13 @@ export default function UltimateAdmin() {
 
   // Delete user
   const handleDeleteUser = async (userId: string, username: string) => {
-    if (!confirm(`${username} kullanıcısını silmek istediğinize emin misiniz?`)) return;
+    if (!confirm(`${username} kullanıcısını silmek istediğinize emin misiniz?`))
+      return;
 
     try {
       const response = await adminAPI.deleteUser(userId);
       if (response.success) {
-        setUsers(prev => prev.filter(u => u.id !== parseInt(userId)));
+        setUsers((prev) => prev.filter((u) => u.id !== parseInt(userId)));
         toast({
           title: "Başarılı",
           description: `${username} kullanıcısı silindi`,
@@ -466,13 +482,18 @@ export default function UltimateAdmin() {
   };
 
   // Update user role
-  const handleUpdateUserRole = async (userId: string, roleData: { isAdmin?: boolean; isPremium?: boolean }) => {
+  const handleUpdateUserRole = async (
+    userId: string,
+    roleData: { isAdmin?: boolean; isPremium?: boolean },
+  ) => {
     try {
       const response = await adminAPI.updateUserRole(userId, roleData);
       if (response.success) {
-        setUsers(prev => prev.map(u =>
-          u.id === parseInt(userId) ? { ...u, ...response.data } : u
-        ));
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === parseInt(userId) ? { ...u, ...response.data } : u,
+          ),
+        );
         setEditingUser(null);
         setShowUserDialog(false);
         toast({
@@ -503,7 +524,7 @@ export default function UltimateAdmin() {
     try {
       const response = await adminAPI.createUser(newUserData);
       if (response.success) {
-        setUsers(prev => [response.data, ...prev]);
+        setUsers((prev) => [response.data, ...prev]);
         setNewUserData({
           username: "",
           email: "",
@@ -695,7 +716,8 @@ export default function UltimateAdmin() {
         if (response.status === 409) {
           toast({
             title: "Anime Zaten Mevcut",
-            description: errorData.message || `${animeData.title} daha önce eklenmiş`,
+            description:
+              errorData.message || `${animeData.title} daha önce eklenmiş`,
             variant: "destructive",
           });
         } else {
@@ -1962,7 +1984,10 @@ export default function UltimateAdmin() {
                     <TableBody>
                       {usersLoading ? (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-gray-400 py-8">
+                          <TableCell
+                            colSpan={5}
+                            className="text-center text-gray-400 py-8"
+                          >
                             <div className="flex items-center justify-center gap-2">
                               <RefreshCw className="h-4 w-4 animate-spin" />
                               Kullanıcılar yükleniyor...
@@ -1971,7 +1996,10 @@ export default function UltimateAdmin() {
                         </TableRow>
                       ) : filteredUsers.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-gray-400 py-8">
+                          <TableCell
+                            colSpan={5}
+                            className="text-center text-gray-400 py-8"
+                          >
                             {userSearchQuery || userFilter !== "all"
                               ? "Arama kriterlerine uygun kullanıcı bulunamadı"
                               : "Henüz kullanıcı yok"}
@@ -1986,9 +2014,14 @@ export default function UltimateAdmin() {
                                   <User className="h-4 w-4 text-white" />
                                 </div>
                                 <div>
-                                  <p className="font-medium">{userData.username}</p>
+                                  <p className="font-medium">
+                                    {userData.username}
+                                  </p>
                                   <p className="text-gray-400 text-sm">
-                                    Discord: {userData.discordId ? "Bağlı" : "Bağlı değil"}
+                                    Discord:{" "}
+                                    {userData.discordId
+                                      ? "Bağlı"
+                                      : "Bağlı değil"}
                                   </p>
                                 </div>
                               </div>
@@ -1997,7 +2030,9 @@ export default function UltimateAdmin() {
                               {userData.email}
                             </TableCell>
                             <TableCell className="text-gray-300">
-                              {new Date(userData.createdAt || Date.now()).toLocaleDateString('tr-TR')}
+                              {new Date(
+                                userData.createdAt || Date.now(),
+                              ).toLocaleDateString("tr-TR")}
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-1">
@@ -2012,7 +2047,10 @@ export default function UltimateAdmin() {
                                   </Badge>
                                 )}
                                 {!userData.isAdmin && !userData.isPremium && (
-                                  <Badge variant="outline" className="text-gray-400">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-gray-400"
+                                  >
                                     Normal
                                   </Badge>
                                 )}
@@ -2037,7 +2075,10 @@ export default function UltimateAdmin() {
                                   title="Rol Değiştir"
                                   onClick={() => {
                                     const newAdminStatus = !userData.isAdmin;
-                                    handleUpdateUserRole(userData.id.toString(), { isAdmin: newAdminStatus });
+                                    handleUpdateUserRole(
+                                      userData.id.toString(),
+                                      { isAdmin: newAdminStatus },
+                                    );
                                   }}
                                 >
                                   <Settings className="h-3 w-3" />
@@ -2046,7 +2087,12 @@ export default function UltimateAdmin() {
                                   size="sm"
                                   variant="destructive"
                                   title="Sil"
-                                  onClick={() => handleDeleteUser(userData.id.toString(), userData.username)}
+                                  onClick={() =>
+                                    handleDeleteUser(
+                                      userData.id.toString(),
+                                      userData.username,
+                                    )
+                                  }
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
@@ -2068,7 +2114,8 @@ export default function UltimateAdmin() {
               <CardHeader>
                 <CardTitle className="text-white">Öne Çıkan Animeler</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Ana sayfada gösterilecek hero section animelerini se��in (maksimum 3)
+                  Ana sayfada gösterilecek hero section animelerini se��in
+                  (maksimum 3)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -2076,15 +2123,21 @@ export default function UltimateAdmin() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Featured Anime Slots */}
                     {[1, 2, 3].map((slot) => {
-                      const featuredAnime = animes.find(a => a.featured === slot);
+                      const featuredAnime = animes.find(
+                        (a) => a.featured === slot,
+                      );
                       return (
                         <div key={slot} className="space-y-4">
-                          <h3 className="text-white font-medium">Slot {slot}</h3>
+                          <h3 className="text-white font-medium">
+                            Slot {slot}
+                          </h3>
 
                           {featuredAnime ? (
                             <div className="relative group">
                               <img
-                                src={featuredAnime.banner || featuredAnime.poster}
+                                src={
+                                  featuredAnime.banner || featuredAnime.poster
+                                }
                                 alt={featuredAnime.title}
                                 className="w-full h-32 object-cover rounded-lg"
                               />
@@ -2098,9 +2151,12 @@ export default function UltimateAdmin() {
                                     </DialogTrigger>
                                     <DialogContent className="max-w-2xl bg-anime-dark border-anime-accent/20">
                                       <DialogHeader>
-                                        <DialogTitle className="text-white">Öne Çıkan Anime Düzenle - Slot {slot}</DialogTitle>
+                                        <DialogTitle className="text-white">
+                                          Öne Çıkan Anime Düzenle - Slot {slot}
+                                        </DialogTitle>
                                         <DialogDescription className="text-gray-400">
-                                          Bu anime için özel başlık, açıklama ve banner ayarlayın
+                                          Bu anime için özel başlık, açıklama ve
+                                          banner ayarlayın
                                         </DialogDescription>
                                       </DialogHeader>
                                       <FeaturedAnimeEditForm
@@ -2128,7 +2184,7 @@ export default function UltimateAdmin() {
                                           featuredTitleEn: undefined,
                                           featuredDescription: undefined,
                                           featuredDescriptionEn: undefined,
-                                          featuredBanner: undefined
+                                          featuredBanner: undefined,
                                         });
                                         toast({
                                           title: "Kaldırıldı",
@@ -2137,7 +2193,8 @@ export default function UltimateAdmin() {
                                       } catch (error) {
                                         toast({
                                           title: "Hata",
-                                          description: "Öne çıkan anime kaldırılırken hata oluştu",
+                                          description:
+                                            "Öne çıkan anime kaldırılırken hata oluştu",
                                           variant: "destructive",
                                         });
                                       }
@@ -2149,12 +2206,22 @@ export default function UltimateAdmin() {
                               </div>
                               <div className="mt-2">
                                 <p className="text-white font-medium text-sm">
-                                  {featuredAnime.featuredTitle || featuredAnime.title}
-                                  {featuredAnime.featuredTitle && <span className="text-anime-accent ml-1">(Özel)</span>}
+                                  {featuredAnime.featuredTitle ||
+                                    featuredAnime.title}
+                                  {featuredAnime.featuredTitle && (
+                                    <span className="text-anime-accent ml-1">
+                                      (Özel)
+                                    </span>
+                                  )}
                                 </p>
-                                <p className="text-gray-400 text-xs">⭐ {featuredAnime.rating} • {featuredAnime.year}</p>
+                                <p className="text-gray-400 text-xs">
+                                  ⭐ {featuredAnime.rating} •{" "}
+                                  {featuredAnime.year}
+                                </p>
                                 {featuredAnime.featuredBanner && (
-                                  <p className="text-anime-accent text-xs">📸 Özel Banner</p>
+                                  <p className="text-anime-accent text-xs">
+                                    📸 Özel Banner
+                                  </p>
                                 )}
                               </div>
                             </div>
@@ -2165,7 +2232,9 @@ export default function UltimateAdmin() {
                               <Select
                                 onValueChange={async (animeId) => {
                                   try {
-                                    await updateAnime(animeId, { featured: slot });
+                                    await updateAnime(animeId, {
+                                      featured: slot,
+                                    });
                                     toast({
                                       title: "Eklendi",
                                       description: `Anime slot ${slot}'a eklendi`,
@@ -2173,7 +2242,8 @@ export default function UltimateAdmin() {
                                   } catch (error) {
                                     toast({
                                       title: "Hata",
-                                      description: "Öne çıkan anime eklenirken hata oluştu",
+                                      description:
+                                        "Öne çıkan anime eklenirken hata oluştu",
                                       variant: "destructive",
                                     });
                                   }
@@ -2183,11 +2253,16 @@ export default function UltimateAdmin() {
                                   <SelectValue placeholder="Anime seçin..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {animes.filter(a => !a.featured).map((anime) => (
-                                    <SelectItem key={anime.id} value={anime.id}>
-                                      {anime.title}
-                                    </SelectItem>
-                                  ))}
+                                  {animes
+                                    .filter((a) => !a.featured)
+                                    .map((anime) => (
+                                      <SelectItem
+                                        key={anime.id}
+                                        value={anime.id}
+                                      >
+                                        {anime.title}
+                                      </SelectItem>
+                                    ))}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -2198,35 +2273,53 @@ export default function UltimateAdmin() {
                   </div>
 
                   <div className="border-t border-anime-accent/20 pt-6">
-                    <h4 className="text-white font-medium mb-4">Mevcut Animeler</h4>
+                    <h4 className="text-white font-medium mb-4">
+                      Mevcut Animeler
+                    </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-                      {animes.filter(a => !a.featured).map((anime) => (
-                        <div key={anime.id} className="group cursor-pointer" onClick={() => {
-                          // Quick add to first available slot
-                          const availableSlot = [1, 2, 3].find(slot => !animes.find(a => a.featured === slot));
-                          if (availableSlot) {
-                            updateAnime(anime.id, { featured: availableSlot });
-                            toast({
-                              title: "Eklendi",
-                              description: `${anime.title} slot ${availableSlot}'a eklendi`,
-                            });
-                          } else {
-                            toast({
-                              title: "Hata",
-                              description: "Tüm slotlar dolu. Önce bir anime kaldırın.",
-                              variant: "destructive",
-                            });
-                          }
-                        }}>
-                          <img
-                            src={anime.poster}
-                            alt={anime.title}
-                            className="w-full h-32 object-cover rounded-lg group-hover:ring-2 group-hover:ring-anime-accent transition-all"
-                          />
-                          <p className="text-white text-sm mt-2 line-clamp-1">{anime.title}</p>
-                          <p className="text-gray-400 text-xs">⭐ {anime.rating} • {anime.year}</p>
-                        </div>
-                      ))}
+                      {animes
+                        .filter((a) => !a.featured)
+                        .map((anime) => (
+                          <div
+                            key={anime.id}
+                            className="group cursor-pointer"
+                            onClick={() => {
+                              // Quick add to first available slot
+                              const availableSlot = [1, 2, 3].find(
+                                (slot) =>
+                                  !animes.find((a) => a.featured === slot),
+                              );
+                              if (availableSlot) {
+                                updateAnime(anime.id, {
+                                  featured: availableSlot,
+                                });
+                                toast({
+                                  title: "Eklendi",
+                                  description: `${anime.title} slot ${availableSlot}'a eklendi`,
+                                });
+                              } else {
+                                toast({
+                                  title: "Hata",
+                                  description:
+                                    "Tüm slotlar dolu. Önce bir anime kaldırın.",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
+                            <img
+                              src={anime.poster}
+                              alt={anime.title}
+                              className="w-full h-32 object-cover rounded-lg group-hover:ring-2 group-hover:ring-anime-accent transition-all"
+                            />
+                            <p className="text-white text-sm mt-2 line-clamp-1">
+                              {anime.title}
+                            </p>
+                            <p className="text-gray-400 text-xs">
+                              ⭐ {anime.rating} • {anime.year}
+                            </p>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -2698,7 +2791,7 @@ export default function UltimateAdmin() {
                     disabled={!editingEpisode.videoUrl.trim()}
                     onClick={() => {
                       if (editingEpisode.videoUrl.trim()) {
-                        window.open(editingEpisode.videoUrl, '_blank');
+                        window.open(editingEpisode.videoUrl, "_blank");
                       }
                     }}
                     className="border-anime-accent/30 text-gray-400 hover:text-white"
@@ -2707,7 +2800,8 @@ export default function UltimateAdmin() {
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Desteklenen formatlar: MP4, WebM, YouTube, Vimeo, Dailymotion, JW Player embed URL'leri
+                  Desteklenen formatlar: MP4, WebM, YouTube, Vimeo, Dailymotion,
+                  JW Player embed URL'leri
                 </p>
               </div>
 
@@ -2748,10 +2842,15 @@ export default function UltimateAdmin() {
       </Dialog>
 
       {/* Bulk Episode Upload Dialog */}
-      <Dialog open={showBulkEpisodeUpload} onOpenChange={setShowBulkEpisodeUpload}>
+      <Dialog
+        open={showBulkEpisodeUpload}
+        onOpenChange={setShowBulkEpisodeUpload}
+      >
         <DialogContent className="max-w-4xl bg-anime-dark border-anime-accent/20">
           <DialogHeader>
-            <DialogTitle className="text-white">Toplu Bölüm Yükleme</DialogTitle>
+            <DialogTitle className="text-white">
+              Toplu Bölüm Yükleme
+            </DialogTitle>
             <DialogDescription className="text-gray-400">
               Bir seferde birden fazla bölüm ekleyin - 1000 bölümü 30 dakikada!
             </DialogDescription>
@@ -2792,20 +2891,34 @@ export default function UltimateAdmin() {
                   type="checkbox"
                   id="isAdmin"
                   checked={editingUser.isAdmin}
-                  onChange={(e) => setEditingUser({...editingUser, isAdmin: e.target.checked})}
+                  onChange={(e) =>
+                    setEditingUser({
+                      ...editingUser,
+                      isAdmin: e.target.checked,
+                    })
+                  }
                   className="rounded border-anime-accent/30"
                 />
-                <Label htmlFor="isAdmin" className="text-white">Admin Yetkisi</Label>
+                <Label htmlFor="isAdmin" className="text-white">
+                  Admin Yetkisi
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="isPremium"
                   checked={editingUser.isPremium}
-                  onChange={(e) => setEditingUser({...editingUser, isPremium: e.target.checked})}
+                  onChange={(e) =>
+                    setEditingUser({
+                      ...editingUser,
+                      isPremium: e.target.checked,
+                    })
+                  }
                   className="rounded border-anime-accent/30"
                 />
-                <Label htmlFor="isPremium" className="text-white">Premium Üyelik</Label>
+                <Label htmlFor="isPremium" className="text-white">
+                  Premium Üyelik
+                </Label>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button
@@ -2816,10 +2929,12 @@ export default function UltimateAdmin() {
                   İptal
                 </Button>
                 <Button
-                  onClick={() => handleUpdateUserRole(editingUser.id.toString(), {
-                    isAdmin: editingUser.isAdmin,
-                    isPremium: editingUser.isPremium
-                  })}
+                  onClick={() =>
+                    handleUpdateUserRole(editingUser.id.toString(), {
+                      isAdmin: editingUser.isAdmin,
+                      isPremium: editingUser.isPremium,
+                    })
+                  }
                   className="bg-anime-accent hover:bg-anime-accent/80"
                 >
                   <Save className="h-4 w-4 mr-2" />
@@ -2832,10 +2947,15 @@ export default function UltimateAdmin() {
       </Dialog>
 
       {/* Create User Dialog */}
-      <Dialog open={showCreateUserDialog} onOpenChange={setShowCreateUserDialog}>
+      <Dialog
+        open={showCreateUserDialog}
+        onOpenChange={setShowCreateUserDialog}
+      >
         <DialogContent className="max-w-md bg-anime-dark border-anime-accent/20">
           <DialogHeader>
-            <DialogTitle className="text-white">Yeni Kullanıcı Oluştur</DialogTitle>
+            <DialogTitle className="text-white">
+              Yeni Kullanıcı Oluştur
+            </DialogTitle>
             <DialogDescription className="text-gray-400">
               Yeni kullanıcı hesabı oluşturun
             </DialogDescription>
@@ -2845,7 +2965,9 @@ export default function UltimateAdmin() {
               <Label className="text-white">Kullanıcı Adı</Label>
               <Input
                 value={newUserData.username}
-                onChange={(e) => setNewUserData({...newUserData, username: e.target.value})}
+                onChange={(e) =>
+                  setNewUserData({ ...newUserData, username: e.target.value })
+                }
                 className="bg-anime-card border-anime-accent/30"
                 placeholder="Kullanıcı adı"
               />
@@ -2855,7 +2977,9 @@ export default function UltimateAdmin() {
               <Input
                 type="email"
                 value={newUserData.email}
-                onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
+                onChange={(e) =>
+                  setNewUserData({ ...newUserData, email: e.target.value })
+                }
                 className="bg-anime-card border-anime-accent/30"
                 placeholder="email@example.com"
               />
@@ -2865,7 +2989,9 @@ export default function UltimateAdmin() {
               <Input
                 type="password"
                 value={newUserData.password}
-                onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
+                onChange={(e) =>
+                  setNewUserData({ ...newUserData, password: e.target.value })
+                }
                 className="bg-anime-card border-anime-accent/30"
                 placeholder="Güçlü şifre"
               />
@@ -2875,20 +3001,31 @@ export default function UltimateAdmin() {
                 type="checkbox"
                 id="newIsAdmin"
                 checked={newUserData.isAdmin}
-                onChange={(e) => setNewUserData({...newUserData, isAdmin: e.target.checked})}
+                onChange={(e) =>
+                  setNewUserData({ ...newUserData, isAdmin: e.target.checked })
+                }
                 className="rounded border-anime-accent/30"
               />
-              <Label htmlFor="newIsAdmin" className="text-white">Admin Yetkisi</Label>
+              <Label htmlFor="newIsAdmin" className="text-white">
+                Admin Yetkisi
+              </Label>
             </div>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="newIsPremium"
                 checked={newUserData.isPremium}
-                onChange={(e) => setNewUserData({...newUserData, isPremium: e.target.checked})}
+                onChange={(e) =>
+                  setNewUserData({
+                    ...newUserData,
+                    isPremium: e.target.checked,
+                  })
+                }
                 className="rounded border-anime-accent/30"
               />
-              <Label htmlFor="newIsPremium" className="text-white">Premium Üyelik</Label>
+              <Label htmlFor="newIsPremium" className="text-white">
+                Premium Üyelik
+              </Label>
             </div>
             <div className="flex gap-2 justify-end">
               <Button

@@ -40,69 +40,73 @@ interface VideoPlayerProps {
 }
 
 // Video URL detection and processing
-function processVideoUrl(url: string): { type: string; embedUrl: string; isEmbed: boolean } {
+function processVideoUrl(url: string): {
+  type: string;
+  embedUrl: string;
+  isEmbed: boolean;
+} {
   // YouTube detection
-  if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
-    const videoId = url.includes('youtu.be/')
-      ? url.split('youtu.be/')[1].split('?')[0]
-      : url.split('v=')[1]?.split('&')[0];
+  if (url.includes("youtube.com/watch") || url.includes("youtu.be/")) {
+    const videoId = url.includes("youtu.be/")
+      ? url.split("youtu.be/")[1].split("?")[0]
+      : url.split("v=")[1]?.split("&")[0];
 
     if (videoId) {
       return {
-        type: 'youtube',
+        type: "youtube",
         embedUrl: `https://www.youtube.com/embed/${videoId}`,
-        isEmbed: true
+        isEmbed: true,
       };
     }
   }
 
   // YouTube embed URLs
-  if (url.includes('youtube.com/embed/')) {
+  if (url.includes("youtube.com/embed/")) {
     return {
-      type: 'youtube',
+      type: "youtube",
       embedUrl: url,
-      isEmbed: true
+      isEmbed: true,
     };
   }
 
   // Vimeo detection
-  if (url.includes('vimeo.com/')) {
-    const videoId = url.split('vimeo.com/')[1]?.split('/')[0];
+  if (url.includes("vimeo.com/")) {
+    const videoId = url.split("vimeo.com/")[1]?.split("/")[0];
     if (videoId) {
       return {
-        type: 'vimeo',
+        type: "vimeo",
         embedUrl: `https://player.vimeo.com/video/${videoId}`,
-        isEmbed: true
+        isEmbed: true,
       };
     }
   }
 
   // Dailymotion detection
-  if (url.includes('dailymotion.com/video/')) {
-    const videoId = url.split('video/')[1]?.split('?')[0];
+  if (url.includes("dailymotion.com/video/")) {
+    const videoId = url.split("video/")[1]?.split("?")[0];
     if (videoId) {
       return {
-        type: 'dailymotion',
+        type: "dailymotion",
         embedUrl: `https://www.dailymotion.com/embed/video/${videoId}`,
-        isEmbed: true
+        isEmbed: true,
       };
     }
   }
 
   // Direct video file or other embed URLs
-  if (url.includes('embed') || url.includes('player')) {
+  if (url.includes("embed") || url.includes("player")) {
     return {
-      type: 'embed',
+      type: "embed",
       embedUrl: url,
-      isEmbed: true
+      isEmbed: true,
     };
   }
 
   // Default to direct video file
   return {
-    type: 'video',
+    type: "video",
     embedUrl: url,
-    isEmbed: false
+    isEmbed: false,
   };
 }
 
@@ -421,101 +425,130 @@ export default function EnhancedVideoPlayer({
             showControls ? "opacity-100" : "opacity-0"
           }`}
         >
-        {/* Progress Bar */}
-        <div
-          ref={progressRef}
-          className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-4 relative"
-          onClick={handleProgressClick}
-        >
-          {/* Buffered Progress */}
+          {/* Progress Bar */}
           <div
-            className="absolute top-0 left-0 h-full bg-white/30 rounded-full"
-            style={{ width: `${bufferedPercent}%` }}
-          />
-          {/* Current Progress */}
-          <div
-            className="absolute top-0 left-0 h-full bg-anime-accent rounded-full"
-            style={{ width: `${progressPercent}%` }}
-          />
-          {/* Progress Handle */}
-          <div
-            className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-anime-accent rounded-full border-2 border-white"
-            style={{ left: `calc(${progressPercent}% - 8px)` }}
-          />
-        </div>
+            ref={progressRef}
+            className="w-full h-2 bg-white/20 rounded-full cursor-pointer mb-4 relative"
+            onClick={handleProgressClick}
+          >
+            {/* Buffered Progress */}
+            <div
+              className="absolute top-0 left-0 h-full bg-white/30 rounded-full"
+              style={{ width: `${bufferedPercent}%` }}
+            />
+            {/* Current Progress */}
+            <div
+              className="absolute top-0 left-0 h-full bg-anime-accent rounded-full"
+              style={{ width: `${progressPercent}%` }}
+            />
+            {/* Progress Handle */}
+            <div
+              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-anime-accent rounded-full border-2 border-white"
+              style={{ left: `calc(${progressPercent}% - 8px)` }}
+            />
+          </div>
 
-        {/* Control Buttons */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            {/* Play/Pause */}
-            <Button
-              onClick={togglePlay}
-              size="sm"
-              variant="ghost"
-              className="text-white hover:bg-white/20"
-            >
-              {isPlaying ? (
-                <Pause className="h-5 w-5" />
-              ) : (
-                <Play className="h-5 w-5" />
-              )}
-            </Button>
-
-            {/* Skip Buttons */}
-            <Button
-              onClick={() => skip(-10)}
-              size="sm"
-              variant="ghost"
-              className="text-white hover:bg-white/20"
-            >
-              <RotateCcw className="h-4 w-4" />
-              <span className="ml-1 text-xs">10s</span>
-            </Button>
-
-            <Button
-              onClick={() => skip(10)}
-              size="sm"
-              variant="ghost"
-              className="text-white hover:bg-white/20"
-            >
-              <RotateCw className="h-4 w-4" />
-              <span className="ml-1 text-xs">10s</span>
-            </Button>
-
-            {/* Volume */}
-            <div className="flex items-center space-x-2">
+          {/* Control Buttons */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* Play/Pause */}
               <Button
-                onClick={toggleMute}
+                onClick={togglePlay}
                 size="sm"
                 variant="ghost"
                 className="text-white hover:bg-white/20"
               >
-                {isMuted || volume === 0 ? (
-                  <VolumeX className="h-5 w-5" />
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
                 ) : (
-                  <Volume2 className="h-5 w-5" />
+                  <Play className="h-5 w-5" />
                 )}
               </Button>
-              <div className="w-20">
-                <Slider
-                  value={[isMuted ? 0 : volume * 100]}
-                  onValueChange={(value) => changeVolume(value[0] / 100)}
-                  max={100}
-                  step={1}
-                  className="w-full"
-                />
+
+              {/* Skip Buttons */}
+              <Button
+                onClick={() => skip(-10)}
+                size="sm"
+                variant="ghost"
+                className="text-white hover:bg-white/20"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span className="ml-1 text-xs">10s</span>
+              </Button>
+
+              <Button
+                onClick={() => skip(10)}
+                size="sm"
+                variant="ghost"
+                className="text-white hover:bg-white/20"
+              >
+                <RotateCw className="h-4 w-4" />
+                <span className="ml-1 text-xs">10s</span>
+              </Button>
+
+              {/* Volume */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={toggleMute}
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/20"
+                >
+                  {isMuted || volume === 0 ? (
+                    <VolumeX className="h-5 w-5" />
+                  ) : (
+                    <Volume2 className="h-5 w-5" />
+                  )}
+                </Button>
+                <div className="w-20">
+                  <Slider
+                    value={[isMuted ? 0 : volume * 100]}
+                    onValueChange={(value) => changeVolume(value[0] / 100)}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* Time Display */}
+              <div className="text-white text-sm">
+                {formatTime(currentTime)} / {formatTime(duration)}
               </div>
             </div>
 
-            {/* Time Display */}
-            <div className="text-white text-sm">
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </div>
-          </div>
+            <div className="flex items-center space-x-2">
+              {/* Subtitles */}
+              {subtitles.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20"
+                    >
+                      <Subtitles className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Altyazılar</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setSelectedSubtitle(-1)}>
+                      Kapalı
+                    </DropdownMenuItem>
+                    {subtitles.map((subtitle, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={() => setSelectedSubtitle(index)}
+                      >
+                        {subtitle.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
 
-          <div className="flex items-center space-x-2">
-            {/* Subtitles */}
-            {subtitles.length > 0 && (
+              {/* Settings (Playback Speed) */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -523,70 +556,41 @@ export default function EnhancedVideoPlayer({
                     variant="ghost"
                     className="text-white hover:bg-white/20"
                   >
-                    <Subtitles className="h-5 w-5" />
+                    <Settings className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuLabel>Altyazılar</DropdownMenuLabel>
+                  <DropdownMenuLabel>Oynatma Hızı</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSelectedSubtitle(-1)}>
-                    Kapalı
-                  </DropdownMenuItem>
-                  {subtitles.map((subtitle, index) => (
+                  {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((rate) => (
                     <DropdownMenuItem
-                      key={index}
-                      onClick={() => setSelectedSubtitle(index)}
+                      key={rate}
+                      onClick={() => changePlaybackRate(rate)}
+                      className={
+                        playbackRate === rate ? "bg-anime-accent/20" : ""
+                      }
                     >
-                      {subtitle.label}
+                      {rate}x {rate === 1 ? "(Normal)" : ""}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
 
-            {/* Settings (Playback Speed) */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20"
-                >
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel>Oynatma Hızı</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((rate) => (
-                  <DropdownMenuItem
-                    key={rate}
-                    onClick={() => changePlaybackRate(rate)}
-                    className={
-                      playbackRate === rate ? "bg-anime-accent/20" : ""
-                    }
-                  >
-                    {rate}x {rate === 1 ? "(Normal)" : ""}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Fullscreen */}
-            <Button
-              onClick={toggleFullscreen}
-              size="sm"
-              variant="ghost"
-              className="text-white hover:bg-white/20"
-            >
-              {isFullscreen ? (
-                <Minimize className="h-5 w-5" />
-              ) : (
-                <Maximize className="h-5 w-5" />
-              )}
-            </Button>
+              {/* Fullscreen */}
+              <Button
+                onClick={toggleFullscreen}
+                size="sm"
+                variant="ghost"
+                className="text-white hover:bg-white/20"
+              >
+                {isFullscreen ? (
+                  <Minimize className="h-5 w-5" />
+                ) : (
+                  <Maximize className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
         </div>
       )}
 

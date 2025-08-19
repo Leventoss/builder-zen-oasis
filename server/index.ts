@@ -80,7 +80,7 @@ import {
 } from "./routes/animeRequests";
 
 export function createServer() {
-  console.log('🔧 Creating Express server...');
+  console.log("🔧 Creating Express server...");
   const app = express();
 
   // Middleware
@@ -780,25 +780,25 @@ export function createServer() {
   // Catch-all route for debugging
   app.use((req, res, next) => {
     // Only handle unmatched API routes
-    if (req.url.startsWith('/api/')) {
+    if (req.url.startsWith("/api/")) {
       console.log(`❓ Unhandled API request: ${req.method} ${req.originalUrl}`);
       res.status(404).json({
         success: false,
         message: `Route not found: ${req.method} ${req.originalUrl}`,
         availableRoutes: [
-          '/api/test',
-          '/api/ping',
-          '/api/animes',
-          '/api/auth/verify',
-          '/api/auth/login'
-        ]
+          "/api/test",
+          "/api/ping",
+          "/api/animes",
+          "/api/auth/verify",
+          "/api/auth/login",
+        ],
       });
     } else {
       next();
     }
   });
 
-  console.log('✅ Express server created successfully');
+  console.log("✅ Express server created successfully");
   return app;
 }
 

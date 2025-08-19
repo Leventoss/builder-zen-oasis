@@ -260,12 +260,14 @@ export const handleUpdateUserRole: RequestHandler = async (req, res) => {
 
     // Create notification
     const roleChanges = [];
-    if (isAdmin !== undefined) roleChanges.push(`Admin: ${isAdmin ? 'Evet' : 'Hayır'}`);
-    if (isPremium !== undefined) roleChanges.push(`Premium: ${isPremium ? 'Evet' : 'Hayır'}`);
+    if (isAdmin !== undefined)
+      roleChanges.push(`Admin: ${isAdmin ? "Evet" : "Hayır"}`);
+    if (isPremium !== undefined)
+      roleChanges.push(`Premium: ${isPremium ? "Evet" : "Hayır"}`);
 
     await createNotification(
       "Kullanıcı Güncellendi",
-      `${updatedUser[0].username} rolü güncellendi: ${roleChanges.join(', ')}`,
+      `${updatedUser[0].username} rolü güncellendi: ${roleChanges.join(", ")}`,
       "info",
     );
 
@@ -315,7 +317,7 @@ export const handleCreateUser: RequestHandler = async (req, res) => {
     }
 
     // Hash password
-    const bcrypt = await import('bcryptjs');
+    const bcrypt = await import("bcryptjs");
     const passwordHash = await bcrypt.default.hash(password, 10);
 
     // Create user

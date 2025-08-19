@@ -102,29 +102,54 @@ function getTopicSpecificResponse(
     const redirectMessages = [
       "Üzgünüm, ben sadece anime ve sitemizle ilgili konularda yardım edebilirim. Anime ekletme, player sorunları, hesap yönetimi veya site kullanımı hakkında sorular sorabilirsiniz.",
       "Ben anime destek asistanıyım! Anime ekleme, video sorunları, premium üyelik gibi konularda size yardım edebilirim. Başka ne öğrenmek istersiniz?",
-      "Sadece anime sitesiyle ilgili konularda uzmanım. İzleme sorunları, yeni anime talepleri veya hesap yönetimi hakkında sorularınızı yanıtlayabilirim."
+      "Sadece anime sitesiyle ilgili konularda uzmanım. İzleme sorunları, yeni anime talepleri veya hesap yönetimi hakkında sorularınızı yanıtlayabilirim.",
     ];
-    return redirectMessages[Math.floor(Math.random() * redirectMessages.length)];
+    return redirectMessages[
+      Math.floor(Math.random() * redirectMessages.length)
+    ];
   }
 
   // Add message context analysis
   const messageLength = message.length;
-  const hasQuestion = lowerMessage.includes('?') || lowerMessage.includes('nasıl') || lowerMessage.includes('ne') || lowerMessage.includes('neden');
-  const hasComplaint = lowerMessage.includes('çalışmıyor') || lowerMessage.includes('sorun') || lowerMessage.includes('hata') || lowerMessage.includes('problem');
-  const hasRequest = lowerMessage.includes('ekle') || lowerMessage.includes('istiyorum') || lowerMessage.includes('lütfen');
-  const isGreeting = lowerMessage.includes('merhaba') || lowerMessage.includes('selam') || lowerMessage.includes('hello');
-  const isThanks = lowerMessage.includes('teşekkür') || lowerMessage.includes('sağol') || lowerMessage.includes('thanks');
+  const hasQuestion =
+    lowerMessage.includes("?") ||
+    lowerMessage.includes("nasıl") ||
+    lowerMessage.includes("ne") ||
+    lowerMessage.includes("neden");
+  const hasComplaint =
+    lowerMessage.includes("çalışmıyor") ||
+    lowerMessage.includes("sorun") ||
+    lowerMessage.includes("hata") ||
+    lowerMessage.includes("problem");
+  const hasRequest =
+    lowerMessage.includes("ekle") ||
+    lowerMessage.includes("istiyorum") ||
+    lowerMessage.includes("lütfen");
+  const isGreeting =
+    lowerMessage.includes("merhaba") ||
+    lowerMessage.includes("selam") ||
+    lowerMessage.includes("hello");
+  const isThanks =
+    lowerMessage.includes("teşekkür") ||
+    lowerMessage.includes("sağol") ||
+    lowerMessage.includes("thanks");
 
   // Category-specific responses with variation
   switch (category) {
     case "anime-ekletme":
-      if (hasRequest || lowerMessage.includes("ekle") || lowerMessage.includes("add")) {
+      if (
+        hasRequest ||
+        lowerMessage.includes("ekle") ||
+        lowerMessage.includes("add")
+      ) {
         const requestResponses = [
           `Tabii! Anime ekletme talebinizi işleme alıyorum. Bu bilgileri paylaşır mısınız:\n\n📋 Anime adı (Türkçe/İngilizce/Japonca)\n📅 Çıkış yılı ve sezon bilgisi\n🎬 Bölüm sayısı (toplam)\n⭐ Özel notlarınız\n\nAdmin ekibimiz 24 saat içinde değerlendirecek!`,
           `Harika! Yeni anime talebi alıyorum 🎉\n\nLütfen şu detayları verin:\n• Animeinin tam adı\n• Hangi yıl ve sezon\n• Kaç bölümlük\n• Türü (aksiyon, romantik, vs.)\n\nEkleme işlemi genelde 1-2 gün sürer.`,
-          `Anime ekletme talebiniz başarıyla alındı! 📝\n\nİhtiyacım olan bilgiler:\n1️⃣ Anime adı (orijinal + Türkçe)\n2️⃣ Sezon/yıl bilgisi\n3️⃣ Bölüm sayısı\n4️⃣ MAL/AniList linki (varsa)\n\nTalebiğiniz öncelik sırasına alınacak!`
+          `Anime ekletme talebiniz başarıyla alındı! 📝\n\nİhtiyacım olan bilgiler:\n1️⃣ Anime adı (orijinal + Türkçe)\n2️⃣ Sezon/yıl bilgisi\n3️⃣ Bölüm sayısı\n4️⃣ MAL/AniList linki (varsa)\n\nTalebiğiniz öncelik sırasına alınacak!`,
         ];
-        return requestResponses[Math.floor(Math.random() * requestResponses.length)];
+        return requestResponses[
+          Math.floor(Math.random() * requestResponses.length)
+        ];
       }
 
       if (hasQuestion) {
@@ -133,16 +158,25 @@ function getTopicSpecificResponse(
       break;
 
     case "anime-sorun":
-      if (hasComplaint || lowerMessage.includes("çalışmıyor") || lowerMessage.includes("açılmıyor")) {
+      if (
+        hasComplaint ||
+        lowerMessage.includes("çalışmıyor") ||
+        lowerMessage.includes("açılmıyor")
+      ) {
         const troubleshootingResponses = [
           `Sorununu hemen çözelim! 🔧\n\nBilmem gerekenler:\n🎯 Hangi anime/bölüm?\n📱 Cihaz türü (telefon/bilgisayar)\n🌐 Tarayıcı (Chrome, Safari, vs.)\n⚡ Sorun türü (açılmıyor, donuyor, ses yok)\n\n%90 sorunları 5 dakikada çözüyoruz!`,
           `Teknik sorun mu? Hemen bakayım! 👨‍💻\n\nŞu bilgileri paylaşır mısın:\n• Hangi animede problem?\n• Video açılıyor mu?\n• Ses var mı?\n• İnternet hızın nasıl?\n\nÇoğu sorunu anında çözebiliriz.`,
-          `Sorun bildirimi alındı! 🚨\n\nTanı için gerekli:\n📺 Anime/bölüm adı\n💻 Kullandığın platform\n🔊 Ses/görüntü durumu\n📶 Bağlantı kalitesi\n\nProblemi birlikte çözelim!`
+          `Sorun bildirimi alındı! 🚨\n\nTanı için gerekli:\n📺 Anime/bölüm adı\n💻 Kullandığın platform\n🔊 Ses/görüntü durumu\n📶 Bağlantı kalitesi\n\nProblemi birlikte çözelim!`,
         ];
-        return troubleshootingResponses[Math.floor(Math.random() * troubleshootingResponses.length)];
+        return troubleshootingResponses[
+          Math.floor(Math.random() * troubleshootingResponses.length)
+        ];
       }
 
-      if (lowerMessage.includes("yavaş") || lowerMessage.includes("yüklemiyor")) {
+      if (
+        lowerMessage.includes("yavaş") ||
+        lowerMessage.includes("yüklemiyor")
+      ) {
         return `Yavaşlık sorunu için hızlı çözümler:\n\n⚡ Sayfayı yenile (F5)\n🔄 Farklı sunucu dene\n📶 İnternet bağlantını kontrol et\n🧹 Tarayıcı cache'ini temizle\n\nGenelde bu adımlardan biri sorunu çözüyor!`;
       }
 
@@ -194,29 +228,33 @@ Spesifik bir sorunuz var mı?`;
 
   // Dynamic greetings
   if (isGreeting) {
-    const greetings = isPremium ? [
-      "Merhaba premium üyemiz! 👑 Size özel destek sunmaya hazırım. Nasıl yardım edebilirim?",
-      "Selam! Premium hesabınızla hizmetinizdeyim ⭐ Hangi konuda destek istiyorsunuz?",
-      "Hello premium user! 🎌 Size VIP destek sağlamaya hazırım. Ne öğrenmek istersiniz?"
-    ] : [
-      "Merhaba! Anime sitesi AI asistanıyım 🤖 Size nasıl yardımcı olabilirim?",
-      "Selam! Anime dünyasından size destek vermeye geldim 🎌 Sorunuz nedir?",
-      "Hi! Anime sitesi destek ekibindenim 👋 Hangi konuda yardım istiyorsunuz?"
-    ];
+    const greetings = isPremium
+      ? [
+          "Merhaba premium üyemiz! 👑 Size özel destek sunmaya hazırım. Nasıl yardım edebilirim?",
+          "Selam! Premium hesabınızla hizmetinizdeyim ⭐ Hangi konuda destek istiyorsunuz?",
+          "Hello premium user! 🎌 Size VIP destek sağlamaya hazırım. Ne öğrenmek istersiniz?",
+        ]
+      : [
+          "Merhaba! Anime sitesi AI asistanıyım 🤖 Size nasıl yardımcı olabilirim?",
+          "Selam! Anime dünyasından size destek vermeye geldim 🎌 Sorunuz nedir?",
+          "Hi! Anime sitesi destek ekibindenim 👋 Hangi konuda yardım istiyorsunuz?",
+        ];
     return greetings[Math.floor(Math.random() * greetings.length)];
   }
 
   // Varied thank you responses
   if (isThanks) {
-    const thankResponses = isPremium ? [
-      "Rica ederim premium üyemiz! 👑 Her zaman buradayım, ne zaman ihtiyacınız olsa!",
-      "Bir şey değil! Premium desteğin avantajı bu ⭐ Başka soru olursa hemen sorun!",
-      "Memnun oldum! Premium üyeliğinizin keyfini çıkarın 🎉"
-    ] : [
-      "Rica ederim! 😊 Başka sorularınız olursa hemen sorun!",
-      "Bir şey değil! Anime dünyasında size yardım etmek güzel 🎌",
-      "Memnun oldum! İhtiyacınız olursa buradayım 👍"
-    ];
+    const thankResponses = isPremium
+      ? [
+          "Rica ederim premium üyemiz! 👑 Her zaman buradayım, ne zaman ihtiyacınız olsa!",
+          "Bir şey değil! Premium desteğin avantajı bu ⭐ Başka soru olursa hemen sorun!",
+          "Memnun oldum! Premium üyeliğinizin keyfini çıkarın 🎉",
+        ]
+      : [
+          "Rica ederim! 😊 Başka sorularınız olursa hemen sorun!",
+          "Bir şey değil! Anime dünyasında size yardım etmek güzel 🎌",
+          "Memnun oldum! İhtiyacınız olursa buradayım 👍",
+        ];
     return thankResponses[Math.floor(Math.random() * thankResponses.length)];
   }
 
@@ -225,16 +263,18 @@ Spesifik bir sorunuz var mı?`;
     const questionResponses = [
       `${category.replace("-", " ").charAt(0).toUpperCase() + category.replace("-", " ").slice(1)} hakkında soru soruyorsunuz! 🤔\n\nLütfen biraz daha detay verir misiniz? Ne öğrenmek istiyorsunuz?\n\n💡 İpucu: Spesifik sorular daha hızlı sonuç verir!`,
       `Harika bir soru! 💭 ${category.replace("-", " ")} konusunda uzmanım.\n\nSorununuzu biraz açar mısınız? Bu şekilde tam istediğiniz bilgiyi verebilirim.`,
-      `Merak ettiğiniz konuyu anlıyorum! 🧐\n\nBiraz daha detay verirseniz size en doğru yardımı sağlayabilirim. Hangi açıdan yaklaşalım?`
+      `Merak ettiğiniz konuyu anlıyorum! 🧐\n\nBiraz daha detay verirseniz size en doğru yardımı sağlayabilirim. Hangi açıdan yaklaşalım?`,
     ];
-    return questionResponses[Math.floor(Math.random() * questionResponses.length)];
+    return questionResponses[
+      Math.floor(Math.random() * questionResponses.length)
+    ];
   }
 
   // Default varied responses
   const defaultResponses = [
     `${category.replace("-", " ").charAt(0).toUpperCase() + category.replace("-", " ").slice(1)} konusunda size yardımcı olmaya hazırım! 🎯\n\nNe öğrenmek istiyorsunuz? Lütfen biraz daha detay verin.`,
     `Bu konuda uzmanım! 💪 Sorununuzu çözmek için daha fazla bilgiye ihtiyacım var.\n\nHangi noktada takıldınız?`,
-    `Anladım! 📝 Size en iyi yardımı sağlamak için sorununuzu biraz açar mısınız?\n\n✨ Ne kadar detaylı anlatırsanız o kadar hızlı çözüm bulurum!`
+    `Anladım! 📝 Size en iyi yardımı sağlamak için sorununuzu biraz açar mısınız?\n\n✨ Ne kadar detaylı anlatırsanız o kadar hızlı çözüm bulurum!`,
   ];
 
   return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];

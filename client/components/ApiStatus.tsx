@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Wifi, WifiOff, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import React, { useState, useEffect } from "react";
+import { Wifi, WifiOff, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ApiStatusProps {
   className?: string;
 }
 
-export default function ApiStatus({ className = '' }: ApiStatusProps) {
+export default function ApiStatus({ className = "" }: ApiStatusProps) {
   const [isOnline, setIsOnline] = useState(true);
   const [showStatus, setShowStatus] = useState(false);
 
@@ -15,11 +15,11 @@ export default function ApiStatus({ className = '' }: ApiStatusProps) {
 
     const checkApiStatus = async () => {
       try {
-        const response = await fetch('/api/ping', { 
-          method: 'GET',
-          signal: AbortSignal.timeout(5000) // 5 second timeout
+        const response = await fetch("/api/ping", {
+          method: "GET",
+          signal: AbortSignal.timeout(5000), // 5 second timeout
         });
-        
+
         if (response.ok) {
           setIsOnline(true);
           setShowStatus(false);
