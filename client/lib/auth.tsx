@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const token = authToken.get();
-      if (token) {
+      if (token && token.trim() !== '') {
         try {
           const response = await authAPI.verifyToken(token);
           if (response.success && response.user) {
@@ -75,12 +75,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               discordUsername: response.user.discordUsername,
             });
           } else {
+            // Token is invalid, remove it
             authToken.remove();
           }
         } catch (error) {
           console.error("Token verification failed:", error);
-          authToken.remove();
+          // Only remove token if it's a real verification failure, not a network error
+          if (error instanceof Error && !error.message.includes('Failed to fetch')) {
+            authToken.remove();
+          }
         }
+      } else if (token) {
+        // Token exists but is empty/invalid
+        authToken.remove();
       }
       setLoading(false);
     };
