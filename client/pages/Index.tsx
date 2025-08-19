@@ -128,7 +128,7 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [featuredAnimes.length]);
 
-  const currentFeature = featuredAnimes[currentHero];
+  const currentFeature = featuredAnimes[currentHero] || featuredAnimes[0] || defaultFeaturedAnimes[0];
 
   const nextHero = () => {
     setCurrentHero((prev) => (prev + 1) % featuredAnimes.length);
@@ -201,7 +201,7 @@ export default function Index() {
   }, [animes, watchProgress, isAuthenticated, user, getUserProgress]);
 
   const handleWatchClick = () => {
-    const currentFeature = featuredAnimes[currentHero];
+    const currentFeature = featuredAnimes[currentHero] || featuredAnimes[0] || defaultFeaturedAnimes[0];
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
