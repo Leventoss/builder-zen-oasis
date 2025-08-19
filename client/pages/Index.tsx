@@ -25,23 +25,6 @@ export default function Index() {
   const { isAuthenticated } = useAuth();
   const { animes } = useAnimeStore();
 
-  // Get featured animes from database (fallback to static data)
-  const databaseFeaturedAnimes = animes
-    .filter(anime => anime.featured && anime.featured >= 1 && anime.featured <= 3)
-    .sort((a, b) => (a.featured || 0) - (b.featured || 0))
-    .map(anime => ({
-      id: anime.id,
-      title: language === "en" ? (anime.titleEn || anime.title) : anime.title,
-      description: language === "en" ? (anime.descriptionEn || anime.description) : anime.description,
-      poster: anime.poster,
-      banner: anime.banner || anime.poster,
-      rating: anime.rating,
-      year: anime.year,
-      genres: language === "en" ? anime.genreEn : anime.genre,
-      episodes: anime.episodes,
-      duration: anime.duration,
-    }));
-
   // Fallback featured animes if none are set in database
   const defaultFeaturedAnimes = [
     {
