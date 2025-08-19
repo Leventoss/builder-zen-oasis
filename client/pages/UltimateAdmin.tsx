@@ -180,7 +180,7 @@ function FeaturedAnimeEditForm({
           <p className="text-xs text-gray-400">Boş bırakırsanız orijinal başlık kullanılır</p>
         </div>
         <div className="space-y-2">
-          <Label className="text-white">Özel Başlık (İngilizce)</Label>
+          <Label className="text-white">Özel Ba��lık (İngilizce)</Label>
           <Input
             value={featuredTitleEn}
             onChange={(e) => setFeaturedTitleEn(e.target.value)}
@@ -1916,6 +1916,13 @@ export default function UltimateAdmin() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <Button
+                      onClick={() => setShowCreateUserDialog(true)}
+                      className="bg-anime-accent hover:bg-anime-accent/80"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Yeni Kullanıcı
+                    </Button>
 
                     <Button className="bg-anime-accent hover:bg-anime-accent/80 text-white">
                       <Plus className="h-4 w-4 mr-2" />
