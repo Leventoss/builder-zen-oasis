@@ -1745,13 +1745,25 @@ export default function UltimateAdmin() {
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                onClick={() => {
+                                onClick={async () => {
                                   if (
                                     confirm(
                                       "Bu bölümü silmek istediğinize emin misiniz?",
                                     )
                                   ) {
-                                    deleteEpisode(episode.id);
+                                    try {
+                                      await deleteEpisode(episode.id);
+                                      toast({
+                                        title: "Başarılı",
+                                        description: "Bölüm silindi",
+                                      });
+                                    } catch (error) {
+                                      toast({
+                                        title: "Hata",
+                                        description: "Bölüm silme hatası",
+                                        variant: "destructive",
+                                      });
+                                    }
                                   }
                                 }}
                               >
