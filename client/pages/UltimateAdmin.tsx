@@ -75,6 +75,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Header from "@/components/Header";
+import BulkEpisodeUpload from "@/components/BulkEpisodeUpload";
 import { useAuth } from "@/lib/auth";
 import { useAnimeStore } from "@/lib/animeStore";
 import { advancedAnimeAPI } from "@/lib/advancedAnimeApi";
@@ -1853,7 +1854,7 @@ export default function UltimateAdmin() {
                                     } catch (error) {
                                       toast({
                                         title: "Hata",
-                                        description: "Bölüm silme hatası",
+                                        description: "Bölüm silme hatas��",
                                         variant: "destructive",
                                       });
                                     }
@@ -2746,7 +2747,7 @@ export default function UltimateAdmin() {
           {editingUser && (
             <div className="space-y-4">
               <div>
-                <Label className="text-white">Kullanıcı Adı</Label>
+                <Label className="text-white">Kullanıc�� Adı</Label>
                 <Input
                   value={editingUser.username}
                   disabled
