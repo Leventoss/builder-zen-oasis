@@ -231,6 +231,7 @@ export const handleUpdateAnime: RequestHandler = async (req, res) => {
       descriptionEn: animeData.descriptionEn,
       status: animeData.status,
       category: animeData.category,
+      featured: animeData.featured,
     });
 
     if (!updatedAnime) {
