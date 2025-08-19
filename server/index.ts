@@ -20,6 +20,8 @@ import {
   handleUpdateAnime,
   handleDeleteAnime,
   handleAddEpisode,
+  handleUpdateEpisode,
+  handleDeleteEpisode,
 } from "./routes/anime";
 import {
   handleGetStats,
