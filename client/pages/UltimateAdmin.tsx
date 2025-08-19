@@ -294,6 +294,47 @@ export default function UltimateAdmin() {
       }
     });
 
+  // Fetch Users
+  const fetchUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const response = await adminAPI.getUsers();
+      if (response.success) {
+        setUsers(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      toast({
+        title: "Hata",
+        description: "Kullanıcılar yüklenirken hata oluştu",
+        variant: "destructive",
+      });
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  // Filter users
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      !userSearchQuery ||
+      user.username?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(userSearchQuery.toLowerCase());
+
+    const matchesFilter =
+      userFilter === "all" ||
+      (userFilter === "admin" && user.isAdmin) ||
+      (userFilter === "premium" && user.isPremium) ||
+      (userFilter === "regular" && !user.isAdmin && !user.isPremium);
+
+    return matchesSearch && matchesFilter;
+  });
+
+  // Load users when component mounts
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   // API Search
   const handleApiSearch = async () => {
     if (!apiSearchQuery.trim()) return;
