@@ -414,12 +414,13 @@ export default function EnhancedVideoPlayer({
         </div>
       )}
 
-      {/* Controls */}
-      <div
-        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
-          showControls ? "opacity-100" : "opacity-0"
-        }`}
-      >
+      {/* Controls - Only for non-embed videos */}
+      {!isEmbed && (
+        <div
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
+            showControls ? "opacity-100" : "opacity-0"
+          }`}
+        >
         {/* Progress Bar */}
         <div
           ref={progressRef}
@@ -586,7 +587,8 @@ export default function EnhancedVideoPlayer({
             </Button>
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Title Overlay */}
       {title && showControls && (
