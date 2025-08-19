@@ -75,6 +75,7 @@ import {
 } from "./routes/animeRequests";
 
 export function createServer() {
+  console.log('🔧 Creating Express server...');
   const app = express();
 
   // Middleware
@@ -84,6 +85,9 @@ export function createServer() {
         "http://localhost:8080",
         "http://localhost:3000",
         "http://127.0.0.1:8080",
+        // Add Builder.io domains
+        /.*\.fly\.dev$/,
+        /.*\.builder\.io$/,
       ],
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -407,7 +411,7 @@ export function createServer() {
           genre: ["Komedi", "Doğaüstü", "Aksiyon"],
           genreEn: ["Comedy", "Supernatural", "Action"],
           duration: "24min",
-          description: "Psişik güçlere sahip Mob'un büyüme hikayesi.",
+          description: "Psişik g��çlere sahip Mob'un büyüme hikayesi.",
           descriptionEn: "The coming-of-age story of Mob with psychic powers.",
           status: "completed",
           category: "anime",
