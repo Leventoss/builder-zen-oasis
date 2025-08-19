@@ -20,6 +20,7 @@ import { useAuth } from "@/lib/auth";
 export default function Index() {
   const [currentHero, setCurrentHero] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [featuredAnimes, setFeaturedAnimes] = useState<any[]>([]);
   const { t, language } = useLanguage();
   const { isAuthenticated } = useAuth();
   const { animes } = useAnimeStore();
