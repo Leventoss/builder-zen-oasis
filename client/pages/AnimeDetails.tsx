@@ -33,7 +33,7 @@ export default function AnimeDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const {
     animes,
     getEpisodesByAnimeId,
