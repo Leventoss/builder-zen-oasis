@@ -210,6 +210,21 @@ export default function Index() {
     window.location.href = `/anime/${currentFeature.id}`;
   };
 
+  // Early return if no featured animes are available yet
+  if (!currentFeature) {
+    return (
+      <div className="min-h-screen bg-anime-dark">
+        <Header onAuthClick={() => setShowAuthModal(true)} />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-neon-blue mx-auto mb-4"></div>
+            <p className="text-xl text-gray-300">Yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header onAuthClick={() => setShowAuthModal(true)} />
