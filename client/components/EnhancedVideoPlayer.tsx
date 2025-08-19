@@ -362,26 +362,37 @@ export default function EnhancedVideoPlayer({
       onMouseMove={() => setShowControls(true)}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
-      {/* Video Element */}
-      <video
-        ref={videoRef}
-        src={src}
-        poster={poster}
-        className="w-full h-full object-contain"
-        onClick={togglePlay}
-        playsInline
-      >
-        {subtitles.map((subtitle, index) => (
-          <track
-            key={index}
-            kind="subtitles"
-            src={subtitle.src}
-            srcLang={subtitle.srcLang}
-            label={subtitle.label}
-            default={index === selectedSubtitle}
-          />
-        ))}
-      </video>
+      {/* Video or Embed Element */}
+      {isEmbed ? (
+        <iframe
+          src={embedUrl}
+          className="w-full h-full"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          title={title}
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          src={embedUrl}
+          poster={poster}
+          className="w-full h-full object-contain"
+          onClick={togglePlay}
+          playsInline
+        >
+          {subtitles.map((subtitle, index) => (
+            <track
+              key={index}
+              kind="subtitles"
+              src={subtitle.src}
+              srcLang={subtitle.srcLang}
+              label={subtitle.label}
+              default={index === selectedSubtitle}
+            />
+          ))}
+        </video>
+      )}
 
       {/* Loading Spinner */}
       {isLoading && (
