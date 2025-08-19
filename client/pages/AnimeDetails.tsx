@@ -132,14 +132,14 @@ export default function AnimeDetails() {
     }
 
     if (isFavorite) {
-      removeFromList("user", anime.id, "favorites");
+      removeFromList(user?.id?.toString() || "", anime.id, "favorites");
       setIsFavorite(false);
       toast({
         title: "Favorilerden Çıkarıldı",
         description: "Anime favorilerinizden çıkarıldı",
       });
     } else {
-      addToList("user", anime.id, "favorites");
+      addToList(user?.id?.toString() || "", anime.id, "favorites");
       setIsFavorite(true);
       toast({
         title: "Favorilere Eklendi",
