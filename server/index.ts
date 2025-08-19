@@ -132,6 +132,8 @@ export function createServer() {
   app.put("/api/animes/:id", handleUpdateAnime);
   app.delete("/api/animes/:id", handleDeleteAnime);
   app.post("/api/animes/:id/episodes", handleAddEpisode);
+  app.put("/api/episodes/:id", handleUpdateEpisode);
+  app.delete("/api/episodes/:id", handleDeleteEpisode);
 
   // Admin routes
   app.get("/api/admin/stats", handleGetStats);
