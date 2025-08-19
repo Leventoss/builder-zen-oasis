@@ -6,6 +6,7 @@ import {
   markNotificationRead,
   createNotification,
 } from "../lib/database";
+import { sql } from "@neondatabase/serverless";
 
 // Get admin dashboard stats
 export const handleGetStats: RequestHandler = async (req, res) => {
