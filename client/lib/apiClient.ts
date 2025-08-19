@@ -51,6 +51,13 @@ async function apiRequest<T>(
     return data;
   } catch (error) {
     console.error(`API Error (${endpoint}):`, error);
+
+    // If it's a network error (fetch failed), provide more context
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      console.error('Network error - check if server is running on the correct port');
+      throw new Error(`Network error: Cannot connect to API server at ${url}`);
+    }
+
     throw error;
   }
 }
