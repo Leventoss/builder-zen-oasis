@@ -159,11 +159,13 @@ export default function Index() {
   }));
 
   const handleWatchClick = () => {
+    const currentFeature = featuredAnimes[currentHero];
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
-    // Navigate to watch page
+    // Navigate to anime details page
+    window.location.href = `/anime/${currentFeature.id}`;
   };
 
   return (
