@@ -884,6 +884,10 @@ export default function UltimateAdmin() {
               <Users className="h-4 w-4" />
               Kullanıcı Yönetimi
             </TabsTrigger>
+            <TabsTrigger value="featured" className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              Öne Çıkan Animeler
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
