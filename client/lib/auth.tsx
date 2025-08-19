@@ -47,6 +47,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Sayfa yüklendiğinde token'ı kontrol et
     const checkAuth = async () => {
+      // Check for Discord auth callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const discordToken = urlParams.get('token');
+      const discordAuth = urlParams.get('discord_auth');
+
+      if (discordAuth === 'success' && discordToken) {
+        // Save Discord token and verify it
+        authToken.set(discordToken);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       const token = authToken.get();
       if (token) {
         try {
