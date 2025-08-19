@@ -401,8 +401,8 @@ export default function EnhancedVideoPlayer({
         </div>
       )}
 
-      {/* Play Button Overlay */}
-      {!isPlaying && !isLoading && (
+      {/* Play Button Overlay - Only for non-embed videos */}
+      {!isEmbed && !isPlaying && !isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Button
             onClick={togglePlay}
