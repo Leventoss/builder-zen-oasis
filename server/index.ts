@@ -767,6 +767,23 @@ export function createServer() {
     }
   });
 
+  // Catch-all route for debugging
+  app.use('*', (req, res) => {
+    console.log(`❓ Unhandled request: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({
+      success: false,
+      message: `Route not found: ${req.method} ${req.originalUrl}`,
+      availableRoutes: [
+        '/api/test',
+        '/api/ping',
+        '/api/animes',
+        '/api/auth/verify',
+        '/api/auth/login'
+      ]
+    });
+  });
+
+  console.log('✅ Express server created successfully');
   return app;
 }
 
