@@ -278,6 +278,12 @@ export const handleUpdateAnime: RequestHandler = async (req, res) => {
         descriptionEn: updatedAnime.description_en,
         status: updatedAnime.status,
         category: updatedAnime.category,
+        featured: updatedAnime.featured,
+        featuredTitle: updatedAnime.featured_title,
+        featuredTitleEn: updatedAnime.featured_title_en,
+        featuredDescription: updatedAnime.featured_description,
+        featuredDescriptionEn: updatedAnime.featured_description_en,
+        featuredBanner: updatedAnime.featured_banner,
       },
     });
   } catch (error) {
