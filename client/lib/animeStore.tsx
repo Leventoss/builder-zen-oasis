@@ -103,6 +103,9 @@ interface AnimeStoreContextType {
   markNotificationRead: (id: string) => Promise<void>;
   clearNotifications: () => Promise<void>;
   fetchNotifications: () => Promise<void>;
+
+  // Utility functions
+  refreshAnimes: () => void;
 }
 
 export interface AdminNotification {
