@@ -26,6 +26,11 @@ export interface AnimeData {
   status: "ongoing" | "completed" | "upcoming";
   category: "anime" | "movie";
   featured?: number; // 1, 2, or 3 for featured slots
+  featuredTitle?: string; // Custom title for featured section
+  featuredTitleEn?: string; // Custom English title for featured section
+  featuredDescription?: string; // Custom description for featured section
+  featuredDescriptionEn?: string; // Custom English description for featured section
+  featuredBanner?: string; // Custom banner for featured section
 }
 
 export interface Episode {
