@@ -5,8 +5,8 @@ import {
   getAdminNotifications,
   markNotificationRead,
   createNotification,
+  sql,
 } from "../lib/database";
-import { sql } from "@neondatabase/serverless";
 
 // Get admin dashboard stats
 export const handleGetStats: RequestHandler = async (req, res) => {
@@ -150,7 +150,7 @@ export const handleCreateNotification: RequestHandler = async (req, res) => {
     console.error("Create notification error:", error);
     res.status(500).json({
       success: false,
-      message: "Bildirim oluşturulamadı",
+      message: "Bildirim olu��turulamadı",
     });
   }
 };
