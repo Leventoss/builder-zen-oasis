@@ -791,9 +791,19 @@ export default function UltimateAdmin() {
     if (!editingEpisode) return;
 
     try {
+      // For new episodes, we need the anime ID
+      if (!editingEpisode.id && !editingEpisode.animeId) {
+        toast({
+          title: "Hata",
+          description: "Anime ID gerekli",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const endpoint = editingEpisode.id
         ? `/api/episodes/${editingEpisode.id}`
-        : "/api/episodes";
+        : `/api/animes/${editingEpisode.animeId}/episodes`;
       const method = editingEpisode.id ? "PUT" : "POST";
 
       const response = await fetch(endpoint, {
@@ -2408,7 +2418,7 @@ export default function UltimateAdmin() {
         <DialogContent className="max-w-2xl bg-anime-card border-anime-accent/20">
           <DialogHeader>
             <DialogTitle className="text-white">
-              {editingEpisode?.id ? "Bölüm Düzenle" : "Yeni Bölüm Ekle"}
+              {editingEpisode?.id ? "B��lüm Düzenle" : "Yeni Bölüm Ekle"}
             </DialogTitle>
           </DialogHeader>
 
