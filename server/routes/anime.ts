@@ -340,6 +340,123 @@ export const handleDeleteAnime: RequestHandler = async (req, res) => {
   }
 };
 
+// Update episode (Admin only)
+export const handleUpdateEpisode: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const episodeId = parseInt(id);
+    const episodeData = req.body;
+
+    if (!episodeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Geçersiz bölüm ID",
+      });
+    }
+
+    // Get existing episode
+    const existingEpisode = await sql`
+      SELECT * FROM episodes WHERE id = ${episodeId} LIMIT 1
+    `;
+
+    if (existingEpisode.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Bölüm bulunamadı",
+      });
+    }
+
+    // Update episode
+    const updatedEpisode = await sql`
+      UPDATE episodes SET
+        title = ${episodeData.title || existingEpisode[0].title},
+        title_en = ${episodeData.titleEn || existingEpisode[0].title_en},
+        description = ${episodeData.description || existingEpisode[0].description},
+        description_en = ${episodeData.descriptionEn || existingEpisode[0].description_en},
+        video_url = ${episodeData.videoUrl || existingEpisode[0].video_url},
+        duration = ${episodeData.duration || existingEpisode[0].duration},
+        episode_number = ${episodeData.episodeNumber || existingEpisode[0].episode_number},
+        air_date = ${episodeData.airDate || existingEpisode[0].air_date},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${episodeId}
+      RETURNING *
+    `;
+
+    res.json({
+      success: true,
+      message: "Bölüm başarıyla güncellendi",
+      data: {
+        id: updatedEpisode[0].id,
+        title: updatedEpisode[0].title,
+        titleEn: updatedEpisode[0].title_en,
+        description: updatedEpisode[0].description,
+        descriptionEn: updatedEpisode[0].description_en,
+        videoUrl: updatedEpisode[0].video_url,
+        duration: updatedEpisode[0].duration,
+        episodeNumber: updatedEpisode[0].episode_number,
+        airDate: updatedEpisode[0].air_date,
+        animeId: updatedEpisode[0].anime_id.toString(),
+      },
+    });
+  } catch (error) {
+    console.error("Update episode error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Bölüm güncelleme hatası",
+    });
+  }
+};
+
+// Delete episode (Admin only)
+export const handleDeleteEpisode: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const episodeId = parseInt(id);
+
+    if (!episodeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Geçersiz bölüm ID",
+      });
+    }
+
+    // Get episode info before deleting
+    const episodeInfo = await sql`
+      SELECT e.*, a.title as anime_title FROM episodes e
+      JOIN animes a ON e.anime_id = a.id
+      WHERE e.id = ${episodeId} LIMIT 1
+    `;
+
+    if (episodeInfo.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Bölüm bulunamadı",
+      });
+    }
+
+    // Delete episode
+    await sql`DELETE FROM episodes WHERE id = ${episodeId}`;
+
+    // Create notification
+    await createNotification(
+      "Bölüm Silindi",
+      `${episodeInfo[0].anime_title} - Bölüm ${episodeInfo[0].episode_number} silindi`,
+      "info",
+    );
+
+    res.json({
+      success: true,
+      message: "Bölüm başarıyla silindi",
+    });
+  } catch (error) {
+    console.error("Delete episode error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Bölüm silme hatası",
+    });
+  }
+};
+
 // Add episode to anime (Admin only)
 export const handleAddEpisode: RequestHandler = async (req, res) => {
   try {
