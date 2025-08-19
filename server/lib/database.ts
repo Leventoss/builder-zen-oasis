@@ -74,25 +74,34 @@ export async function getAnimeById(id: number) {
 }
 
 export async function createAnime(animeData: any) {
-  // Ensure featured column exists
+  // Ensure all featured columns exist
   try {
     await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured INTEGER`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_banner TEXT`;
   } catch (error) {
-    // Column might already exist, ignore error
+    // Columns might already exist, ignore error
   }
 
   const animes = await sql`
     INSERT INTO animes (
       title, title_en, poster, banner, rating, year, episodes,
       genre, genre_en, duration, description, description_en,
-      status, category, featured
+      status, category, featured, featured_title, featured_title_en,
+      featured_description, featured_description_en, featured_banner
     )
     VALUES (
       ${animeData.title}, ${animeData.titleEn}, ${animeData.poster},
       ${animeData.banner}, ${animeData.rating}, ${animeData.year},
       ${animeData.episodes}, ${animeData.genre}, ${animeData.genreEn},
       ${animeData.duration}, ${animeData.description}, ${animeData.descriptionEn},
-      ${animeData.status}, ${animeData.category}, ${animeData.featured || null}
+      ${animeData.status}, ${animeData.category}, ${animeData.featured || null},
+      ${animeData.featuredTitle || null}, ${animeData.featuredTitleEn || null},
+      ${animeData.featuredDescription || null}, ${animeData.featuredDescriptionEn || null},
+      ${animeData.featuredBanner || null}
     )
     RETURNING *
   `;
