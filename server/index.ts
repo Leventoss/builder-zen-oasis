@@ -768,19 +768,24 @@ export function createServer() {
   });
 
   // Catch-all route for debugging
-  app.use('*', (req, res) => {
-    console.log(`❓ Unhandled request: ${req.method} ${req.originalUrl}`);
-    res.status(404).json({
-      success: false,
-      message: `Route not found: ${req.method} ${req.originalUrl}`,
-      availableRoutes: [
-        '/api/test',
-        '/api/ping',
-        '/api/animes',
-        '/api/auth/verify',
-        '/api/auth/login'
-      ]
-    });
+  app.use((req, res, next) => {
+    // Only handle unmatched API routes
+    if (req.url.startsWith('/api/')) {
+      console.log(`❓ Unhandled API request: ${req.method} ${req.originalUrl}`);
+      res.status(404).json({
+        success: false,
+        message: `Route not found: ${req.method} ${req.originalUrl}`,
+        availableRoutes: [
+          '/api/test',
+          '/api/ping',
+          '/api/animes',
+          '/api/auth/verify',
+          '/api/auth/login'
+        ]
+      });
+    } else {
+      next();
+    }
   });
 
   console.log('✅ Express server created successfully');
