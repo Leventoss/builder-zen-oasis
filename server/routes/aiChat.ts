@@ -89,7 +89,7 @@ function isTopicRelated(message: string): boolean {
   return hasAnimeKeywords || lowerMessage.length < 50; // Allow short messages
 }
 
-// Generate topic-specific response
+// Generate contextual and varying responses
 function getTopicSpecificResponse(
   category: string,
   message: string,
@@ -99,8 +99,21 @@ function getTopicSpecificResponse(
 
   // If message is off-topic, return redirect message
   if (!isTopicRelated(message)) {
-    return "Üzgünüm, ben sadece anime ve sitemizle ilgili konularda yardım edebilirim. Anime ekletme, player sorunları, hesap yönetimi veya site kullanımı hakkında sorular sorabilirsiniz.";
+    const redirectMessages = [
+      "Üzgünüm, ben sadece anime ve sitemizle ilgili konularda yardım edebilirim. Anime ekletme, player sorunları, hesap yönetimi veya site kullanımı hakkında sorular sorabilirsiniz.",
+      "Ben anime destek asistanıyım! Anime ekleme, video sorunları, premium üyelik gibi konularda size yardım edebilirim. Başka ne öğrenmek istersiniz?",
+      "Sadece anime sitesiyle ilgili konularda uzmanım. İzleme sorunları, yeni anime talepleri veya hesap yönetimi hakkında sorularınızı yanıtlayabilirim."
+    ];
+    return redirectMessages[Math.floor(Math.random() * redirectMessages.length)];
   }
+
+  // Add message context analysis
+  const messageLength = message.length;
+  const hasQuestion = lowerMessage.includes('?') || lowerMessage.includes('nasıl') || lowerMessage.includes('ne') || lowerMessage.includes('neden');
+  const hasComplaint = lowerMessage.includes('çalışmıyor') || lowerMessage.includes('sorun') || lowerMessage.includes('hata') || lowerMessage.includes('problem');
+  const hasRequest = lowerMessage.includes('ekle') || lowerMessage.includes('istiyorum') || lowerMessage.includes('lütfen');
+  const isGreeting = lowerMessage.includes('merhaba') || lowerMessage.includes('selam') || lowerMessage.includes('hello');
+  const isThanks = lowerMessage.includes('teşekkür') || lowerMessage.includes('sağol') || lowerMessage.includes('thanks');
 
   // Category-specific responses
   switch (category) {
