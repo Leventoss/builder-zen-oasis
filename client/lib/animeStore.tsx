@@ -295,12 +295,22 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateEpisode = (id: number, episodeData: Partial<Episode>) => {
-    setEpisodes((prev) =>
-      prev.map((episode) =>
-        episode.id === id ? { ...episode, ...episodeData } : episode,
-      ),
-    );
+  const updateEpisode = async (id: number, episodeData: Partial<Episode>) => {
+    try {
+      const response = await animeAPI.updateEpisode(id, episodeData);
+      if (response.success) {
+        setEpisodes((prev) =>
+          prev.map((episode) =>
+            episode.id === id ? { ...episode, ...episodeData } : episode,
+          ),
+        );
+      } else {
+        throw new Error(response.message || "Failed to update episode");
+      }
+    } catch (error) {
+      console.error("Failed to update episode:", error);
+      throw error;
+    }
   };
 
   const deleteEpisode = async (id: number) => {
