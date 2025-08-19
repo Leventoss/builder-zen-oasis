@@ -237,16 +237,17 @@ Yanıtın:
     setIsLoading(true);
 
     try {
-      const prompt = buildPrompt(userMessage.message);
-
-      const response = await fetch(
-        "https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5IZkJDMlNyYUVUTjIyZVN3UWFNX3BFTU85SWpCM2NUMUk3T2dxejhLSzBhNWNMMXNzZlp3c09BSTR6YW1Sc1BmdGNTVk1GY0liT1RoWDZZX1lNZlZ0Z1dqd3c9PQ==",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
-        },
-      );
+      const response = await fetch("/api/aiChat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage.message,
+          category: selectedCategory,
+          sessionId: sessionId,
+          userId: user?.id,
+          isPremium: user?.isPremium || false,
+        }),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -254,12 +255,9 @@ Yanıtın:
         const botMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           sender: "bot",
-          message:
-            data.status === "success"
-              ? data.text
-              : "Bir hata oluştu. Lütfen tekrar deneyin.",
+          message: data.message || "Bir hata oluştu. Lütfen tekrar deneyin.",
           timestamp: new Date(),
-          isError: data.status !== "success",
+          isError: !data.message,
         };
 
         setMessages((prev) => [...prev, botMessage]);
