@@ -115,18 +115,20 @@ function getTopicSpecificResponse(
   const isGreeting = lowerMessage.includes('merhaba') || lowerMessage.includes('selam') || lowerMessage.includes('hello');
   const isThanks = lowerMessage.includes('teşekkür') || lowerMessage.includes('sağol') || lowerMessage.includes('thanks');
 
-  // Category-specific responses
+  // Category-specific responses with variation
   switch (category) {
     case "anime-ekletme":
-      if (lowerMessage.includes("ekle") || lowerMessage.includes("add")) {
-        return `Anime ekletme talebinizi aldım! Lütfen şu bilgileri verin:
-        
-1. Eklemek istediğiniz animeinin tam adı
-2. Hangi sezon (örn: 1. sezon, 2. sezon)
-3. Bölüm sayısı (eğer biliyorsanız)
-4. Özel isteğiniz var mı?
+      if (hasRequest || lowerMessage.includes("ekle") || lowerMessage.includes("add")) {
+        const requestResponses = [
+          `Tabii! Anime ekletme talebinizi işleme alıyorum. Bu bilgileri paylaşır mısınız:\n\n📋 Anime adı (Türkçe/İngilizce/Japonca)\n📅 Çıkış yılı ve sezon bilgisi\n🎬 Bölüm sayısı (toplam)\n⭐ Özel notlarınız\n\nAdmin ekibimiz 24 saat içinde değerlendirecek!`,
+          `Harika! Yeni anime talebi alıyorum 🎉\n\nLütfen şu detayları verin:\n• Animeinin tam adı\n• Hangi yıl ve sezon\n• Kaç bölümlük\n• Türü (aksiyon, romantik, vs.)\n\nEkleme işlemi genelde 1-2 gün sürer.`,
+          `Anime ekletme talebiniz başarıyla alındı! 📝\n\nİhtiyacım olan bilgiler:\n1️⃣ Anime adı (orijinal + Türkçe)\n2️⃣ Sezon/yıl bilgisi\n3️⃣ Bölüm sayısı\n4️⃣ MAL/AniList linki (varsa)\n\nTalebiğiniz öncelik sırasına alınacak!`
+        ];
+        return requestResponses[Math.floor(Math.random() * requestResponses.length)];
+      }
 
-Bu bilgileri verdikten sonra ekletme işlemini admin ekibimize ileteceğim.`;
+      if (hasQuestion) {
+        return `Anime ekletme süreci hakkında merak ettiklerinizi çözelim! 🤔\n\n❓ Nasıl anime ekliyoruz?\n❓ Ne kadar sürer?\n❓ Hangi kriterler var?\n❓ Öncelik sırası nasıl?\n\nHangi konuda detay istiyorsunuz?`;
       }
       break;
 
