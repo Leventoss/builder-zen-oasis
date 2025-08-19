@@ -2230,16 +2230,36 @@ export default function UltimateAdmin() {
 
               <div className="space-y-2">
                 <Label className="text-gray-400">Video URL</Label>
-                <Input
-                  value={editingEpisode.videoUrl}
-                  onChange={(e) =>
-                    setEditingEpisode({
-                      ...editingEpisode,
-                      videoUrl: e.target.value,
-                    })
-                  }
-                  className="bg-anime-dark border-anime-accent/30"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={editingEpisode.videoUrl}
+                    onChange={(e) =>
+                      setEditingEpisode({
+                        ...editingEpisode,
+                        videoUrl: e.target.value,
+                      })
+                    }
+                    placeholder="https://example.com/video.mp4 veya embed URL"
+                    className="bg-anime-dark border-anime-accent/30 flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!editingEpisode.videoUrl.trim()}
+                    onClick={() => {
+                      if (editingEpisode.videoUrl.trim()) {
+                        window.open(editingEpisode.videoUrl, '_blank');
+                      }
+                    }}
+                    className="border-anime-accent/30 text-gray-400 hover:text-white"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Desteklenen formatlar: MP4, WebM, YouTube, Vimeo, Dailymotion, JW Player embed URL'leri
+                </p>
               </div>
 
               <div className="space-y-2">
