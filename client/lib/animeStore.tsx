@@ -147,6 +147,26 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch animes:", error);
+
+      // If API is not available, use sample data as fallback
+      if (error instanceof Error &&
+          (error.message.includes('Network error') ||
+           error.message.includes('Cannot connect'))) {
+        console.warn("API not available, using sample data");
+        // Only use sample data if we don't already have animes loaded
+        if (animes.length === 0) {
+          const convertedAnimes = sampleAnimes.map((anime) => ({
+            ...anime,
+            rating: typeof anime.rating === "number" ? anime.rating : 8.0,
+            genre: anime.genre || [],
+            genreEn: anime.genreEn || [],
+            banner: anime.poster,
+            descriptionEn: anime.descriptionEn || anime.description || "",
+            duration: anime.duration || "24min",
+          }));
+          setAnimes(convertedAnimes);
+        }
+      }
     } finally {
       setLoading(false);
     }
