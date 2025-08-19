@@ -2,14 +2,12 @@
 
 // Determine API base URL based on environment
 const getApiBase = () => {
-  // In development with Builder.io, check if we're on a complex URL
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
 
-    // If we're on a Builder.io development URL, try the local dev server
+    // For Builder.io environment, try to use netlify functions
     if (hostname.includes('.fly.dev') || hostname.includes('builder.io')) {
-      // For Builder.io development environment, use the current origin
-      return '/api';
+      return '/.netlify/functions/api';
     }
 
     // For localhost development
