@@ -202,11 +202,17 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     try {
       const response = await animeAPI.update(id, animeData);
       if (response.success) {
+        // Update local state immediately
         setAnimes((prev) =>
           prev.map((anime) =>
             anime.id === id ? { ...anime, ...response.data } : anime,
           ),
         );
+
+        // Force refresh from server to ensure consistency
+        setTimeout(() => {
+          fetchAnimes();
+        }, 500);
       } else {
         throw new Error(response.message || "Failed to update anime");
       }
@@ -214,6 +220,10 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
       console.error("Failed to update anime:", error);
       throw error;
     }
+  };
+
+  const refreshAnimes = () => {
+    fetchAnimes();
   };
 
   const deleteAnime = async (id: string): Promise<void> => {
