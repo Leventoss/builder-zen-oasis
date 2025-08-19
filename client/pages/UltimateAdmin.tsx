@@ -478,15 +478,28 @@ export default function UltimateAdmin() {
           description: `${animeData.title} başarıyla eklendi`,
         });
       } else {
-        throw new Error("API request failed");
+        const errorData = await response.json().catch(() => ({}));
+
+        if (response.status === 409) {
+          toast({
+            title: "Anime Zaten Mevcut",
+            description: errorData.message || `${animeData.title} daha önce eklenmiş`,
+            variant: "destructive",
+          });
+        } else {
+          throw new Error(errorData.message || "API request failed");
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Add anime from API error:", error);
-      toast({
-        title: "Hata",
-        description: "Anime eklenirken hata oluştu",
-        variant: "destructive",
-      });
+
+      if (!error.message?.includes("Anime Zaten Mevcut")) {
+        toast({
+          title: "Hata",
+          description: error.message || "Anime eklenirken hata oluştu",
+          variant: "destructive",
+        });
+      }
     }
   };
 
