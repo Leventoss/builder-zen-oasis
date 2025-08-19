@@ -219,25 +219,36 @@ export async function updateWatchProgress(
   animeId: number,
   episodeId: number,
   progress: number,
+  duration?: number,
 ) {
+  try {
+    // Ensure duration column exists
+    await sql`ALTER TABLE watch_progress ADD COLUMN IF NOT EXISTS duration INTEGER DEFAULT 0`;
+  } catch (error) {
+    // Column might already exist, ignore
+  }
+
   const existing = await sql`
-    SELECT id FROM watch_progress 
+    SELECT id FROM watch_progress
     WHERE user_id = ${userId} AND episode_id = ${episodeId}
     LIMIT 1
   `;
+
+  const progressPercent = duration ? (progress / duration) * 100 : 0;
 
   if (existing.length > 0) {
     await sql`
       UPDATE watch_progress SET
         progress = ${progress},
-        completed = ${progress > 80},
+        duration = ${duration || 0},
+        completed = ${progressPercent > 90},
         last_watched = CURRENT_TIMESTAMP
       WHERE user_id = ${userId} AND episode_id = ${episodeId}
     `;
   } else {
     await sql`
-      INSERT INTO watch_progress (user_id, anime_id, episode_id, progress, completed)
-      VALUES (${userId}, ${animeId}, ${episodeId}, ${progress}, ${progress > 80})
+      INSERT INTO watch_progress (user_id, anime_id, episode_id, progress, duration, completed)
+      VALUES (${userId}, ${animeId}, ${episodeId}, ${progress}, ${duration || 0}, ${progressPercent > 90})
     `;
   }
   return true;
