@@ -100,10 +100,14 @@ export default function Index() {
       .sort((a, b) => (a.featured || 0) - (b.featured || 0))
       .map(anime => ({
         id: anime.id,
-        title: language === "en" ? (anime.titleEn || anime.title) : anime.title,
-        description: language === "en" ? (anime.descriptionEn || anime.description) : anime.description,
+        title: language === "en" ?
+          (anime.featuredTitleEn || anime.featuredTitle || anime.titleEn || anime.title) :
+          (anime.featuredTitle || anime.title),
+        description: language === "en" ?
+          (anime.featuredDescriptionEn || anime.featuredDescription || anime.descriptionEn || anime.description) :
+          (anime.featuredDescription || anime.description),
         poster: anime.poster,
-        banner: anime.banner || anime.poster,
+        banner: anime.featuredBanner || anime.banner || anime.poster,
         rating: anime.rating,
         year: anime.year,
         genres: language === "en" ? anime.genreEn : anime.genre,
