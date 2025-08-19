@@ -66,9 +66,9 @@ export default function AnimeDetails() {
     }, 1000);
 
     // Check if anime is in user's lists
-    if (isAuthenticated && anime) {
-      const watchlist = getUserList("user", "watchlist");
-      const favorites = getUserList("user", "favorites");
+    if (isAuthenticated && anime && user?.id) {
+      const watchlist = getUserList(user.id.toString(), "watchlist");
+      const favorites = getUserList(user.id.toString(), "favorites");
       setIsInWatchlist(watchlist.includes(anime.id));
       setIsFavorite(favorites.includes(anime.id));
     }
