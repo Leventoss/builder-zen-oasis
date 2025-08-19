@@ -78,6 +78,7 @@ import Header from "@/components/Header";
 import { useAuth } from "@/lib/auth";
 import { useAnimeStore } from "@/lib/animeStore";
 import { advancedAnimeAPI } from "@/lib/advancedAnimeApi";
+import { adminAPI } from "@/lib/apiClient";
 import { toast } from "@/hooks/use-toast";
 
 interface AnimeFormData {
