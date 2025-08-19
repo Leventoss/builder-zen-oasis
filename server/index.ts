@@ -30,6 +30,9 @@ import {
   handleMarkNotificationRead,
   handleCreateNotification,
   handleClearNotifications,
+  handleDeleteUser,
+  handleUpdateUserRole,
+  handleCreateUser,
 } from "./routes/admin";
 import {
   handleGetWatchProgress,
@@ -622,7 +625,7 @@ export function createServer() {
           genreEn: ["Adventure", "Fantasy", "Action"],
           duration: "24min",
           description:
-            "Yedi Ölümcül Günah şövalyelerinin krallığı kurtarma macerası.",
+            "Yedi Ölümcül Günah şövalyelerinin krallığı kurtarma maceras��.",
           descriptionEn:
             "The adventure of the Seven Deadly Sins knights to save the kingdom.",
           status: "completed",
