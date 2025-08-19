@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider, ProtectedRoute, useAuth } from "@/lib/auth";
 import { AnimeStoreProvider } from "@/lib/animeStore";
 import LoadingScreen from "@/components/LoadingScreen";
+import ApiStatus from "@/components/ApiStatus";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AnimeDetails from "./pages/AnimeDetails";
