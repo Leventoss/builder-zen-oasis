@@ -33,6 +33,12 @@ export const handleGetAnimes: RequestHandler = async (req, res) => {
       descriptionEn: anime.description_en,
       status: anime.status,
       category: anime.category,
+      featured: anime.featured,
+      featuredTitle: anime.featured_title,
+      featuredTitleEn: anime.featured_title_en,
+      featuredDescription: anime.featured_description,
+      featuredDescriptionEn: anime.featured_description_en,
+      featuredBanner: anime.featured_banner,
     }));
 
     res.json({
