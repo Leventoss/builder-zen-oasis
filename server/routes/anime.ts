@@ -8,6 +8,7 @@ import {
   getEpisodesByAnimeId,
   createEpisode,
   createNotification,
+  sql,
 } from "../lib/database";
 
 // Get all animes
