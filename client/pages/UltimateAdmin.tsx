@@ -281,6 +281,7 @@ export default function UltimateAdmin() {
   const [showAnimeDialog, setShowAnimeDialog] = useState(false);
   const [showEpisodeDialog, setShowEpisodeDialog] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
+  const [showBulkEpisodeUpload, setShowBulkEpisodeUpload] = useState(false);
 
   // User Management State
   const [users, setUsers] = useState<any[]>([]);
@@ -1854,7 +1855,7 @@ export default function UltimateAdmin() {
                                     } catch (error) {
                                       toast({
                                         title: "Hata",
-                                        description: "Bölüm silme hatas��",
+                                        description: "Bölüm silme hatası",
                                         variant: "destructive",
                                       });
                                     }
@@ -2056,7 +2057,7 @@ export default function UltimateAdmin() {
               <CardHeader>
                 <CardTitle className="text-white">Öne Çıkan Animeler</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Ana sayfada gösterilecek hero section animelerini seçin (maksimum 3)
+                  Ana sayfada gösterilecek hero section animelerini se��in (maksimum 3)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -2747,7 +2748,7 @@ export default function UltimateAdmin() {
           {editingUser && (
             <div className="space-y-4">
               <div>
-                <Label className="text-white">Kullanıc�� Adı</Label>
+                <Label className="text-white">Kullanıcı Adı</Label>
                 <Input
                   value={editingUser.username}
                   disabled
