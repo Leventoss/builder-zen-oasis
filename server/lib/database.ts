@@ -158,12 +158,12 @@ export async function updateAnime(id: number, animeData: any) {
       description_en = ${animeData.descriptionEn || sql`description_en`},
       status = ${animeData.status || sql`status`},
       category = ${animeData.category || sql`category`},
-      featured = ${animeData.featured !== undefined ? animeData.featured : sql`featured`},
-      featured_title = ${animeData.featuredTitle !== undefined ? animeData.featuredTitle : sql`featured_title`},
-      featured_title_en = ${animeData.featuredTitleEn !== undefined ? animeData.featuredTitleEn : sql`featured_title_en`},
-      featured_description = ${animeData.featuredDescription !== undefined ? animeData.featuredDescription : sql`featured_description`},
-      featured_description_en = ${animeData.featuredDescriptionEn !== undefined ? animeData.featuredDescriptionEn : sql`featured_description_en`},
-      featured_banner = ${animeData.featuredBanner !== undefined ? animeData.featuredBanner : sql`featured_banner`},
+      featured = ${animeData.featured !== undefined ? (animeData.featured || null) : sql`featured`},
+      featured_title = ${animeData.featuredTitle !== undefined ? (animeData.featuredTitle || null) : sql`featured_title`},
+      featured_title_en = ${animeData.featuredTitleEn !== undefined ? (animeData.featuredTitleEn || null) : sql`featured_title_en`},
+      featured_description = ${animeData.featuredDescription !== undefined ? (animeData.featuredDescription || null) : sql`featured_description`},
+      featured_description_en = ${animeData.featuredDescriptionEn !== undefined ? (animeData.featuredDescriptionEn || null) : sql`featured_description_en`},
+      featured_banner = ${animeData.featuredBanner !== undefined ? (animeData.featuredBanner || null) : sql`featured_banner`},
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ${id}
     RETURNING *
