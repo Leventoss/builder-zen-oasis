@@ -140,6 +140,122 @@ interface UserData {
   createdAt: string;
 }
 
+// Featured Anime Edit Form Component
+function FeaturedAnimeEditForm({
+  anime,
+  slot,
+  onSave
+}: {
+  anime: any,
+  slot: number,
+  onSave: (data: any) => void
+}) {
+  const [featuredTitle, setFeaturedTitle] = useState(anime.featuredTitle || "");
+  const [featuredTitleEn, setFeaturedTitleEn] = useState(anime.featuredTitleEn || "");
+  const [featuredDescription, setFeaturedDescription] = useState(anime.featuredDescription || "");
+  const [featuredDescriptionEn, setFeaturedDescriptionEn] = useState(anime.featuredDescriptionEn || "");
+  const [featuredBanner, setFeaturedBanner] = useState(anime.featuredBanner || "");
+
+  const handleSave = () => {
+    onSave({
+      featuredTitle: featuredTitle || undefined,
+      featuredTitleEn: featuredTitleEn || undefined,
+      featuredDescription: featuredDescription || undefined,
+      featuredDescriptionEn: featuredDescriptionEn || undefined,
+      featuredBanner: featuredBanner || undefined,
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-white">Özel Başlık (Türkçe)</Label>
+          <Input
+            value={featuredTitle}
+            onChange={(e) => setFeaturedTitle(e.target.value)}
+            placeholder={anime.title}
+            className="bg-anime-card border-anime-accent/30 text-white"
+          />
+          <p className="text-xs text-gray-400">Boş bırakırsanız orijinal başlık kullanılır</p>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-white">Özel Başlık (İngilizce)</Label>
+          <Input
+            value={featuredTitleEn}
+            onChange={(e) => setFeaturedTitleEn(e.target.value)}
+            placeholder={anime.titleEn}
+            className="bg-anime-card border-anime-accent/30 text-white"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-white">Özel Açıklama (Türkçe)</Label>
+          <Textarea
+            value={featuredDescription}
+            onChange={(e) => setFeaturedDescription(e.target.value)}
+            placeholder={anime.description}
+            className="bg-anime-card border-anime-accent/30 text-white min-h-[100px]"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-white">Özel Açıklama (İngilizce)</Label>
+          <Textarea
+            value={featuredDescriptionEn}
+            onChange={(e) => setFeaturedDescriptionEn(e.target.value)}
+            placeholder={anime.descriptionEn}
+            className="bg-anime-card border-anime-accent/30 text-white min-h-[100px]"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-white">Özel Banner URL</Label>
+        <Input
+          value={featuredBanner}
+          onChange={(e) => setFeaturedBanner(e.target.value)}
+          placeholder={anime.banner || anime.poster}
+          className="bg-anime-card border-anime-accent/30 text-white"
+        />
+        <p className="text-xs text-gray-400">Boş bırakırsanız orijinal banner/poster kullanılır</p>
+        {featuredBanner && (
+          <div className="mt-2">
+            <img
+              src={featuredBanner}
+              alt="Banner Önizleme"
+              className="w-full h-32 object-cover rounded-lg"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => {
+            setFeaturedTitle("");
+            setFeaturedTitleEn("");
+            setFeaturedDescription("");
+            setFeaturedDescriptionEn("");
+            setFeaturedBanner("");
+          }}
+        >
+          Temizle
+        </Button>
+        <Button onClick={handleSave} className="bg-anime-accent hover:bg-anime-accent/80">
+          <Save className="h-4 w-4 mr-2" />
+          Kaydet
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function UltimateAdmin() {
   const { user, isAdmin } = useAuth();
   const {
