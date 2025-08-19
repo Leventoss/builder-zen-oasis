@@ -80,8 +80,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } catch (error) {
           console.error("Token verification failed:", error);
-          // Only remove token if it's a real verification failure, not a network error
-          if (error instanceof Error && !error.message.includes('Failed to fetch')) {
+
+          // If it's a network error, don't remove the token - API might be temporarily unavailable
+          if (error instanceof Error &&
+              (error.message.includes('Failed to fetch') ||
+               error.message.includes('Network error') ||
+               error.message.includes('Cannot connect'))) {
+            console.warn("API temporarily unavailable, keeping token for retry");
+            // Set a flag to retry later or show offline mode
+            setUser(null); // Don't authenticate but keep token
+          } else {
+            // Real authentication error, remove token
             authToken.remove();
           }
         }
@@ -222,7 +231,7 @@ export function ProtectedRoute({
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Giriş Gerekli</h1>
           <p className="text-gray-400 mb-6">
-            Bu sayfayı görmek için giriş yapmalısınız.
+            Bu sayfayı g��rmek için giriş yapmalısınız.
           </p>
           <button
             onClick={() => (window.location.href = "/")}
