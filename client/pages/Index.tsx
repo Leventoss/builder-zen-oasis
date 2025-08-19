@@ -22,8 +22,8 @@ export default function Index() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [featuredAnimes, setFeaturedAnimes] = useState<any[]>([]);
   const { t, language } = useLanguage();
-  const { isAuthenticated } = useAuth();
-  const { animes } = useAnimeStore();
+  const { isAuthenticated, user } = useAuth();
+  const { animes, watchProgress, getUserProgress } = useAnimeStore();
 
   // Fallback featured animes if none are set in database
   const defaultFeaturedAnimes = [
