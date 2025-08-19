@@ -468,6 +468,7 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     markNotificationRead,
     clearNotifications,
     fetchNotifications,
+    refreshAnimes,
   };
 
   return (
