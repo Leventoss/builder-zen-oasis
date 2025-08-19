@@ -1985,20 +1985,28 @@ export default function UltimateAdmin() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => {
-                                      // Remove from featured
-                                      updateAnime(featuredAnime.id, {
-                                        featured: undefined,
-                                        featuredTitle: undefined,
-                                        featuredTitleEn: undefined,
-                                        featuredDescription: undefined,
-                                        featuredDescriptionEn: undefined,
-                                        featuredBanner: undefined
-                                      });
-                                      toast({
-                                        title: "Kaldırıldı",
-                                        description: `${featuredAnime.title} öne çıkanlardan kaldırıldı`,
-                                      });
+                                    onClick={async () => {
+                                      try {
+                                        // Remove from featured
+                                        await updateAnime(featuredAnime.id, {
+                                          featured: undefined,
+                                          featuredTitle: undefined,
+                                          featuredTitleEn: undefined,
+                                          featuredDescription: undefined,
+                                          featuredDescriptionEn: undefined,
+                                          featuredBanner: undefined
+                                        });
+                                        toast({
+                                          title: "Kaldırıldı",
+                                          description: `${featuredAnime.title} öne çıkanlardan kaldırıldı`,
+                                        });
+                                      } catch (error) {
+                                        toast({
+                                          title: "Hata",
+                                          description: "Öne çıkan anime kaldırılırken hata oluştu",
+                                          variant: "destructive",
+                                        });
+                                      }
                                     }}
                                   >
                                     <Trash2 className="h-4 w-4" />
