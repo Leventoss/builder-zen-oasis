@@ -101,17 +101,30 @@ export async function createAnime(animeData: any) {
 
 export async function updateAnime(id: number, animeData: any) {
   try {
-    // Ensure featured column exists first
+    // Ensure all featured columns exist
     await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured INTEGER`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_banner TEXT`;
   } catch (error) {
-    // Column might already exist, ignore
+    // Columns might already exist, ignore
   }
 
-  // If only featured is being updated, use simpler query
-  if (Object.keys(animeData).length === 1 && animeData.featured !== undefined) {
+  // Check if only featured-related fields are being updated
+  const featuredOnlyFields = ['featured', 'featuredTitle', 'featuredTitleEn', 'featuredDescription', 'featuredDescriptionEn', 'featuredBanner'];
+  const isFeatureOnlyUpdate = Object.keys(animeData).every(key => featuredOnlyFields.includes(key));
+
+  if (isFeatureOnlyUpdate) {
     const animes = await sql`
       UPDATE animes SET
-        featured = ${animeData.featured},
+        featured = ${animeData.featured !== undefined ? animeData.featured : sql`featured`},
+        featured_title = ${animeData.featuredTitle !== undefined ? animeData.featuredTitle : sql`featured_title`},
+        featured_title_en = ${animeData.featuredTitleEn !== undefined ? animeData.featuredTitleEn : sql`featured_title_en`},
+        featured_description = ${animeData.featuredDescription !== undefined ? animeData.featuredDescription : sql`featured_description`},
+        featured_description_en = ${animeData.featuredDescriptionEn !== undefined ? animeData.featuredDescriptionEn : sql`featured_description_en`},
+        featured_banner = ${animeData.featuredBanner !== undefined ? animeData.featuredBanner : sql`featured_banner`},
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
       RETURNING *
@@ -137,6 +150,11 @@ export async function updateAnime(id: number, animeData: any) {
       status = ${animeData.status || sql`status`},
       category = ${animeData.category || sql`category`},
       featured = ${animeData.featured !== undefined ? animeData.featured : sql`featured`},
+      featured_title = ${animeData.featuredTitle !== undefined ? animeData.featuredTitle : sql`featured_title`},
+      featured_title_en = ${animeData.featuredTitleEn !== undefined ? animeData.featuredTitleEn : sql`featured_title_en`},
+      featured_description = ${animeData.featuredDescription !== undefined ? animeData.featuredDescription : sql`featured_description`},
+      featured_description_en = ${animeData.featuredDescriptionEn !== undefined ? animeData.featuredDescriptionEn : sql`featured_description_en`},
+      featured_banner = ${animeData.featuredBanner !== undefined ? animeData.featuredBanner : sql`featured_banner`},
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ${id}
     RETURNING *
