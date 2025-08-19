@@ -162,10 +162,43 @@ export default function Index() {
   const trendingAnimes = getAnimeByCategory("trending").slice(0, 6);
   const newReleases = animes.filter((anime) => anime.year >= 2020).slice(0, 6);
   const topRated = animes.filter((anime) => anime.rating >= 8.5).slice(0, 6);
-  const continueWatching = animes.slice(0, 4).map((anime) => ({
-    ...anime,
-    progress: Math.floor(Math.random() * 80) + 10,
-  }));
+  // Get user's continue watching list based on watch progress
+  const continueWatching = useMemo(() => {
+    if (!isAuthenticated || !user) return [];
+
+    const userProgress = getUserProgress(user.id);
+    const progressMap = new Map();
+
+    // Create a map of anime progress
+    userProgress.forEach(progress => {
+      const existing = progressMap.get(progress.animeId);
+      if (!existing || progress.lastWatched > existing.lastWatched) {
+        progressMap.set(progress.animeId, progress);
+      }
+    });
+
+    // Convert to anime cards with progress
+    return Array.from(progressMap.values())
+      .filter(progress => {
+        // Only show animes that are not completed (less than 90% watched)
+        const progressPercent = (progress.progress / progress.duration) * 100;
+        return progressPercent < 90 && progressPercent > 5;
+      })
+      .sort((a, b) => new Date(b.lastWatched).getTime() - new Date(a.lastWatched).getTime())
+      .slice(0, 6)
+      .map(progress => {
+        const anime = animes.find(a => a.id === progress.animeId);
+        if (!anime) return null;
+
+        return {
+          ...anime,
+          progress: Math.round((progress.progress / progress.duration) * 100),
+          lastWatched: progress.lastWatched,
+          episodeId: progress.episodeId
+        };
+      })
+      .filter(Boolean);
+  }, [animes, watchProgress, isAuthenticated, user, getUserProgress]);
 
   const handleWatchClick = () => {
     const currentFeature = featuredAnimes[currentHero];
