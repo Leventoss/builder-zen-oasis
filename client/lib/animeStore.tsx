@@ -76,7 +76,7 @@ interface AnimeStoreContextType {
   // Episode data
   addEpisode: (episode: Omit<Episode, "id">) => Promise<string>;
   updateEpisode: (id: number, episode: Partial<Episode>) => void;
-  deleteEpisode: (id: number) => void;
+  deleteEpisode: (id: number) => Promise<void>;
   getEpisodesByAnimeId: (animeId: string) => Episode[];
 
   // User progress
