@@ -39,6 +39,73 @@ interface VideoPlayerProps {
   initialTime?: number;
 }
 
+// Video URL detection and processing
+function processVideoUrl(url: string): { type: string; embedUrl: string; isEmbed: boolean } {
+  // YouTube detection
+  if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
+    const videoId = url.includes('youtu.be/')
+      ? url.split('youtu.be/')[1].split('?')[0]
+      : url.split('v=')[1]?.split('&')[0];
+
+    if (videoId) {
+      return {
+        type: 'youtube',
+        embedUrl: `https://www.youtube.com/embed/${videoId}`,
+        isEmbed: true
+      };
+    }
+  }
+
+  // YouTube embed URLs
+  if (url.includes('youtube.com/embed/')) {
+    return {
+      type: 'youtube',
+      embedUrl: url,
+      isEmbed: true
+    };
+  }
+
+  // Vimeo detection
+  if (url.includes('vimeo.com/')) {
+    const videoId = url.split('vimeo.com/')[1]?.split('/')[0];
+    if (videoId) {
+      return {
+        type: 'vimeo',
+        embedUrl: `https://player.vimeo.com/video/${videoId}`,
+        isEmbed: true
+      };
+    }
+  }
+
+  // Dailymotion detection
+  if (url.includes('dailymotion.com/video/')) {
+    const videoId = url.split('video/')[1]?.split('?')[0];
+    if (videoId) {
+      return {
+        type: 'dailymotion',
+        embedUrl: `https://www.dailymotion.com/embed/video/${videoId}`,
+        isEmbed: true
+      };
+    }
+  }
+
+  // Direct video file or other embed URLs
+  if (url.includes('embed') || url.includes('player')) {
+    return {
+      type: 'embed',
+      embedUrl: url,
+      isEmbed: true
+    };
+  }
+
+  // Default to direct video file
+  return {
+    type: 'video',
+    embedUrl: url,
+    isEmbed: false
+  };
+}
+
 export default function EnhancedVideoPlayer({
   src,
   poster,
@@ -49,6 +116,9 @@ export default function EnhancedVideoPlayer({
   initialTime = 0,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Process the video URL
+  const { type, embedUrl, isEmbed } = processVideoUrl(src);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
