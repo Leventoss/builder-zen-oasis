@@ -108,6 +108,9 @@ export default function Index() {
     },
   ];
 
+  // Use database featured animes if available, otherwise fallback to default
+  const featuredAnimes = databaseFeaturedAnimes.length > 0 ? databaseFeaturedAnimes : defaultFeaturedAnimes;
+
   // Auto-rotate hero
   useEffect(() => {
     const interval = setInterval(() => {
