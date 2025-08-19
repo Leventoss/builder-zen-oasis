@@ -93,6 +93,13 @@ export async function createAnime(animeData: any) {
 }
 
 export async function updateAnime(id: number, animeData: any) {
+  // First, ensure featured column exists
+  try {
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured INTEGER`;
+  } catch (error) {
+    // Column might already exist, ignore error
+  }
+
   const animes = await sql`
     UPDATE animes SET
       title = ${animeData.title},
@@ -109,6 +116,7 @@ export async function updateAnime(id: number, animeData: any) {
       description_en = ${animeData.descriptionEn},
       status = ${animeData.status},
       category = ${animeData.category},
+      featured = ${animeData.featured || null},
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ${id}
     RETURNING *
