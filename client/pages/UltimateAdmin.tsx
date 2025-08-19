@@ -1748,34 +1748,45 @@ export default function UltimateAdmin() {
                     </Select>
                   </div>
 
-                  <Button
-                    onClick={() => {
-                      if (!selectedAnime) {
-                        toast({
-                          title: "Hata",
-                          description: "Önce bir anime seçin",
-                          variant: "destructive",
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        if (!selectedAnime) {
+                          toast({
+                            title: "Hata",
+                            description: "Önce bir anime seçin",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        setEditingEpisode({
+                          episodeNumber: 1,
+                          title: "",
+                          titleEn: "",
+                          description: "",
+                          descriptionEn: "",
+                          videoUrl: "",
+                          duration: "24min",
+                          airDate: new Date().toISOString().split("T")[0],
+                          animeId: selectedAnime.id,
                         });
-                        return;
-                      }
-                      setEditingEpisode({
-                        episodeNumber: 1,
-                        title: "",
-                        titleEn: "",
-                        description: "",
-                        descriptionEn: "",
-                        videoUrl: "",
-                        duration: "24min",
-                        airDate: new Date().toISOString().split("T")[0],
-                        animeId: selectedAnime.id,
-                      });
-                      setShowEpisodeDialog(true);
-                    }}
-                    className="bg-anime-accent hover:bg-anime-accent/80"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Yeni Bölüm
-                  </Button>
+                        setShowEpisodeDialog(true);
+                      }}
+                      className="bg-anime-accent hover:bg-anime-accent/80"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Yeni Bölüm
+                    </Button>
+
+                    <Button
+                      onClick={() => setShowBulkEpisodeUpload(true)}
+                      variant="outline"
+                      className="border-anime-accent text-anime-accent hover:bg-anime-accent hover:text-white"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Toplu Yükleme
+                    </Button>
+                  </div>
                 </div>
 
                 {selectedAnime && (
