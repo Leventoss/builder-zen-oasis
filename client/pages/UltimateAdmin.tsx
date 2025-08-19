@@ -1818,12 +1818,45 @@ export default function UltimateAdmin() {
                               />
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                                 <div className="flex gap-2">
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button size="sm" variant="outline">
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl bg-anime-dark border-anime-accent/20">
+                                      <DialogHeader>
+                                        <DialogTitle className="text-white">Öne Çıkan Anime Düzenle - Slot {slot}</DialogTitle>
+                                        <DialogDescription className="text-gray-400">
+                                          Bu anime için özel başlık, açıklama ve banner ayarlayın
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <FeaturedAnimeEditForm
+                                        anime={featuredAnime}
+                                        slot={slot}
+                                        onSave={(data) => {
+                                          updateAnime(featuredAnime.id, data);
+                                          toast({
+                                            title: "Güncellendi",
+                                            description: `${featuredAnime.title} öne çıkan ayarları güncellendi`,
+                                          });
+                                        }}
+                                      />
+                                    </DialogContent>
+                                  </Dialog>
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => {
                                       // Remove from featured
-                                      updateAnime(featuredAnime.id, { featured: undefined });
+                                      updateAnime(featuredAnime.id, {
+                                        featured: undefined,
+                                        featuredTitle: undefined,
+                                        featuredTitleEn: undefined,
+                                        featuredDescription: undefined,
+                                        featuredDescriptionEn: undefined,
+                                        featuredBanner: undefined
+                                      });
                                       toast({
                                         title: "Kaldırıldı",
                                         description: `${featuredAnime.title} öne çıkanlardan kaldırıldı`,
@@ -1835,8 +1868,14 @@ export default function UltimateAdmin() {
                                 </div>
                               </div>
                               <div className="mt-2">
-                                <p className="text-white font-medium text-sm">{featuredAnime.title}</p>
+                                <p className="text-white font-medium text-sm">
+                                  {featuredAnime.featuredTitle || featuredAnime.title}
+                                  {featuredAnime.featuredTitle && <span className="text-anime-accent ml-1">(Özel)</span>}
+                                </p>
                                 <p className="text-gray-400 text-xs">⭐ {featuredAnime.rating} • {featuredAnime.year}</p>
+                                {featuredAnime.featuredBanner && (
+                                  <p className="text-anime-accent text-xs">📸 Özel Banner</p>
+                                )}
                               </div>
                             </div>
                           ) : (
