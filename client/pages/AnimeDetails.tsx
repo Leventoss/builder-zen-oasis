@@ -105,14 +105,14 @@ export default function AnimeDetails() {
     }
 
     if (isInWatchlist) {
-      removeFromList("user", anime.id, "watchlist");
+      removeFromList(user?.id?.toString() || "", anime.id, "watchlist");
       setIsInWatchlist(false);
       toast({
         title: "Listeden Çıkarıldı",
         description: "Anime izleme listenizden çıkarıldı",
       });
     } else {
-      addToList("user", anime.id, "watchlist");
+      addToList(user?.id?.toString() || "", anime.id, "watchlist");
       setIsInWatchlist(true);
       toast({
         title: "Listeye Eklendi",
