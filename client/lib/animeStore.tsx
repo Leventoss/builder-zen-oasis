@@ -47,9 +47,11 @@ export interface Episode {
 }
 
 export interface WatchProgress {
+  userId: string;
   animeId: string;
   episodeId: number;
-  progress: number;
+  progress: number; // Progress in seconds
+  duration: number; // Total duration in seconds
   lastWatched: string;
 }
 
