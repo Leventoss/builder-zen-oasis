@@ -127,6 +127,18 @@ interface BulkImportProgress {
   result?: any;
 }
 
+interface UserData {
+  id: number;
+  username: string;
+  email: string;
+  isAdmin: boolean;
+  isPremium: boolean;
+  premiumExpiresAt?: string;
+  discordId?: string;
+  discordUsername?: string;
+  createdAt: string;
+}
+
 export default function UltimateAdmin() {
   const { user, isAdmin } = useAuth();
   const {
