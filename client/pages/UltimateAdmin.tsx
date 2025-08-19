@@ -1350,7 +1350,7 @@ export default function UltimateAdmin() {
                         <SelectItem value="title">İsim</SelectItem>
                         <SelectItem value="year">Yıl</SelectItem>
                         <SelectItem value="rating">Puan</SelectItem>
-                        <SelectItem value="episodes">Bölüm</SelectItem>
+                        <SelectItem value="episodes">B��lüm</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -2000,13 +2000,34 @@ export default function UltimateAdmin() {
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Button size="sm" variant="outline" title="Düzenle">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  title="Düzenle"
+                                  onClick={() => {
+                                    setEditingUser(userData);
+                                    setShowUserDialog(true);
+                                  }}
+                                >
                                   <Edit className="h-3 w-3" />
                                 </Button>
-                                <Button size="sm" variant="outline" title="Ayarlar">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  title="Rol Değiştir"
+                                  onClick={() => {
+                                    const newAdminStatus = !userData.isAdmin;
+                                    handleUpdateUserRole(userData.id.toString(), { isAdmin: newAdminStatus });
+                                  }}
+                                >
                                   <Settings className="h-3 w-3" />
                                 </Button>
-                                <Button size="sm" variant="destructive" title="Sil">
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  title="Sil"
+                                  onClick={() => handleDeleteUser(userData.id.toString(), userData.username)}
+                                >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
