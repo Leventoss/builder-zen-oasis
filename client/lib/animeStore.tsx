@@ -25,6 +25,7 @@ export interface AnimeData {
   descriptionEn: string;
   status: "ongoing" | "completed" | "upcoming";
   category: "anime" | "movie";
+  featured?: number; // 1, 2, or 3 for featured slots
 }
 
 export interface Episode {
