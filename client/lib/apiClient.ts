@@ -264,6 +264,37 @@ export const adminAPI = {
       method: "DELETE",
     });
   },
+
+  deleteUser: async (userId: string) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+    }>(`/admin/users/${userId}`, {
+      method: "DELETE",
+    });
+  },
+
+  updateUserRole: async (userId: string, roleData: { isAdmin?: boolean; isPremium?: boolean }) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+      data: any;
+    }>(`/admin/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify(roleData),
+    });
+  },
+
+  createUser: async (userData: { username: string; email: string; password: string; isAdmin?: boolean; isPremium?: boolean }) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+      data: any;
+    }>("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+  },
 };
 
 // User API
