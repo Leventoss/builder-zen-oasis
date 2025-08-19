@@ -1691,50 +1691,80 @@ export default function UltimateAdmin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell className="text-white">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-anime-accent rounded-full flex items-center justify-center">
-                              <User className="h-4 w-4 text-white" />
+                      {usersLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-gray-400 py-8">
+                            <div className="flex items-center justify-center gap-2">
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                              Kullanıcılar yükleniyor...
                             </div>
-                            <div>
-                              <p className="font-medium">admin</p>
-                              <p className="text-gray-400 text-sm">
-                                Discord: Bağlı
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-gray-300">
-                          admin@aniwa.com
-                        </TableCell>
-                        <TableCell className="text-gray-300">
-                          2024-01-01
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Badge className="bg-red-600 text-white">
-                              Admin
-                            </Badge>
-                            <Badge className="bg-yellow-600 text-white">
-                              Premium
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="outline">
-                              <Settings className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="destructive">
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredUsers.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-gray-400 py-8">
+                            {userSearchQuery || userFilter !== "all"
+                              ? "Arama kriterlerine uygun kullanıcı bulunamadı"
+                              : "Henüz kullanıcı yok"}
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredUsers.map((userData) => (
+                          <TableRow key={userData.id}>
+                            <TableCell className="text-white">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-anime-accent rounded-full flex items-center justify-center">
+                                  <User className="h-4 w-4 text-white" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">{userData.username}</p>
+                                  <p className="text-gray-400 text-sm">
+                                    Discord: {userData.discordId ? "Bağlı" : "Bağlı değil"}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-gray-300">
+                              {userData.email}
+                            </TableCell>
+                            <TableCell className="text-gray-300">
+                              {new Date(userData.createdAt || Date.now()).toLocaleDateString('tr-TR')}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1">
+                                {userData.isAdmin && (
+                                  <Badge className="bg-red-600 text-white">
+                                    Admin
+                                  </Badge>
+                                )}
+                                {userData.isPremium && (
+                                  <Badge className="bg-yellow-600 text-white">
+                                    Premium
+                                  </Badge>
+                                )}
+                                {!userData.isAdmin && !userData.isPremium && (
+                                  <Badge variant="outline" className="text-gray-400">
+                                    Normal
+                                  </Badge>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" title="Düzenle">
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button size="sm" variant="outline" title="Ayarlar">
+                                  <Settings className="h-3 w-3" />
+                                </Button>
+                                <Button size="sm" variant="destructive" title="Sil">
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
