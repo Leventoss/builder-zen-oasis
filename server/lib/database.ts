@@ -101,102 +101,47 @@ export async function createAnime(animeData: any) {
 
 export async function updateAnime(id: number, animeData: any) {
   try {
-    // First, ensure featured column exists
+    // Ensure featured column exists first
     await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured INTEGER`;
   } catch (error) {
-    // Column might already exist, ignore error
-    console.log('Featured column exists or error:', error.message);
+    // Column might already exist, ignore
   }
 
-  try {
-    // Only update fields that are provided
-    const updateFields = [];
-    const values = [];
-
-    if (animeData.title !== undefined) {
-      updateFields.push('title = $' + (values.length + 1));
-      values.push(animeData.title);
-    }
-    if (animeData.titleEn !== undefined) {
-      updateFields.push('title_en = $' + (values.length + 1));
-      values.push(animeData.titleEn);
-    }
-    if (animeData.poster !== undefined) {
-      updateFields.push('poster = $' + (values.length + 1));
-      values.push(animeData.poster);
-    }
-    if (animeData.banner !== undefined) {
-      updateFields.push('banner = $' + (values.length + 1));
-      values.push(animeData.banner);
-    }
-    if (animeData.rating !== undefined) {
-      updateFields.push('rating = $' + (values.length + 1));
-      values.push(animeData.rating);
-    }
-    if (animeData.year !== undefined) {
-      updateFields.push('year = $' + (values.length + 1));
-      values.push(animeData.year);
-    }
-    if (animeData.episodes !== undefined) {
-      updateFields.push('episodes = $' + (values.length + 1));
-      values.push(animeData.episodes);
-    }
-    if (animeData.genre !== undefined) {
-      updateFields.push('genre = $' + (values.length + 1));
-      values.push(animeData.genre);
-    }
-    if (animeData.genreEn !== undefined) {
-      updateFields.push('genre_en = $' + (values.length + 1));
-      values.push(animeData.genreEn);
-    }
-    if (animeData.duration !== undefined) {
-      updateFields.push('duration = $' + (values.length + 1));
-      values.push(animeData.duration);
-    }
-    if (animeData.description !== undefined) {
-      updateFields.push('description = $' + (values.length + 1));
-      values.push(animeData.description);
-    }
-    if (animeData.descriptionEn !== undefined) {
-      updateFields.push('description_en = $' + (values.length + 1));
-      values.push(animeData.descriptionEn);
-    }
-    if (animeData.status !== undefined) {
-      updateFields.push('status = $' + (values.length + 1));
-      values.push(animeData.status);
-    }
-    if (animeData.category !== undefined) {
-      updateFields.push('category = $' + (values.length + 1));
-      values.push(animeData.category);
-    }
-    if (animeData.featured !== undefined) {
-      updateFields.push('featured = $' + (values.length + 1));
-      values.push(animeData.featured);
-    }
-
-    // Always update timestamp
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
-
-    // Add id for WHERE clause
-    values.push(id);
-    const whereClause = '$' + values.length;
-
-    if (updateFields.length === 1) { // Only timestamp
-      throw new Error('No fields to update');
-    }
-
-    const query = `
-      UPDATE animes SET ${updateFields.join(', ')}
-      WHERE id = ${whereClause}
+  // If only featured is being updated, use simpler query
+  if (Object.keys(animeData).length === 1 && animeData.featured !== undefined) {
+    const animes = await sql`
+      UPDATE animes SET
+        featured = ${animeData.featured},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
       RETURNING *
     `;
-
-    const animes = await sql.unsafe(query, values);
     return animes[0];
-  } catch (error) {
-    console.error('Update anime error:', error);
-    throw error;
   }
+
+  // Full update
+  const animes = await sql`
+    UPDATE animes SET
+      title = ${animeData.title || sql`title`},
+      title_en = ${animeData.titleEn || sql`title_en`},
+      poster = ${animeData.poster || sql`poster`},
+      banner = ${animeData.banner || sql`banner`},
+      rating = ${animeData.rating || sql`rating`},
+      year = ${animeData.year || sql`year`},
+      episodes = ${animeData.episodes || sql`episodes`},
+      genre = ${animeData.genre || sql`genre`},
+      genre_en = ${animeData.genreEn || sql`genre_en`},
+      duration = ${animeData.duration || sql`duration`},
+      description = ${animeData.description || sql`description`},
+      description_en = ${animeData.descriptionEn || sql`description_en`},
+      status = ${animeData.status || sql`status`},
+      category = ${animeData.category || sql`category`},
+      featured = ${animeData.featured !== undefined ? animeData.featured : sql`featured`},
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return animes[0];
 }
 
 export async function deleteAnime(id: number) {
