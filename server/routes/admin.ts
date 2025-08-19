@@ -150,7 +150,7 @@ export const handleCreateNotification: RequestHandler = async (req, res) => {
     console.error("Create notification error:", error);
     res.status(500).json({
       success: false,
-      message: "Bildirim olu��turulamadı",
+      message: "Bildirim oluşturulamadı",
     });
   }
 };
@@ -315,8 +315,8 @@ export const handleCreateUser: RequestHandler = async (req, res) => {
     }
 
     // Hash password
-    const bcrypt = require('bcryptjs');
-    const passwordHash = await bcrypt.hash(password, 10);
+    const bcrypt = await import('bcryptjs');
+    const passwordHash = await bcrypt.default.hash(password, 10);
 
     // Create user
     const newUser = await sql`
