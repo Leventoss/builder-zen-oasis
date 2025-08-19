@@ -2029,12 +2029,20 @@ export default function UltimateAdmin() {
                               <Plus className="h-8 w-8 mb-2" />
                               <p className="text-sm">Anime Seç</p>
                               <Select
-                                onValueChange={(animeId) => {
-                                  updateAnime(animeId, { featured: slot });
-                                  toast({
-                                    title: "Eklendi",
-                                    description: `Anime slot ${slot}'a eklendi`,
-                                  });
+                                onValueChange={async (animeId) => {
+                                  try {
+                                    await updateAnime(animeId, { featured: slot });
+                                    toast({
+                                      title: "Eklendi",
+                                      description: `Anime slot ${slot}'a eklendi`,
+                                    });
+                                  } catch (error) {
+                                    toast({
+                                      title: "Hata",
+                                      description: "Öne çıkan anime eklenirken hata oluştu",
+                                      variant: "destructive",
+                                    });
+                                  }
                                 }}
                               >
                                 <SelectTrigger className="w-full mt-2 bg-anime-dark border-anime-accent/30">
