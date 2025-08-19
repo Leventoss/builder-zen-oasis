@@ -1,25 +1,11 @@
 [build]
   command = "npm run build:client"
-  functions = "netlify/functions"
   publish = "dist/spa"
 
 [build.environment]
   NODE_VERSION = "18"
-  NPM_VERSION = "10"
 
-[functions]
-  external_node_modules = ["express"]
-  node_bundler = "esbuild"
-
-# API routes - these must come BEFORE the SPA redirect
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-  force = true
-
-# SPA routing - catch all other routes and serve index.html
-# This allows React Router to handle routing on the client side
+# SPA routing - catch all routes and serve index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
