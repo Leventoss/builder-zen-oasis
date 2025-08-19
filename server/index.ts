@@ -97,6 +97,12 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Request logging middleware
+  app.use((req, res, next) => {
+    console.log(`📥 ${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+  });
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
@@ -411,7 +417,7 @@ export function createServer() {
           genre: ["Komedi", "Doğaüstü", "Aksiyon"],
           genreEn: ["Comedy", "Supernatural", "Action"],
           duration: "24min",
-          description: "Psişik g��çlere sahip Mob'un büyüme hikayesi.",
+          description: "Psişik güçlere sahip Mob'un büyüme hikayesi.",
           descriptionEn: "The coming-of-age story of Mob with psychic powers.",
           status: "completed",
           category: "anime",
