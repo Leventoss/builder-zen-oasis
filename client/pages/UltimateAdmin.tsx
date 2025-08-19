@@ -1651,9 +1651,11 @@ export default function UltimateAdmin() {
                     <div className="flex gap-4">
                       <Input
                         placeholder="Kullanıcı ara..."
+                        value={userSearchQuery}
+                        onChange={(e) => setUserSearchQuery(e.target.value)}
                         className="w-64 bg-anime-dark border-anime-accent/30"
                       />
-                      <Select defaultValue="all">
+                      <Select value={userFilter} onValueChange={setUserFilter}>
                         <SelectTrigger className="w-40 bg-anime-dark border-anime-accent/30">
                           <SelectValue />
                         </SelectTrigger>
