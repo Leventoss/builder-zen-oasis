@@ -132,6 +132,21 @@ export const handleCreateAnime: RequestHandler = async (req, res) => {
       });
     }
 
+    // Check for existing anime with same title
+    const existingAnimes = await sql`
+      SELECT id, title, title_en FROM animes
+      WHERE LOWER(title) = LOWER(${animeData.title})
+      OR (title_en IS NOT NULL AND LOWER(title_en) = LOWER(${animeData.titleEn || animeData.title}))
+    `;
+
+    if (existingAnimes.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: `Anime zaten mevcut: ${existingAnimes[0].title}`,
+        existing: existingAnimes[0],
+      });
+    }
+
     const newAnime = await createAnime({
       title: animeData.title,
       titleEn: animeData.titleEn || null,
