@@ -61,22 +61,8 @@ const AppContent = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route
-              path="/anime/:id"
-              element={
-                <ProtectedRoute>
-                  <AnimeDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/anime-details/:id"
-              element={
-                <ProtectedRoute>
-                  <AnimeDetails />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/anime/:id" element={<AnimeDetails />} />
+            <Route path="/anime-details/:id" element={<AnimeDetails />} />
             <Route path="/anime" element={<Browse />} />
             <Route path="/movies" element={<Browse />} />
             <Route path="/trending" element={<Browse />} />
