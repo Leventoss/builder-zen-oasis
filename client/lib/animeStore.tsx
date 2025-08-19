@@ -303,8 +303,18 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const deleteEpisode = (id: number) => {
-    setEpisodes((prev) => prev.filter((episode) => episode.id !== id));
+  const deleteEpisode = async (id: number) => {
+    try {
+      const response = await animeAPI.deleteEpisode(id);
+      if (response.success) {
+        setEpisodes((prev) => prev.filter((episode) => episode.id !== id));
+      } else {
+        throw new Error(response.message || "Failed to delete episode");
+      }
+    } catch (error) {
+      console.error("Failed to delete episode:", error);
+      throw error;
+    }
   };
 
   const getEpisodesByAnimeId = (animeId: string): Episode[] => {
