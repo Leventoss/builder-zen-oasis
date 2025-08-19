@@ -1,6 +1,27 @@
 // API Client for communicating with backend
 
-const API_BASE = "/api";
+// Determine API base URL based on environment
+const getApiBase = () => {
+  // In development with Builder.io, check if we're on a complex URL
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+
+    // If we're on a Builder.io development URL, try the local dev server
+    if (hostname.includes('.fly.dev') || hostname.includes('builder.io')) {
+      // For Builder.io development environment, use the current origin
+      return '/api';
+    }
+
+    // For localhost development
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return '/api';
+    }
+  }
+
+  return '/api';
+};
+
+const API_BASE = getApiBase();
 
 // Auth token management
 export const authToken = {
