@@ -133,7 +133,7 @@ function getTopicSpecificResponse(
       break;
 
     case "anime-sorun":
-      if (hasComplaint || lowerMessage.includes("çalışm��yor") || lowerMessage.includes("açılmıyor")) {
+      if (hasComplaint || lowerMessage.includes("çalışmıyor") || lowerMessage.includes("açılmıyor")) {
         const troubleshootingResponses = [
           `Sorununu hemen çözelim! 🔧\n\nBilmem gerekenler:\n🎯 Hangi anime/bölüm?\n📱 Cihaz türü (telefon/bilgisayar)\n🌐 Tarayıcı (Chrome, Safari, vs.)\n⚡ Sorun türü (açılmıyor, donuyor, ses yok)\n\n%90 sorunları 5 dakikada çözüyoruz!`,
           `Teknik sorun mu? Hemen bakayım! 👨‍💻\n\nŞu bilgileri paylaşır mısın:\n• Hangi animede problem?\n• Video açılıyor mu?\n• Ses var mı?\n• İnternet hızın nasıl?\n\nÇoğu sorunu anında çözebiliriz.`,
@@ -192,32 +192,52 @@ Spesifik bir sorunuz var mı?`;
       break;
   }
 
-  // Generic helpful response
-  if (
-    lowerMessage.includes("merhaba") ||
-    lowerMessage.includes("hello") ||
-    lowerMessage.includes("hi")
-  ) {
-    const premiumGreeting = isPremium
-      ? " Premium üyemizsiniz, size özel destek sağlayacağım!"
-      : "";
-    return `Merhaba! Anime sitesi destek asistanıyım.${premiumGreeting} Size nasıl yardımcı olabilirim?`;
+  // Dynamic greetings
+  if (isGreeting) {
+    const greetings = isPremium ? [
+      "Merhaba premium üyemiz! 👑 Size özel destek sunmaya hazırım. Nasıl yardım edebilirim?",
+      "Selam! Premium hesabınızla hizmetinizdeyim ⭐ Hangi konuda destek istiyorsunuz?",
+      "Hello premium user! 🎌 Size VIP destek sağlamaya hazırım. Ne öğrenmek istersiniz?"
+    ] : [
+      "Merhaba! Anime sitesi AI asistanıyım 🤖 Size nasıl yardımcı olabilirim?",
+      "Selam! Anime dünyasından size destek vermeye geldim 🎌 Sorunuz nedir?",
+      "Hi! Anime sitesi destek ekibindenim 👋 Hangi konuda yardım istiyorsunuz?"
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
   }
 
-  if (
-    lowerMessage.includes("teşekkür") ||
-    lowerMessage.includes("thanks") ||
-    lowerMessage.includes("sağol")
-  ) {
-    return isPremium
-      ? "Rica ederim! Premium üyemiz olduğunuz için her zaman buradayım. Başka bir konuda yardıma ihtiyacınız olursa hemen sorun!"
-      : "Rica ederim! Başka sorularınız olursa çekinmeden sorabilirsiniz.";
+  // Varied thank you responses
+  if (isThanks) {
+    const thankResponses = isPremium ? [
+      "Rica ederim premium üyemiz! 👑 Her zaman buradayım, ne zaman ihtiyacınız olsa!",
+      "Bir şey değil! Premium desteğin avantajı bu ⭐ Başka soru olursa hemen sorun!",
+      "Memnun oldum! Premium üyeliğinizin keyfini çıkarın 🎉"
+    ] : [
+      "Rica ederim! 😊 Başka sorularınız olursa hemen sorun!",
+      "Bir şey değil! Anime dünyasında size yardım etmek güzel 🎌",
+      "Memnun oldum! İhtiyacınız olursa buradayım 👍"
+    ];
+    return thankResponses[Math.floor(Math.random() * thankResponses.length)];
   }
 
-  // Default response for anime-related but unspecific messages
-  return `Anladım, ${category.replace("-", " ")} konusunda yardım istiyorsunuz. Lütfen sorununuzu biraz daha detaylandırabilir misiniz? Bu şekilde size daha iyi yardım edebilirim.
+  // Question-based responses
+  if (hasQuestion) {
+    const questionResponses = [
+      `${category.replace("-", " ").charAt(0).toUpperCase() + category.replace("-", " ").slice(1)} hakkında soru soruyorsunuz! 🤔\n\nLütfen biraz daha detay verir misiniz? Ne öğrenmek istiyorsunuz?\n\n💡 İpucu: Spesifik sorular daha hızlı sonuç verir!`,
+      `Harika bir soru! 💭 ${category.replace("-", " ")} konusunda uzmanım.\n\nSorununuzu biraz açar mısınız? Bu şekilde tam istediğiniz bilgiyi verebilirim.`,
+      `Merak ettiğiniz konuyu anlıyorum! 🧐\n\nBiraz daha detay verirseniz size en doğru yardımı sağlayabilirim. Hangi açıdan yaklaşalım?`
+    ];
+    return questionResponses[Math.floor(Math.random() * questionResponses.length)];
+  }
 
-İpucu: Mümkün olduğunca spesifik bilgi verirseniz (anime adı, sorun türü vb.) daha hızlı çözüm bulabiliriz.`;
+  // Default varied responses
+  const defaultResponses = [
+    `${category.replace("-", " ").charAt(0).toUpperCase() + category.replace("-", " ").slice(1)} konusunda size yardımcı olmaya hazırım! 🎯\n\nNe öğrenmek istiyorsunuz? Lütfen biraz daha detay verin.`,
+    `Bu konuda uzmanım! 💪 Sorununuzu çözmek için daha fazla bilgiye ihtiyacım var.\n\nHangi noktada takıldınız?`,
+    `Anladım! 📝 Size en iyi yardımı sağlamak için sorununuzu biraz açar mısınız?\n\n✨ Ne kadar detaylı anlatırsanız o kadar hızlı çözüm bulurum!`
+  ];
+
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 }
 
 // Main AI chat handler
