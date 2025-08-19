@@ -441,6 +441,89 @@ export default function UltimateAdmin() {
     }
   };
 
+  // Delete user
+  const handleDeleteUser = async (userId: string, username: string) => {
+    if (!confirm(`${username} kullanıcısını silmek istediğinize emin misiniz?`)) return;
+
+    try {
+      const response = await adminAPI.deleteUser(userId);
+      if (response.success) {
+        setUsers(prev => prev.filter(u => u.id !== parseInt(userId)));
+        toast({
+          title: "Başarılı",
+          description: `${username} kullanıcısı silindi`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı silme hatası",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Update user role
+  const handleUpdateUserRole = async (userId: string, roleData: { isAdmin?: boolean; isPremium?: boolean }) => {
+    try {
+      const response = await adminAPI.updateUserRole(userId, roleData);
+      if (response.success) {
+        setUsers(prev => prev.map(u =>
+          u.id === parseInt(userId) ? { ...u, ...response.data } : u
+        ));
+        setEditingUser(null);
+        setShowUserDialog(false);
+        toast({
+          title: "Başarılı",
+          description: "Kullanıcı rolü güncellendi",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı rolü güncellenemedi",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Create new user
+  const handleCreateUser = async () => {
+    if (!newUserData.username || !newUserData.email || !newUserData.password) {
+      toast({
+        title: "Hata",
+        description: "Tüm alanları doldurun",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await adminAPI.createUser(newUserData);
+      if (response.success) {
+        setUsers(prev => [response.data, ...prev]);
+        setNewUserData({
+          username: "",
+          email: "",
+          password: "",
+          isAdmin: false,
+          isPremium: false,
+        });
+        setShowCreateUserDialog(false);
+        toast({
+          title: "Başarılı",
+          description: "Yeni kullanıcı oluşturuldu",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı oluşturulamadı",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter users
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
