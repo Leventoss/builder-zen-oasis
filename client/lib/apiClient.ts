@@ -186,6 +186,26 @@ export const animeAPI = {
       body: JSON.stringify(episodeData),
     });
   },
+
+  updateEpisode: async (episodeId: number, episodeData: any) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+      data: any;
+    }>(`/episodes/${episodeId}`, {
+      method: "PUT",
+      body: JSON.stringify(episodeData),
+    });
+  },
+
+  deleteEpisode: async (episodeId: number) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+    }>(`/episodes/${episodeId}`, {
+      method: "DELETE",
+    });
+  },
 };
 
 // Admin API
