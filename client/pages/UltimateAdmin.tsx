@@ -2733,6 +2733,165 @@ export default function UltimateAdmin() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* User Edit Dialog */}
+      <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
+        <DialogContent className="max-w-md bg-anime-dark border-anime-accent/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">Kullanıcı Düzenle</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Kullanıcı rollerini ve izinlerini düzenleyin
+            </DialogDescription>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-white">Kullanıcı Adı</Label>
+                <Input
+                  value={editingUser.username}
+                  disabled
+                  className="bg-anime-card border-anime-accent/30 text-gray-400"
+                />
+              </div>
+              <div>
+                <Label className="text-white">Email</Label>
+                <Input
+                  value={editingUser.email}
+                  disabled
+                  className="bg-anime-card border-anime-accent/30 text-gray-400"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isAdmin"
+                  checked={editingUser.isAdmin}
+                  onChange={(e) => setEditingUser({...editingUser, isAdmin: e.target.checked})}
+                  className="rounded border-anime-accent/30"
+                />
+                <Label htmlFor="isAdmin" className="text-white">Admin Yetkisi</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isPremium"
+                  checked={editingUser.isPremium}
+                  onChange={(e) => setEditingUser({...editingUser, isPremium: e.target.checked})}
+                  className="rounded border-anime-accent/30"
+                />
+                <Label htmlFor="isPremium" className="text-white">Premium Üyelik</Label>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowUserDialog(false)}
+                  className="border-anime-accent/30"
+                >
+                  İptal
+                </Button>
+                <Button
+                  onClick={() => handleUpdateUserRole(editingUser.id.toString(), {
+                    isAdmin: editingUser.isAdmin,
+                    isPremium: editingUser.isPremium
+                  })}
+                  className="bg-anime-accent hover:bg-anime-accent/80"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Kaydet
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={showCreateUserDialog} onOpenChange={setShowCreateUserDialog}>
+        <DialogContent className="max-w-md bg-anime-dark border-anime-accent/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">Yeni Kullanıcı Oluştur</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Yeni kullanıcı hesabı oluşturun
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-white">Kullanıcı Adı</Label>
+              <Input
+                value={newUserData.username}
+                onChange={(e) => setNewUserData({...newUserData, username: e.target.value})}
+                className="bg-anime-card border-anime-accent/30"
+                placeholder="Kullanıcı adı"
+              />
+            </div>
+            <div>
+              <Label className="text-white">Email</Label>
+              <Input
+                type="email"
+                value={newUserData.email}
+                onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
+                className="bg-anime-card border-anime-accent/30"
+                placeholder="email@example.com"
+              />
+            </div>
+            <div>
+              <Label className="text-white">Şifre</Label>
+              <Input
+                type="password"
+                value={newUserData.password}
+                onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
+                className="bg-anime-card border-anime-accent/30"
+                placeholder="Güçlü şifre"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="newIsAdmin"
+                checked={newUserData.isAdmin}
+                onChange={(e) => setNewUserData({...newUserData, isAdmin: e.target.checked})}
+                className="rounded border-anime-accent/30"
+              />
+              <Label htmlFor="newIsAdmin" className="text-white">Admin Yetkisi</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="newIsPremium"
+                checked={newUserData.isPremium}
+                onChange={(e) => setNewUserData({...newUserData, isPremium: e.target.checked})}
+                className="rounded border-anime-accent/30"
+              />
+              <Label htmlFor="newIsPremium" className="text-white">Premium Üyelik</Label>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateUserDialog(false);
+                  setNewUserData({
+                    username: "",
+                    email: "",
+                    password: "",
+                    isAdmin: false,
+                    isPremium: false,
+                  });
+                }}
+                className="border-anime-accent/30"
+              >
+                İptal
+              </Button>
+              <Button
+                onClick={handleCreateUser}
+                className="bg-anime-accent hover:bg-anime-accent/80"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Oluştur
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
