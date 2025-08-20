@@ -1769,6 +1769,15 @@ export default function UltimateAdmin() {
                         ))}
                       </SelectContent>
                     </Select>
+
+                    {selectedAnime && (
+                      <Input
+                        placeholder="Bölüm ara..."
+                        value={episodeSearchQuery}
+                        onChange={(e) => setEpisodeSearchQuery(e.target.value)}
+                        className="w-64 bg-anime-dark border-anime-accent/30"
+                      />
+                    )}
                   </div>
 
                   <div className="flex gap-2">
@@ -2317,7 +2326,7 @@ export default function UltimateAdmin() {
                               {anime.title}
                             </p>
                             <p className="text-gray-400 text-xs">
-                              ⭐ {anime.rating} �� {anime.year}
+                              ⭐ {anime.rating} • {anime.year}
                             </p>
                           </div>
                         ))}
