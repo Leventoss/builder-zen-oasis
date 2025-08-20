@@ -201,6 +201,7 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
   // Load data on mount
   useEffect(() => {
     fetchAnimes();
+    fetchEpisodes();
     if (user?.isAdmin) {
       fetchNotifications();
     }
