@@ -1844,7 +1844,14 @@ export default function UltimateAdmin() {
 
                     <div className="space-y-2">
                       {episodes
-                        .filter((ep) => ep.animeId === selectedAnime.id)
+                        .filter((ep) => {
+                          const matchesAnime = ep.animeId === selectedAnime.id;
+                          const matchesSearch = !episodeSearchQuery ||
+                            ep.title.toLowerCase().includes(episodeSearchQuery.toLowerCase()) ||
+                            ep.titleEn?.toLowerCase().includes(episodeSearchQuery.toLowerCase()) ||
+                            ep.episodeNumber.toString().includes(episodeSearchQuery);
+                          return matchesAnime && matchesSearch;
+                        })
                         .sort((a, b) => a.episodeNumber - b.episodeNumber)
                         .map((episode) => (
                           <div
