@@ -38,9 +38,16 @@ async function apiRequest<T>(
     // Check if response is ok before trying to read body
     if (!response.ok) {
       let errorMessage = "API request failed";
+      let errorData = null;
       try {
-        const errorData = await response.json();
+        errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
+        console.error(`API Error Details (${endpoint}):`, {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          requestConfig: config
+        });
       } catch {
         // If we can't parse JSON, use default message
         errorMessage = `HTTP ${response.status}: ${response.statusText}`;
