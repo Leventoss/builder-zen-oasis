@@ -74,6 +74,7 @@ interface AnimeStoreContextType {
   fetchAnimes: () => Promise<void>;
 
   // Episode data
+  fetchEpisodes: () => Promise<void>;
   addEpisode: (episode: Omit<Episode, "id">) => Promise<string>;
   updateEpisode: (id: number, episode: Partial<Episode>) => Promise<void>;
   deleteEpisode: (id: number) => Promise<void>;
