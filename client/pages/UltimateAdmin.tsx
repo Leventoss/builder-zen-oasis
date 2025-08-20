@@ -918,35 +918,33 @@ export default function UltimateAdmin() {
         return;
       }
 
-      const endpoint = editingEpisode.id
-        ? `/api/episodes/${editingEpisode.id}`
-        : `/api/animes/${editingEpisode.animeId}/episodes`;
-      const method = editingEpisode.id ? "PUT" : "POST";
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingEpisode),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-
-        if (editingEpisode.id) {
-          await updateEpisode(editingEpisode.id, editingEpisode);
-        } else {
-          editingEpisode.id = result.data.id;
-          addEpisode(editingEpisode);
-        }
-
-        setEditingEpisode(null);
-        setShowEpisodeDialog(false);
-
+      if (editingEpisode.id) {
+        // Update existing episode
+        await updateEpisode(editingEpisode.id, editingEpisode);
         toast({
           title: "Başarılı",
-          description: `Bölüm ${editingEpisode.id ? "güncellendi" : "eklendi"}`,
+          description: "Bölüm güncellendi",
+        });
+      } else {
+        // Add new episode using store function
+        const episodeData = {
+          ...editingEpisode,
+          animeId: editingEpisode.animeId,
+        };
+        delete (episodeData as any).id; // Remove id for new episodes
+
+        const newEpisodeId = await addEpisode(episodeData);
+        toast({
+          title: "Başarılı",
+          description: "Bölüm eklendi",
         });
       }
+
+      setEditingEpisode(null);
+      setShowEpisodeDialog(false);
+
+      // Refresh episodes to show updated list
+      await fetchAnimes();
     } catch (error) {
       console.error("Save episode error:", error);
       toast({
