@@ -501,12 +501,7 @@ export const handleAddEpisode: RequestHandler = async (req, res) => {
     const animeId = parseInt(id);
     const episodeData = req.body;
 
-    console.log("ADD EPISODE DEBUG:");
-    console.log("Anime ID:", animeId);
-    console.log("Episode Data:", JSON.stringify(episodeData, null, 2));
-
     if (!animeId) {
-      console.log("ERROR: Invalid anime ID");
       return res.status(400).json({
         success: false,
         message: "Geçersiz anime ID",
@@ -514,9 +509,6 @@ export const handleAddEpisode: RequestHandler = async (req, res) => {
     }
 
     if (!episodeData.title || !episodeData.episodeNumber) {
-      console.log("ERROR: Missing title or episode number");
-      console.log("Title:", episodeData.title);
-      console.log("Episode Number:", episodeData.episodeNumber);
       return res.status(400).json({
         success: false,
         message: "Bölüm başlığı ve numarası gerekli",
