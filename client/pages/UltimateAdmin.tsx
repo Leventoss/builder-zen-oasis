@@ -334,6 +334,9 @@ export default function UltimateAdmin() {
   const [apiSearchResults, setApiSearchResults] = useState<any[]>([]);
   const [isApiSearching, setIsApiSearching] = useState(false);
 
+  // Episode Search
+  const [episodeSearchQuery, setEpisodeSearchQuery] = useState("");
+
   // Statistics
   const [stats, setStats] = useState({
     totalAnimes: 0,
@@ -2314,7 +2317,7 @@ export default function UltimateAdmin() {
                               {anime.title}
                             </p>
                             <p className="text-gray-400 text-xs">
-                              ⭐ {anime.rating} • {anime.year}
+                              ⭐ {anime.rating} �� {anime.year}
                             </p>
                           </div>
                         ))}
