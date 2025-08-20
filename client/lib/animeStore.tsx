@@ -514,6 +514,7 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     deleteAnime,
     getAnimeById,
     fetchAnimes,
+    fetchEpisodes,
     addEpisode,
     updateEpisode,
     deleteEpisode,
