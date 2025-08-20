@@ -283,6 +283,7 @@ export default function UltimateAdmin() {
     addEpisode,
     updateEpisode,
     deleteEpisode,
+    fetchAnimes,
   } = useAnimeStore();
 
   // State Management
