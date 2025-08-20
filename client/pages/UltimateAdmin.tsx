@@ -937,8 +937,6 @@ export default function UltimateAdmin() {
         };
         delete (episodeData as any).id; // Remove id for new episodes
 
-        console.log("CLIENT DEBUG - Episode Data:", JSON.stringify(episodeData, null, 2));
-
         const newEpisodeId = await addEpisode(episodeData);
         toast({
           title: "Başarılı",
@@ -1908,7 +1906,7 @@ export default function UltimateAdmin() {
                                     } catch (error) {
                                       toast({
                                         title: "Hata",
-                                        description: "Bölüm silme hatası",
+                                        description: "B��lüm silme hatası",
                                         variant: "destructive",
                                       });
                                     }
