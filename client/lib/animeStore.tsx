@@ -174,6 +174,18 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Fetch episodes from API
+  const fetchEpisodes = async () => {
+    try {
+      const response = await animeAPI.getEpisodes();
+      if (response.success) {
+        setEpisodes(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch episodes:", error);
+    }
+  };
+
   // Fetch notifications from API
   const fetchNotifications = async () => {
     try {
