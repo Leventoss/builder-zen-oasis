@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, Play, Clock, Calendar, Download, Share2 } from "lucide-react";
+import {
+  ChevronLeft,
+  Play,
+  Clock,
+  Calendar,
+  Download,
+  Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +19,10 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 
 export default function WatchEpisode() {
-  const { animeId, episodeNumber } = useParams<{ animeId: string; episodeNumber: string }>();
+  const { animeId, episodeNumber } = useParams<{
+    animeId: string;
+    episodeNumber: string;
+  }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { isAuthenticated, user } = useAuth();
@@ -22,17 +32,23 @@ export default function WatchEpisode() {
   const [currentTime, setCurrentTime] = useState(0);
 
   // Find current anime and episode
-  const anime = animes.find(a => a.id === animeId);
-  const animeEpisodes = episodes.filter(ep => ep.animeId === animeId).sort((a, b) => a.episodeNumber - b.episodeNumber);
-  const currentEpisode = animeEpisodes.find(ep => ep.episodeNumber === parseInt(episodeNumber || "1"));
-  const currentEpisodeIndex = animeEpisodes.findIndex(ep => ep.episodeNumber === parseInt(episodeNumber || "1"));
+  const anime = animes.find((a) => a.id === animeId);
+  const animeEpisodes = episodes
+    .filter((ep) => ep.animeId === animeId)
+    .sort((a, b) => a.episodeNumber - b.episodeNumber);
+  const currentEpisode = animeEpisodes.find(
+    (ep) => ep.episodeNumber === parseInt(episodeNumber || "1"),
+  );
+  const currentEpisodeIndex = animeEpisodes.findIndex(
+    (ep) => ep.episodeNumber === parseInt(episodeNumber || "1"),
+  );
 
   useEffect(() => {
     if (!anime) {
       navigate("/");
       return;
     }
-    
+
     if (!currentEpisode) {
       toast({
         title: "Bölüm Bulunamadı",
@@ -93,7 +109,7 @@ export default function WatchEpisode() {
   return (
     <div className="min-h-screen bg-anime-dark">
       <Header />
-      
+
       <div className="pt-16">
         {/* Navigation Bar */}
         <div className="bg-anime-card border-b border-white/10">
@@ -109,7 +125,7 @@ export default function WatchEpisode() {
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Geri Dön
                 </Button>
-                
+
                 <div className="hidden md:flex items-center space-x-2 text-sm text-gray-400">
                   <span className="text-white font-medium">{anime.title}</span>
                   <span>•</span>
@@ -120,11 +136,19 @@ export default function WatchEpisode() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
                   <Download className="h-4 w-4 mr-2" />
                   İndir
                 </Button>
-                <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
                   <Share2 className="h-4 w-4 mr-2" />
                   Paylaş
                 </Button>
@@ -154,7 +178,8 @@ export default function WatchEpisode() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h1 className="text-2xl font-bold text-white mb-2">
-                      Bölüm {currentEpisode.episodeNumber}: {currentEpisode.title}
+                      Bölüm {currentEpisode.episodeNumber}:{" "}
+                      {currentEpisode.title}
                     </h1>
                     <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
                       <div className="flex items-center space-x-1">
@@ -163,14 +188,19 @@ export default function WatchEpisode() {
                       </div>
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4" />
-                        <span>{new Date(currentEpisode.airDate).toLocaleDateString('tr-TR')}</span>
+                        <span>
+                          {new Date(currentEpisode.airDate).toLocaleDateString(
+                            "tr-TR",
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <p className="text-gray-300 leading-relaxed mb-6">
-                  {currentEpisode.description || "Bu bölüm için açıklama bulunmuyor."}
+                  {currentEpisode.description ||
+                    "Bu bölüm için açıklama bulunmuyor."}
                 </p>
 
                 {/* Episode Navigation */}
@@ -207,7 +237,10 @@ export default function WatchEpisode() {
               <Card className="bg-anime-card border-white/10 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold text-white">Bölümler</h2>
-                  <Badge variant="secondary" className="bg-neon-blue/20 text-neon-blue">
+                  <Badge
+                    variant="secondary"
+                    className="bg-neon-blue/20 text-neon-blue"
+                  >
                     {animeEpisodes.length}
                   </Badge>
                 </div>
@@ -219,38 +252,46 @@ export default function WatchEpisode() {
                       onClick={() => handleEpisodeSelect(episode)}
                       className={`
                         flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all
-                        ${episode.id === currentEpisode.id 
-                          ? 'bg-neon-blue/20 border border-neon-blue/50' 
-                          : 'bg-black/30 hover:bg-black/50'
+                        ${
+                          episode.id === currentEpisode.id
+                            ? "bg-neon-blue/20 border border-neon-blue/50"
+                            : "bg-black/30 hover:bg-black/50"
                         }
                       `}
                     >
-                      <div className={`
+                      <div
+                        className={`
                         flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold
-                        ${episode.id === currentEpisode.id 
-                          ? 'bg-neon-blue text-black' 
-                          : 'bg-white/10 text-white'
+                        ${
+                          episode.id === currentEpisode.id
+                            ? "bg-neon-blue text-black"
+                            : "bg-white/10 text-white"
                         }
-                      `}>
+                      `}
+                      >
                         {episode.id === currentEpisode.id ? (
                           <Play className="h-4 w-4" />
                         ) : (
                           episode.episodeNumber
                         )}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <h3 className={`
+                        <h3
+                          className={`
                           font-medium text-sm leading-tight truncate
-                          ${episode.id === currentEpisode.id ? 'text-white' : 'text-gray-300'}
-                        `}>
+                          ${episode.id === currentEpisode.id ? "text-white" : "text-gray-300"}
+                        `}
+                        >
                           Bölüm {episode.episodeNumber}
                         </h3>
                         <p className="text-xs text-gray-500 truncate">
                           {episode.title}
                         </p>
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-gray-500">{episode.duration}</span>
+                          <span className="text-xs text-gray-500">
+                            {episode.duration}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -281,11 +322,13 @@ export default function WatchEpisode() {
                     </p>
                     <div className="flex items-center space-x-1 mt-1">
                       <span className="text-yellow-400 text-xs">★</span>
-                      <span className="text-gray-400 text-xs">{anime.rating}</span>
+                      <span className="text-gray-400 text-xs">
+                        {anime.rating}
+                      </span>
                     </div>
                   </div>
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"

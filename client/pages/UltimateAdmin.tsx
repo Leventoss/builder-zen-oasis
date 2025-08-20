@@ -1847,10 +1847,17 @@ export default function UltimateAdmin() {
                       {episodes
                         .filter((ep) => {
                           const matchesAnime = ep.animeId === selectedAnime.id;
-                          const matchesSearch = !episodeSearchQuery ||
-                            ep.title.toLowerCase().includes(episodeSearchQuery.toLowerCase()) ||
-                            ep.titleEn?.toLowerCase().includes(episodeSearchQuery.toLowerCase()) ||
-                            ep.episodeNumber.toString().includes(episodeSearchQuery);
+                          const matchesSearch =
+                            !episodeSearchQuery ||
+                            ep.title
+                              .toLowerCase()
+                              .includes(episodeSearchQuery.toLowerCase()) ||
+                            ep.titleEn
+                              ?.toLowerCase()
+                              .includes(episodeSearchQuery.toLowerCase()) ||
+                            ep.episodeNumber
+                              .toString()
+                              .includes(episodeSearchQuery);
                           return matchesAnime && matchesSearch;
                         })
                         .sort((a, b) => a.episodeNumber - b.episodeNumber)
