@@ -42,12 +42,6 @@ async function apiRequest<T>(
       try {
         errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
-        console.error(`API Error Details (${endpoint}):`, {
-          status: response.status,
-          statusText: response.statusText,
-          errorData,
-          requestConfig: config
-        });
       } catch {
         // If we can't parse JSON, use default message
         errorMessage = `HTTP ${response.status}: ${response.statusText}`;
