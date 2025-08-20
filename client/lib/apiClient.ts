@@ -219,6 +219,13 @@ export const animeAPI = {
       method: "DELETE",
     });
   },
+
+  getEpisodes: async () => {
+    return await apiRequest<{
+      success: boolean;
+      data: any[];
+    }>("/episodes");
+  },
 };
 
 // Admin API
