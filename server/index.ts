@@ -19,6 +19,7 @@ import {
   handleCreateAnime,
   handleUpdateAnime,
   handleDeleteAnime,
+  handleGetAllEpisodes,
   handleAddEpisode,
   handleUpdateEpisode,
   handleDeleteEpisode,
