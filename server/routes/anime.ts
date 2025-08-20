@@ -457,6 +457,43 @@ export const handleDeleteEpisode: RequestHandler = async (req, res) => {
   }
 };
 
+// Get all episodes (Public)
+export const handleGetAllEpisodes: RequestHandler = async (req, res) => {
+  try {
+    const episodes = await sql`
+      SELECT
+        e.id, e.title, e.title_en, e.description, e.description_en,
+        e.video_url, e.duration, e.episode_number, e.air_date, e.anime_id
+      FROM episodes e
+      ORDER BY e.anime_id, e.episode_number
+    `;
+
+    const formattedEpisodes = episodes.map((episode) => ({
+      id: episode.id,
+      title: episode.title,
+      titleEn: episode.title_en,
+      description: episode.description,
+      descriptionEn: episode.description_en,
+      videoUrl: episode.video_url,
+      duration: episode.duration,
+      episodeNumber: episode.episode_number,
+      airDate: episode.air_date,
+      animeId: episode.anime_id.toString(),
+    }));
+
+    res.json({
+      success: true,
+      data: formattedEpisodes,
+    });
+  } catch (error) {
+    console.error("Get all episodes error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Bölümler alınırken hata oluştu",
+    });
+  }
+};
+
 // Add episode to anime (Admin only)
 export const handleAddEpisode: RequestHandler = async (req, res) => {
   try {
