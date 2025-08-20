@@ -23,6 +23,7 @@ import AnimeRequestFixed from "./pages/AnimeRequestFixed";
 import Chat from "./pages/Chat";
 import ChatFixed from "./pages/ChatFixed";
 import Settings from "./pages/Settings";
+import WatchEpisode from "./pages/WatchEpisode";
 
 const queryClient = new QueryClient();
 
