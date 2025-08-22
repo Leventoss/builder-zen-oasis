@@ -9,10 +9,11 @@ export const authToken = {
   remove: () => localStorage.removeItem("aniwa_auth_token"),
 };
 
-// Base API request function
+// Base API request function with retry mechanism
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
+  retryCount = 0,
 ): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
 
@@ -33,15 +34,47 @@ async function apiRequest<T>(
 
   try {
     const response = await fetch(url, config);
-    const data = await response.json();
 
+    // Check if response is ok before trying to read body
     if (!response.ok) {
-      throw new Error(data.message || "API request failed");
+      let errorMessage = "API request failed";
+      let errorData = null;
+      try {
+        errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        // If we can't parse JSON, use default message
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error(`API Error (${endpoint}):`, error);
+
+    // If it's a network error and we haven't retried yet, try once more
+    if (
+      error instanceof TypeError &&
+      error.message === "Failed to fetch" &&
+      retryCount < 1
+    ) {
+      console.warn(
+        `Retrying API request to ${endpoint} (attempt ${retryCount + 1})`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+      return apiRequest<T>(endpoint, options, retryCount + 1);
+    }
+
+    // If it's still a network error after retry, provide more context
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      console.error(
+        "Network error - API server may not be accessible in this environment",
+      );
+      throw new Error(`Network error: Cannot connect to API server at ${url}`);
+    }
+
     throw error;
   }
 }
@@ -160,6 +193,33 @@ export const animeAPI = {
       body: JSON.stringify(episodeData),
     });
   },
+
+  updateEpisode: async (episodeId: number, episodeData: any) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+      data: any;
+    }>(`/episodes/${episodeId}`, {
+      method: "PUT",
+      body: JSON.stringify(episodeData),
+    });
+  },
+
+  deleteEpisode: async (episodeId: number) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+    }>(`/episodes/${episodeId}`, {
+      method: "DELETE",
+    });
+  },
+
+  getEpisodes: async () => {
+    return await apiRequest<{
+      success: boolean;
+      data: any[];
+    }>("/episodes");
+  },
 };
 
 // Admin API
@@ -216,6 +276,46 @@ export const adminAPI = {
       message?: string;
     }>("/admin/notifications", {
       method: "DELETE",
+    });
+  },
+
+  deleteUser: async (userId: string) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+    }>(`/admin/users/${userId}`, {
+      method: "DELETE",
+    });
+  },
+
+  updateUserRole: async (
+    userId: string,
+    roleData: { isAdmin?: boolean; isPremium?: boolean },
+  ) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+      data: any;
+    }>(`/admin/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify(roleData),
+    });
+  },
+
+  createUser: async (userData: {
+    username: string;
+    email: string;
+    password: string;
+    isAdmin?: boolean;
+    isPremium?: boolean;
+  }) => {
+    return await apiRequest<{
+      success: boolean;
+      message?: string;
+      data: any;
+    }>("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(userData),
     });
   },
 };

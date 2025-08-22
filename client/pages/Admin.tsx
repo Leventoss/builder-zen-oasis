@@ -52,6 +52,7 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 import { adminAPI } from "@/lib/apiClient";
+import { animeAPI } from "@/lib/animeApi";
 
 interface NewAnime {
   title: string;
@@ -628,14 +629,6 @@ export default function Admin() {
         newSet.add(animeId);
       }
       return newSet;
-    });
-  };
-
-  const refreshData = () => {
-    setLastUpdate(new Date());
-    toast({
-      title: "Güncellendi",
-      description: "Veriler başarıyla güncellendi!",
     });
   };
 

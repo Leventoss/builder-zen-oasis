@@ -119,10 +119,10 @@ export default function Profile() {
   };
 
   // Get user data
-  const watchlist = getUserList(user?.id || "", "watchlist");
-  const favorites = getUserList(user?.id || "", "favorites");
-  const completed = getUserList(user?.id || "", "completed");
-  const progress = getUserProgress(user?.id || "");
+  const watchlist = getUserList(user?.id?.toString() || "", "watchlist");
+  const favorites = getUserList(user?.id?.toString() || "", "favorites");
+  const completed = getUserList(user?.id?.toString() || "", "completed");
+  const progress = getUserProgress(user?.id?.toString() || "");
 
   // Filter animes for each category
   const watchlistAnimes = animes.filter((anime) =>

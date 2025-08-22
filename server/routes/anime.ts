@@ -8,6 +8,7 @@ import {
   getEpisodesByAnimeId,
   createEpisode,
   createNotification,
+  sql,
 } from "../lib/database";
 
 // Get all animes
@@ -32,6 +33,12 @@ export const handleGetAnimes: RequestHandler = async (req, res) => {
       descriptionEn: anime.description_en,
       status: anime.status,
       category: anime.category,
+      featured: anime.featured,
+      featuredTitle: anime.featured_title,
+      featuredTitleEn: anime.featured_title_en,
+      featuredDescription: anime.featured_description,
+      featuredDescriptionEn: anime.featured_description_en,
+      featuredBanner: anime.featured_banner,
     }));
 
     res.json({
@@ -132,6 +139,21 @@ export const handleCreateAnime: RequestHandler = async (req, res) => {
       });
     }
 
+    // Check for existing anime with same title
+    const existingAnimes = await sql`
+      SELECT id, title, title_en FROM animes
+      WHERE LOWER(title) = LOWER(${animeData.title})
+      OR (title_en IS NOT NULL AND LOWER(title_en) = LOWER(${animeData.titleEn || animeData.title}))
+    `;
+
+    if (existingAnimes.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: `Anime zaten mevcut: ${existingAnimes[0].title}`,
+        existing: existingAnimes[0],
+      });
+    }
+
     const newAnime = await createAnime({
       title: animeData.title,
       titleEn: animeData.titleEn || null,
@@ -215,6 +237,12 @@ export const handleUpdateAnime: RequestHandler = async (req, res) => {
       descriptionEn: animeData.descriptionEn,
       status: animeData.status,
       category: animeData.category,
+      featured: animeData.featured,
+      featuredTitle: animeData.featuredTitle,
+      featuredTitleEn: animeData.featuredTitleEn,
+      featuredDescription: animeData.featuredDescription,
+      featuredDescriptionEn: animeData.featuredDescriptionEn,
+      featuredBanner: animeData.featuredBanner,
     });
 
     if (!updatedAnime) {
@@ -250,6 +278,12 @@ export const handleUpdateAnime: RequestHandler = async (req, res) => {
         descriptionEn: updatedAnime.description_en,
         status: updatedAnime.status,
         category: updatedAnime.category,
+        featured: updatedAnime.featured,
+        featuredTitle: updatedAnime.featured_title,
+        featuredTitleEn: updatedAnime.featured_title_en,
+        featuredDescription: updatedAnime.featured_description,
+        featuredDescriptionEn: updatedAnime.featured_description_en,
+        featuredBanner: updatedAnime.featured_banner,
       },
     });
   } catch (error) {
@@ -302,6 +336,160 @@ export const handleDeleteAnime: RequestHandler = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Anime silinemedi",
+    });
+  }
+};
+
+// Update episode (Admin only)
+export const handleUpdateEpisode: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const episodeId = parseInt(id);
+    const episodeData = req.body;
+
+    if (!episodeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Geçersiz bölüm ID",
+      });
+    }
+
+    // Get existing episode
+    const existingEpisode = await sql`
+      SELECT * FROM episodes WHERE id = ${episodeId} LIMIT 1
+    `;
+
+    if (existingEpisode.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Bölüm bulunamadı",
+      });
+    }
+
+    // Update episode
+    const updatedEpisode = await sql`
+      UPDATE episodes SET
+        title = ${episodeData.title || existingEpisode[0].title},
+        title_en = ${episodeData.titleEn || existingEpisode[0].title_en},
+        description = ${episodeData.description || existingEpisode[0].description},
+        description_en = ${episodeData.descriptionEn || existingEpisode[0].description_en},
+        video_url = ${episodeData.videoUrl || existingEpisode[0].video_url},
+        duration = ${episodeData.duration || existingEpisode[0].duration},
+        episode_number = ${episodeData.episodeNumber || existingEpisode[0].episode_number},
+        air_date = ${episodeData.airDate || existingEpisode[0].air_date},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${episodeId}
+      RETURNING *
+    `;
+
+    res.json({
+      success: true,
+      message: "Bölüm başarıyla güncellendi",
+      data: {
+        id: updatedEpisode[0].id,
+        title: updatedEpisode[0].title,
+        titleEn: updatedEpisode[0].title_en,
+        description: updatedEpisode[0].description,
+        descriptionEn: updatedEpisode[0].description_en,
+        videoUrl: updatedEpisode[0].video_url,
+        duration: updatedEpisode[0].duration,
+        episodeNumber: updatedEpisode[0].episode_number,
+        airDate: updatedEpisode[0].air_date,
+        animeId: updatedEpisode[0].anime_id.toString(),
+      },
+    });
+  } catch (error) {
+    console.error("Update episode error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Bölüm güncelleme hatası",
+    });
+  }
+};
+
+// Delete episode (Admin only)
+export const handleDeleteEpisode: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const episodeId = parseInt(id);
+
+    if (!episodeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Geçersiz bölüm ID",
+      });
+    }
+
+    // Get episode info before deleting
+    const episodeInfo = await sql`
+      SELECT e.*, a.title as anime_title FROM episodes e
+      JOIN animes a ON e.anime_id = a.id
+      WHERE e.id = ${episodeId} LIMIT 1
+    `;
+
+    if (episodeInfo.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Bölüm bulunamadı",
+      });
+    }
+
+    // Delete episode
+    await sql`DELETE FROM episodes WHERE id = ${episodeId}`;
+
+    // Create notification
+    await createNotification(
+      "Bölüm Silindi",
+      `${episodeInfo[0].anime_title} - Bölüm ${episodeInfo[0].episode_number} silindi`,
+      "info",
+    );
+
+    res.json({
+      success: true,
+      message: "Bölüm başarıyla silindi",
+    });
+  } catch (error) {
+    console.error("Delete episode error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Bölüm silme hatası",
+    });
+  }
+};
+
+// Get all episodes (Public)
+export const handleGetAllEpisodes: RequestHandler = async (req, res) => {
+  try {
+    const episodes = await sql`
+      SELECT
+        e.id, e.title, e.title_en, e.description, e.description_en,
+        e.video_url, e.duration, e.episode_number, e.air_date, e.anime_id
+      FROM episodes e
+      ORDER BY e.anime_id, e.episode_number
+    `;
+
+    const formattedEpisodes = episodes.map((episode) => ({
+      id: episode.id,
+      title: episode.title,
+      titleEn: episode.title_en,
+      description: episode.description,
+      descriptionEn: episode.description_en,
+      videoUrl: episode.video_url,
+      duration: episode.duration,
+      episodeNumber: episode.episode_number,
+      airDate: episode.air_date,
+      animeId: episode.anime_id.toString(),
+    }));
+
+    res.json({
+      success: true,
+      data: formattedEpisodes,
+    });
+  } catch (error) {
+    console.error("Get all episodes error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Bölümler alınırken hata oluştu",
     });
   }
 };

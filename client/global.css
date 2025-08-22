@@ -147,10 +147,20 @@
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-neon-blue to-neon-purple;
-    @apply text-black font-semibold px-6 py-3 rounded-lg;
-    @apply transition-all duration-300 hover:shadow-neon-blue;
+    @apply bg-gradient-to-r from-blue-600 to-purple-600;
+    @apply text-white font-semibold px-6 py-3 rounded-lg;
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50;
     @apply hover:scale-105 active:scale-95;
+  }
+
+  /* Chat button style */
+  .btn-chat {
+    @apply bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg transition-all duration-300;
+  }
+
+  /* Admin button style */
+  .btn-admin {
+    @apply bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg transition-all duration-300;
   }
 
   .btn-secondary {

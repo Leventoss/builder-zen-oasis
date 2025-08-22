@@ -48,6 +48,10 @@ export default function AnimeCard({
   const [isLiked, setIsLiked] = useState(false);
   const { language } = useLanguage();
 
+  // Ensure rating is a valid number - provide default of 8.0 if invalid
+  const safeRating =
+    typeof rating === "number" && !isNaN(rating) && rating > 0 ? rating : 8.0;
+
   const sizeClasses = {
     sm: "w-48 h-72",
     md: "w-56 h-80",
@@ -96,7 +100,7 @@ export default function AnimeCard({
         <div className="absolute top-3 left-3">
           <Badge className="bg-black/70 text-neon-blue border-neon-blue/30 flex items-center gap-1">
             <Star className="h-3 w-3 fill-neon-blue" />
-            {rating.toFixed(1)}
+            {safeRating.toFixed(1)}
           </Badge>
         </div>
 
@@ -129,7 +133,7 @@ export default function AnimeCard({
             >
               <Button
                 size="lg"
-                className="btn-primary"
+                className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold"
                 onClick={(e) => handleWatchClick(e)}
               >
                 <Play className="h-5 w-5 mr-2" />
@@ -141,7 +145,7 @@ export default function AnimeCard({
                   variant="ghost"
                   size="sm"
                   onClick={handleWatchlistToggle}
-                  className="text-white hover:text-neon-blue"
+                  className="text-white hover:text-anime-accent bg-black/50 hover:bg-anime-accent/20"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -150,7 +154,7 @@ export default function AnimeCard({
                   variant="ghost"
                   size="sm"
                   onClick={handleLikeToggle}
-                  className={`${
+                  className={`bg-black/50 hover:bg-red-500/20 ${
                     isLiked
                       ? "text-red-500 hover:text-red-400"
                       : "text-white hover:text-red-500"
@@ -246,7 +250,7 @@ export const sampleAnimes = [
     genre: ["Aksiyon", "Okul", "Doğaüstü"],
     genreEn: ["Action", "School", "Supernatural"],
     duration: "23min",
-    description: "Lanetli ruhlarla savaşan öğrencilerin hikayesi.",
+    description: "Lanetli ruhlarla sava��an öğrencilerin hikayesi.",
     descriptionEn: "The story of students fighting cursed spirits.",
     status: "ongoing" as const,
     category: "anime" as const,

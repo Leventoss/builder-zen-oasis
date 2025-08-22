@@ -1,19 +1,9 @@
-// Anime API Service for fetching real anime data
-// This service can integrate with various anime databases
-
+// Anime API service for external data fetching
 export interface ExternalAnimeData {
+  mal_id?: number;
   title: string;
   title_english?: string;
   title_japanese?: string;
-  synopsis?: string;
-  score?: number;
-  episodes?: number;
-  status?: string;
-  aired?: {
-    from?: string;
-    to?: string;
-  };
-  genres?: Array<{ name: string }>;
   images?: {
     jpg?: {
       image_url?: string;
@@ -24,157 +14,67 @@ export interface ExternalAnimeData {
       large_image_url?: string;
     };
   };
-  duration?: string;
-  rating?: string;
+  score?: number;
   year?: number;
+  episodes?: number;
+  status?: string;
+  genres?: Array<{ name: string }>;
+  synopsis?: string;
+  duration?: string;
   type?: string;
 }
 
-export interface SearchResult {
-  data: ExternalAnimeData[];
-  pagination?: {
-    current_page: number;
-    has_next_page: boolean;
-    items: {
-      count: number;
-      total: number;
-      per_page: number;
-    };
-  };
-}
-
-class AnimeApiService {
+class AnimeAPI {
   private baseUrl = "https://api.jikan.moe/v4";
-  private cache = new Map<string, { data: any; timestamp: number }>();
-  private cacheTimeout = 5 * 60 * 1000; // 5 minutes
-  private googleApiKey = ""; // Would need actual API key in production
+  private lastRequestTime = 0;
+  private requestDelay = 1000; // 1 second delay between requests
 
-  private async delay(ms: number) {
+  private async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private isValidUrl(url: string): boolean {
+  private async makeRequest(url: string): Promise<any> {
+    // Rate limiting
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    if (timeSinceLastRequest < this.requestDelay) {
+      await this.delay(this.requestDelay - timeSinceLastRequest);
+    }
+    this.lastRequestTime = Date.now();
+
     try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("API request failed:", error);
+      throw error;
     }
-  }
-
-  private getCacheKey(endpoint: string): string {
-    return `anime_api_${endpoint}`;
-  }
-
-  private getFromCache(key: string): any | null {
-    const cached = this.cache.get(key);
-    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-      return cached.data;
-    }
-    this.cache.delete(key);
-    return null;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
   }
 
   async searchAnime(
     query: string,
-    limit: number = 10,
+    limit: number = 20,
   ): Promise<ExternalAnimeData[]> {
-    const cacheKey = this.getCacheKey(`search_${query}_${limit}`);
-    const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
-
     try {
-      const response = await fetch(
-        `${this.baseUrl}/anime?q=${encodeURIComponent(query)}&limit=${limit}&order_by=score&sort=desc`,
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent": "Animewa/1.0",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result: SearchResult = await response.json();
-      this.setCache(cacheKey, result.data);
-
-      // Add delay to respect rate limits
-      await this.delay(1000);
-
-      return result.data || [];
+      const url = `${this.baseUrl}/anime?q=${encodeURIComponent(query)}&limit=${limit}`;
+      const data = await this.makeRequest(url);
+      return data.data || [];
     } catch (error) {
-      console.error("Error searching anime:", error);
+      console.error("Search anime failed:", error);
       return [];
     }
   }
 
-  async getAnimeById(id: number): Promise<ExternalAnimeData | null> {
-    const cacheKey = this.getCacheKey(`anime_${id}`);
-    const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
-
+  async getPopularAnime(limit: number = 20): Promise<ExternalAnimeData[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/anime/${id}`, {
-        headers: {
-          Accept: "application/json",
-          "User-Agent": "Animewa/1.0",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      this.setCache(cacheKey, result.data);
-
-      await this.delay(1000);
-
-      return result.data;
+      const url = `${this.baseUrl}/anime?order_by=score&sort=desc&limit=${limit}`;
+      const data = await this.makeRequest(url);
+      return data.data || [];
     } catch (error) {
-      console.error("Error fetching anime by ID:", error);
-      return null;
-    }
-  }
-
-  async getTopAnime(
-    type: string = "anime",
-    limit: number = 25,
-  ): Promise<ExternalAnimeData[]> {
-    const cacheKey = this.getCacheKey(`top_${type}_${limit}`);
-    const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
-
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/top/anime?type=${type}&limit=${limit}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent": "Animewa/1.0",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result: SearchResult = await response.json();
-      this.setCache(cacheKey, result.data);
-
-      await this.delay(1000);
-
-      return result.data || [];
-    } catch (error) {
-      console.error("Error fetching top anime:", error);
+      console.error("Get popular anime failed:", error);
       return [];
     }
   }
@@ -183,320 +83,237 @@ class AnimeApiService {
     year?: number,
     season?: string,
   ): Promise<ExternalAnimeData[]> {
-    const currentYear = year || new Date().getFullYear();
-    const currentSeason = season || this.getCurrentSeason();
-    const cacheKey = this.getCacheKey(
-      `seasonal_${currentYear}_${currentSeason}`,
-    );
-    const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
-
     try {
-      const response = await fetch(
-        `${this.baseUrl}/seasons/${currentYear}/${currentSeason}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent": "Animewa/1.0",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result: SearchResult = await response.json();
-      this.setCache(cacheKey, result.data);
-
-      await this.delay(1000);
-
-      return result.data || [];
+      const currentYear = year || new Date().getFullYear();
+      const currentSeason = season || this.getCurrentSeason();
+      const url = `${this.baseUrl}/seasons/${currentYear}/${currentSeason}`;
+      const data = await this.makeRequest(url);
+      return data.data || [];
     } catch (error) {
-      console.error("Error fetching seasonal anime:", error);
+      console.error("Get seasonal anime failed:", error);
       return [];
     }
   }
 
   private getCurrentSeason(): string {
     const month = new Date().getMonth() + 1;
-    if (month >= 3 && month <= 5) return "spring";
-    if (month >= 6 && month <= 8) return "summer";
-    if (month >= 9 && month <= 11) return "fall";
-    return "winter";
+    if (month >= 1 && month <= 3) return "winter";
+    if (month >= 4 && month <= 6) return "spring";
+    if (month >= 7 && month <= 9) return "summer";
+    return "fall";
   }
 
   convertToAnimeData(
-    external: ExternalAnimeData,
-    customBanner?: string,
-  ): {
-    title: string;
-    titleEn: string;
-    poster: string;
-    banner?: string;
-    rating: number;
-    year: number;
-    episodes: number;
-    genre: string[];
-    genreEn: string[];
-    duration: string;
-    description: string;
-    descriptionEn: string;
-    status: "ongoing" | "completed" | "upcoming";
-    category: "anime" | "movie";
-  } {
-    const poster =
-      external.images?.jpg?.large_image_url ||
-      external.images?.jpg?.image_url ||
-      external.images?.webp?.large_image_url ||
-      external.images?.webp?.image_url ||
-      "https://via.placeholder.com/400x600";
-
-    const genres = external.genres?.map((g) => g.name) || ["Action"];
-    const genreTranslations: { [key: string]: string } = {
-      Action: "Aksiyon",
-      Adventure: "Macera",
-      Comedy: "Komedi",
-      Drama: "Drama",
-      Fantasy: "Fantastik",
-      Horror: "Korku",
-      Romance: "Romantik",
-      "Sci-Fi": "Bilim Kurgu",
-      Thriller: "Gerilim",
-      Sports: "Spor",
-      Music: "Müzikal",
-      School: "Okul",
-      Supernatural: "Doğaüstü",
-      Psychological: "Psikolojik",
-      Historical: "Tarihi",
-      Military: "Askeri",
+    externalAnime: ExternalAnimeData,
+    bannerUrl?: string,
+  ): any {
+    const genreMapping: { [key: string]: { tr: string; en: string } } = {
+      Action: { tr: "Aksiyon", en: "Action" },
+      Adventure: { tr: "Macera", en: "Adventure" },
+      Comedy: { tr: "Komedi", en: "Comedy" },
+      Drama: { tr: "Drama", en: "Drama" },
+      Fantasy: { tr: "Fantastik", en: "Fantasy" },
+      Horror: { tr: "Korku", en: "Horror" },
+      Romance: { tr: "Romantik", en: "Romance" },
+      "Sci-Fi": { tr: "Bilim Kurgu", en: "Sci-Fi" },
+      Thriller: { tr: "Gerilim", en: "Thriller" },
+      Sports: { tr: "Spor", en: "Sports" },
+      Music: { tr: "Müzikal", en: "Musical" },
+      School: { tr: "Okul", en: "School" },
+      Supernatural: { tr: "Doğaüstü", en: "Supernatural" },
+      Psychological: { tr: "Psikolojik", en: "Psychological" },
+      Historical: { tr: "Tarihi", en: "Historical" },
+      Military: { tr: "Askeri", en: "Military" },
+      "Slice of Life": { tr: "Yaşam", en: "Slice of Life" },
+      Mecha: { tr: "Mecha", en: "Mecha" },
     };
 
-    const turkishGenres = genres.map(
-      (genre) => genreTranslations[genre] || genre,
-    );
+    const genres = externalAnime.genres?.map((g) => g.name) || ["Action"];
+    const genreTr = genres.map((g) => genreMapping[g]?.tr || g);
+    const genreEn = genres.map((g) => genreMapping[g]?.en || g);
 
-    const getStatus = (): "ongoing" | "completed" | "upcoming" => {
-      if (!external.status) return "upcoming";
-      const status = external.status.toLowerCase();
-      if (status.includes("airing") || status.includes("ongoing"))
-        return "ongoing";
-      if (status.includes("finished") || status.includes("completed"))
-        return "completed";
-      return "upcoming";
-    };
-
-    const getCategory = (): "anime" | "movie" => {
-      return external.type?.toLowerCase() === "movie" ? "movie" : "anime";
-    };
-
-    const extractYear = (): number => {
-      if (external.year) return external.year;
-      if (external.aired?.from) {
-        return new Date(external.aired.from).getFullYear();
-      }
-      return new Date().getFullYear();
-    };
-
-    const title = external.title || "Unknown Anime";
-    const titleEn = external.title_english || external.title || title;
-    const description =
-      external.synopsis || `${title} hakkında açıklama yakında eklenecek.`;
-    const descriptionEn =
-      external.synopsis || `Description for ${titleEn} coming soon.`;
-
-    const highQualityPoster = this.isValidUrl(poster)
-      ? poster
-      : "https://via.placeholder.com/400x600";
-    const banner = customBanner || highQualityPoster;
+    const status = this.mapStatus(externalAnime.status);
+    const category = this.mapCategory(externalAnime.type);
 
     return {
-      title,
-      titleEn,
-      poster: highQualityPoster,
-      banner,
-      rating: Math.round((external.score || 7.0) * 10) / 10,
-      year: extractYear(),
-      episodes: external.episodes || 12,
-      genre: turkishGenres,
-      genreEn: genres,
-      duration: external.duration || "24min",
-      description,
-      descriptionEn,
-      status: getStatus(),
-      category: getCategory(),
+      title: externalAnime.title_japanese || externalAnime.title,
+      titleEn: externalAnime.title_english || externalAnime.title,
+      poster:
+        externalAnime.images?.jpg?.large_image_url ||
+        externalAnime.images?.jpg?.image_url ||
+        externalAnime.images?.webp?.large_image_url ||
+        externalAnime.images?.webp?.image_url ||
+        "https://via.placeholder.com/400x600",
+      banner: bannerUrl || externalAnime.images?.jpg?.large_image_url,
+      rating: externalAnime.score || 7.0,
+      year: externalAnime.year || new Date().getFullYear(),
+      episodes: externalAnime.episodes || 12,
+      genre: genreTr,
+      genreEn: genreEn,
+      duration: this.parseDuration(externalAnime.duration),
+      description:
+        externalAnime.synopsis ||
+        `${externalAnime.title} - Açıklama yakında eklenecek`,
+      descriptionEn:
+        externalAnime.synopsis ||
+        `${externalAnime.title} - Description coming soon`,
+      status: status,
+      category: category,
     };
   }
 
-  // Get popular anime suggestions
-  async getPopularAnime(): Promise<ExternalAnimeData[]> {
-    return this.getTopAnime("anime", 50);
+  private mapStatus(status?: string): "ongoing" | "completed" | "upcoming" {
+    if (!status) return "upcoming";
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes("airing") || statusLower.includes("currently"))
+      return "ongoing";
+    if (statusLower.includes("finished") || statusLower.includes("complete"))
+      return "completed";
+    return "upcoming";
   }
 
-  // Get trending movies
-  async getPopularMovies(): Promise<ExternalAnimeData[]> {
-    return this.getTopAnime("movie", 25);
+  private mapCategory(type?: string): "anime" | "movie" {
+    if (!type) return "anime";
+    const typeLower = type.toLowerCase();
+    if (typeLower.includes("movie") || typeLower.includes("film"))
+      return "movie";
+    return "anime";
   }
 
-  // Search with auto-complete suggestions
-  async getSearchSuggestions(query: string): Promise<string[]> {
-    if (query.length < 2) return [];
+  private parseDuration(duration?: string): string {
+    if (!duration) return "24min";
 
-    try {
-      const results = await this.searchAnime(query, 5);
-      return results.map((anime) => anime.title).filter(Boolean);
-    } catch (error) {
-      console.error("Error getting search suggestions:", error);
-      return [];
-    }
-  }
-
-  // Batch import anime data
-  async batchImportAnime(titles: string[]): Promise<any[]> {
-    const results = [];
-
-    for (const title of titles) {
-      try {
-        const searchResults = await this.searchAnime(title, 1);
-        if (searchResults.length > 0) {
-          const converted = this.convertToAnimeData(searchResults[0]);
-          results.push(converted);
-        }
-        // Respect rate limits
-        await this.delay(2000);
-      } catch (error) {
-        console.error(`Error importing ${title}:`, error);
-      }
+    // Extract numbers from duration string
+    const minutes = duration.match(/(\d+)\s*min/);
+    if (minutes) {
+      return `${minutes[1]}min`;
     }
 
-    return results;
+    const hours = duration.match(/(\d+)\s*hr/);
+    if (hours) {
+      return `${parseInt(hours[1]) * 60}min`;
+    }
+
+    return "24min";
   }
 
-  // Enhanced image quality detection
-  isLowQualityImage(url: string): boolean {
-    if (!url) return true;
-    const lowQualityIndicators = [
-      "placeholder",
-      "via.placeholder",
-      "example.com",
-      "no-image",
-      "default",
-      "missing",
-    ];
-    return (
-      lowQualityIndicators.some((indicator) =>
-        url.toLowerCase().includes(indicator),
-      ) ||
-      url.includes("50x50") ||
-      url.includes("100x100")
-    );
+  // Image quality detection and enhancement
+  isLowQualityImage(imageUrl: string): boolean {
+    if (!imageUrl) return true;
+
+    // Check for placeholder images
+    if (
+      imageUrl.includes("placeholder") ||
+      imageUrl.includes("via.placeholder") ||
+      imageUrl.includes("example.com")
+    ) {
+      return true;
+    }
+
+    // Check for low resolution indicators in URL
+    const lowResIndicators = ["small", "thumb", "mini", "_s.", "_t."];
+    return lowResIndicators.some((indicator) => imageUrl.includes(indicator));
   }
 
-  // Search for high-quality banner images using Google Custom Search
-  async searchBannerImage(animeTitle: string): Promise<string | null> {
+  async getHighQualityPoster(title: string): Promise<string | null> {
     try {
-      // This would use Google Custom Search API in production
-      // For now, we'll return a constructed URL based on the anime
-      const cleanTitle = animeTitle.replace(/[^a-zA-Z0-9\s]/g, "").trim();
-
-      // Try to get banner from Jikan first
-      const searchResults = await this.searchAnime(cleanTitle, 1);
+      const searchResults = await this.searchAnime(title, 1);
       if (searchResults.length > 0) {
-        const result = searchResults[0];
-        // Use the large image as banner if available
+        const anime = searchResults[0];
         return (
-          result.images?.jpg?.large_image_url ||
-          result.images?.webp?.large_image_url ||
-          result.images?.jpg?.image_url ||
+          anime.images?.jpg?.large_image_url ||
+          anime.images?.jpg?.image_url ||
+          anime.images?.webp?.large_image_url ||
+          anime.images?.webp?.image_url ||
           null
         );
       }
-
       return null;
     } catch (error) {
-      console.error("Error searching for banner image:", error);
+      console.error("Failed to get high quality poster:", error);
       return null;
     }
   }
 
-  // Get the highest quality poster available
-  async getHighQualityPoster(animeTitle: string): Promise<string | null> {
+  async searchBannerImage(title: string): Promise<string | null> {
     try {
-      const searchResults = await this.searchAnime(animeTitle, 3);
-
-      for (const result of searchResults) {
-        if (result.images?.jpg?.large_image_url) {
-          return result.images.jpg.large_image_url;
-        }
-        if (result.images?.webp?.large_image_url) {
-          return result.images.webp.large_image_url;
-        }
+      // Try to get a banner-style image from the anime data
+      const searchResults = await this.searchAnime(title, 1);
+      if (searchResults.length > 0) {
+        const anime = searchResults[0];
+        // Use the large image as banner if available
+        return (
+          anime.images?.jpg?.large_image_url ||
+          anime.images?.webp?.large_image_url ||
+          null
+        );
       }
-
       return null;
     } catch (error) {
-      console.error("Error getting high quality poster:", error);
+      console.error("Failed to search banner image:", error);
       return null;
     }
   }
 
-  // Enhanced batch import with banner fetching
-  async enhancedBatchImport(titles: string[]): Promise<any[]> {
-    const results = [];
-
-    for (const title of titles) {
-      try {
-        const searchResults = await this.searchAnime(title, 1);
-        if (searchResults.length > 0) {
-          // Get banner image
-          const bannerUrl = await this.searchBannerImage(title);
-          const converted = this.convertToAnimeData(
-            searchResults[0],
-            bannerUrl || undefined,
-          );
-          results.push(converted);
-        }
-        // Respect rate limits
-        await this.delay(2000);
-      } catch (error) {
-        console.error(`Error importing ${title}:`, error);
-      }
-    }
-
-    return results;
-  }
-
-  // Fix existing anime with missing or low quality images
   async enhanceAnimeImages(anime: {
     id: string;
     title: string;
     poster?: string;
     banner?: string;
   }) {
-    let updated = false;
-    const updates: any = {};
+    try {
+      const improvements: any = {};
 
-    // Check and fix poster
-    if (!anime.poster || this.isLowQualityImage(anime.poster)) {
-      const newPoster = await this.getHighQualityPoster(anime.title);
-      if (newPoster) {
-        updates.poster = newPoster;
-        updated = true;
+      // Check if poster needs improvement
+      if (this.isLowQualityImage(anime.poster || "")) {
+        const newPoster = await this.getHighQualityPoster(anime.title);
+        if (newPoster) {
+          improvements.poster = newPoster;
+        }
       }
-    }
 
-    // Check and fix banner
-    if (!anime.banner || this.isLowQualityImage(anime.banner)) {
-      const newBanner = await this.searchBannerImage(anime.title);
-      if (newBanner) {
-        updates.banner = newBanner;
-        updated = true;
+      // Check if banner needs improvement
+      if (this.isLowQualityImage(anime.banner || "")) {
+        const newBanner = await this.searchBannerImage(anime.title);
+        if (newBanner) {
+          improvements.banner = newBanner;
+        }
       }
-    }
 
-    return updated ? updates : null;
+      return Object.keys(improvements).length > 0 ? improvements : null;
+    } catch (error) {
+      console.error("Failed to enhance anime images:", error);
+      return null;
+    }
+  }
+
+  // Additional utility functions for admin panel
+  async getRandomAnimeRecommendations(
+    count: number = 5,
+  ): Promise<ExternalAnimeData[]> {
+    try {
+      const url = `${this.baseUrl}/recommendations/anime`;
+      const data = await this.makeRequest(url);
+      return (data.data || []).slice(0, count);
+    } catch (error) {
+      console.error("Failed to get recommendations:", error);
+      return [];
+    }
+  }
+
+  async getTopAnime(
+    type: "tv" | "movie" | "ova" = "tv",
+    limit: number = 20,
+  ): Promise<ExternalAnimeData[]> {
+    try {
+      const url = `${this.baseUrl}/top/anime?type=${type}&limit=${limit}`;
+      const data = await this.makeRequest(url);
+      return data.data || [];
+    } catch (error) {
+      console.error("Failed to get top anime:", error);
+      return [];
+    }
   }
 }
 
-export const animeApi = new AnimeApiService();
-export default animeApi;
+export const animeAPI = new AnimeAPI();

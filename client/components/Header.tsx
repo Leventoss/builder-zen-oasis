@@ -34,6 +34,7 @@ export default function Header({ onAuthClick }: HeaderProps) {
     { name: t.trending, href: "/anime?category=trending" },
     { name: t.requests, href: "/anime-request" },
     { name: t.myList, href: "/my-list" },
+    { name: "💬 Destek Chat", href: "/chat" },
   ];
 
   return (

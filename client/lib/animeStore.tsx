@@ -7,6 +7,7 @@ import {
 } from "react";
 import { animeAPI, adminAPI, userAPI } from "./apiClient";
 import { useAuth } from "./auth";
+import { sampleAnimes } from "@/components/AnimeCard";
 
 export interface AnimeData {
   id: string;
@@ -24,6 +25,12 @@ export interface AnimeData {
   descriptionEn: string;
   status: "ongoing" | "completed" | "upcoming";
   category: "anime" | "movie";
+  featured?: number; // 1, 2, or 3 for featured slots
+  featuredTitle?: string; // Custom title for featured section
+  featuredTitleEn?: string; // Custom English title for featured section
+  featuredDescription?: string; // Custom description for featured section
+  featuredDescriptionEn?: string; // Custom English description for featured section
+  featuredBanner?: string; // Custom banner for featured section
 }
 
 export interface Episode {
@@ -40,9 +47,11 @@ export interface Episode {
 }
 
 export interface WatchProgress {
+  userId: string;
   animeId: string;
   episodeId: number;
-  progress: number;
+  progress: number; // Progress in seconds
+  duration: number; // Total duration in seconds
   lastWatched: string;
 }
 
@@ -65,9 +74,10 @@ interface AnimeStoreContextType {
   fetchAnimes: () => Promise<void>;
 
   // Episode data
+  fetchEpisodes: () => Promise<void>;
   addEpisode: (episode: Omit<Episode, "id">) => Promise<string>;
-  updateEpisode: (id: number, episode: Partial<Episode>) => void;
-  deleteEpisode: (id: number) => void;
+  updateEpisode: (id: number, episode: Partial<Episode>) => Promise<void>;
+  deleteEpisode: (id: number) => Promise<void>;
   getEpisodesByAnimeId: (animeId: string) => Episode[];
 
   // User progress
@@ -101,6 +111,9 @@ interface AnimeStoreContextType {
   markNotificationRead: (id: string) => Promise<void>;
   clearNotifications: () => Promise<void>;
   fetchNotifications: () => Promise<void>;
+
+  // Utility functions
+  refreshAnimes: () => void;
 }
 
 export interface AdminNotification {
@@ -135,8 +148,42 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch animes:", error);
+
+      // If API is not available, use sample data as fallback
+      if (
+        error instanceof Error &&
+        (error.message.includes("Network error") ||
+          error.message.includes("Cannot connect"))
+      ) {
+        console.warn("API not available, using sample data");
+        // Only use sample data if we don't already have animes loaded
+        if (animes.length === 0) {
+          const convertedAnimes = sampleAnimes.map((anime) => ({
+            ...anime,
+            rating: typeof anime.rating === "number" ? anime.rating : 8.0,
+            genre: anime.genre || [],
+            genreEn: anime.genreEn || [],
+            banner: anime.poster,
+            descriptionEn: anime.descriptionEn || anime.description || "",
+            duration: anime.duration || "24min",
+          }));
+          setAnimes(convertedAnimes);
+        }
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch episodes from API
+  const fetchEpisodes = async () => {
+    try {
+      const response = await animeAPI.getEpisodes();
+      if (response.success) {
+        setEpisodes(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch episodes:", error);
     }
   };
 
@@ -155,10 +202,27 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
   // Load data on mount
   useEffect(() => {
     fetchAnimes();
+    fetchEpisodes();
     if (user?.isAdmin) {
       fetchNotifications();
     }
   }, [user]);
+
+  // Initialize with sample data if no animes exist
+  useEffect(() => {
+    if (animes.length === 0) {
+      const convertedAnimes = sampleAnimes.map((anime) => ({
+        ...anime,
+        rating: typeof anime.rating === "number" ? anime.rating : 8.0,
+        genre: anime.genre || [],
+        genreEn: anime.genreEn || [],
+        banner: anime.poster,
+        descriptionEn: anime.descriptionEn || anime.description || "",
+        duration: anime.duration || "24min",
+      }));
+      setAnimes(convertedAnimes);
+    }
+  }, []);
 
   // Anime CRUD operations
   const addAnime = async (
@@ -184,11 +248,17 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     try {
       const response = await animeAPI.update(id, animeData);
       if (response.success) {
+        // Update local state immediately
         setAnimes((prev) =>
           prev.map((anime) =>
             anime.id === id ? { ...anime, ...response.data } : anime,
           ),
         );
+
+        // Force refresh from server to ensure consistency
+        setTimeout(() => {
+          fetchAnimes();
+        }, 500);
       } else {
         throw new Error(response.message || "Failed to update anime");
       }
@@ -196,6 +266,10 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
       console.error("Failed to update anime:", error);
       throw error;
     }
+  };
+
+  const refreshAnimes = () => {
+    fetchAnimes();
   };
 
   const deleteAnime = async (id: string): Promise<void> => {
@@ -237,16 +311,36 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateEpisode = (id: number, episodeData: Partial<Episode>) => {
-    setEpisodes((prev) =>
-      prev.map((episode) =>
-        episode.id === id ? { ...episode, ...episodeData } : episode,
-      ),
-    );
+  const updateEpisode = async (id: number, episodeData: Partial<Episode>) => {
+    try {
+      const response = await animeAPI.updateEpisode(id, episodeData);
+      if (response.success) {
+        setEpisodes((prev) =>
+          prev.map((episode) =>
+            episode.id === id ? { ...episode, ...episodeData } : episode,
+          ),
+        );
+      } else {
+        throw new Error(response.message || "Failed to update episode");
+      }
+    } catch (error) {
+      console.error("Failed to update episode:", error);
+      throw error;
+    }
   };
 
-  const deleteEpisode = (id: number) => {
-    setEpisodes((prev) => prev.filter((episode) => episode.id !== id));
+  const deleteEpisode = async (id: number) => {
+    try {
+      const response = await animeAPI.deleteEpisode(id);
+      if (response.success) {
+        setEpisodes((prev) => prev.filter((episode) => episode.id !== id));
+      } else {
+        throw new Error(response.message || "Failed to delete episode");
+      }
+    } catch (error) {
+      console.error("Failed to delete episode:", error);
+      throw error;
+    }
   };
 
   const getEpisodesByAnimeId = (animeId: string): Episode[] => {
@@ -421,6 +515,7 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     deleteAnime,
     getAnimeById,
     fetchAnimes,
+    fetchEpisodes,
     addEpisode,
     updateEpisode,
     deleteEpisode,
@@ -437,6 +532,7 @@ export function AnimeStoreProvider({ children }: { children: ReactNode }) {
     markNotificationRead,
     clearNotifications,
     fetchNotifications,
+    refreshAnimes,
   };
 
   return (

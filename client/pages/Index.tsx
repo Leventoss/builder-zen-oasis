@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Play,
   Info,
@@ -20,12 +20,13 @@ import { useAuth } from "@/lib/auth";
 export default function Index() {
   const [currentHero, setCurrentHero] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [featuredAnimes, setFeaturedAnimes] = useState<any[]>([]);
   const { t, language } = useLanguage();
-  const { isAuthenticated } = useAuth();
-  const { animes } = useAnimeStore();
+  const { isAuthenticated, user } = useAuth();
+  const { animes, watchProgress, getUserProgress } = useAnimeStore();
 
-  // Featured anime for hero section with dual language support
-  const featuredAnimes = [
+  // Fallback featured animes if none are set in database
+  const defaultFeaturedAnimes = [
     {
       id: "hero-1",
       title:
@@ -91,6 +92,47 @@ export default function Index() {
     },
   ];
 
+  // Update featured animes when animes array changes
+  useEffect(() => {
+    // Get featured animes from database (fallback to static data)
+    const databaseFeaturedAnimes = animes
+      .filter(
+        (anime) => anime.featured && anime.featured >= 1 && anime.featured <= 3,
+      )
+      .sort((a, b) => (a.featured || 0) - (b.featured || 0))
+      .map((anime) => ({
+        id: anime.id,
+        title:
+          language === "en"
+            ? anime.featuredTitleEn ||
+              anime.featuredTitle ||
+              anime.titleEn ||
+              anime.title
+            : anime.featuredTitle || anime.title,
+        description:
+          language === "en"
+            ? anime.featuredDescriptionEn ||
+              anime.featuredDescription ||
+              anime.descriptionEn ||
+              anime.description
+            : anime.featuredDescription || anime.description,
+        poster: anime.poster,
+        banner: anime.featuredBanner || anime.banner || anime.poster,
+        rating: anime.rating,
+        year: anime.year,
+        genres: language === "en" ? anime.genreEn : anime.genre,
+        episodes: anime.episodes,
+        duration: anime.duration,
+      }));
+
+    // Use database featured animes if available, otherwise fallback to default
+    const newFeaturedAnimes =
+      databaseFeaturedAnimes.length > 0
+        ? databaseFeaturedAnimes
+        : defaultFeaturedAnimes;
+    setFeaturedAnimes(newFeaturedAnimes);
+  }, [animes, language]);
+
   // Auto-rotate hero
   useEffect(() => {
     const interval = setInterval(() => {
@@ -99,7 +141,10 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [featuredAnimes.length]);
 
-  const currentFeature = featuredAnimes[currentHero];
+  const currentFeature =
+    featuredAnimes[currentHero] ||
+    featuredAnimes[0] ||
+    defaultFeaturedAnimes[0];
 
   const nextHero = () => {
     setCurrentHero((prev) => (prev + 1) % featuredAnimes.length);
@@ -133,18 +178,74 @@ export default function Index() {
   const trendingAnimes = getAnimeByCategory("trending").slice(0, 6);
   const newReleases = animes.filter((anime) => anime.year >= 2020).slice(0, 6);
   const topRated = animes.filter((anime) => anime.rating >= 8.5).slice(0, 6);
-  const continueWatching = animes.slice(0, 4).map((anime) => ({
-    ...anime,
-    progress: Math.floor(Math.random() * 80) + 10,
-  }));
+  // Get user's continue watching list based on watch progress
+  const continueWatching = useMemo(() => {
+    if (!isAuthenticated || !user) return [];
+
+    const userProgress = getUserProgress(user.id);
+    const progressMap = new Map();
+
+    // Create a map of anime progress
+    userProgress.forEach((progress) => {
+      const existing = progressMap.get(progress.animeId);
+      if (!existing || progress.lastWatched > existing.lastWatched) {
+        progressMap.set(progress.animeId, progress);
+      }
+    });
+
+    // Convert to anime cards with progress
+    return Array.from(progressMap.values())
+      .filter((progress) => {
+        // Only show animes that are not completed (less than 90% watched)
+        const progressPercent = (progress.progress / progress.duration) * 100;
+        return progressPercent < 90 && progressPercent > 5;
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.lastWatched).getTime() - new Date(a.lastWatched).getTime(),
+      )
+      .slice(0, 6)
+      .map((progress) => {
+        const anime = animes.find((a) => a.id === progress.animeId);
+        if (!anime) return null;
+
+        return {
+          ...anime,
+          progress: Math.round((progress.progress / progress.duration) * 100),
+          lastWatched: progress.lastWatched,
+          episodeId: progress.episodeId,
+        };
+      })
+      .filter(Boolean);
+  }, [animes, watchProgress, isAuthenticated, user, getUserProgress]);
 
   const handleWatchClick = () => {
+    const currentFeature =
+      featuredAnimes[currentHero] ||
+      featuredAnimes[0] ||
+      defaultFeaturedAnimes[0];
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
-    // Navigate to watch page
+    // Navigate to anime details page
+    window.location.href = `/anime/${currentFeature.id}`;
   };
+
+  // Early return if no featured animes are available yet
+  if (!currentFeature) {
+    return (
+      <div className="min-h-screen bg-anime-dark">
+        <Header onAuthClick={() => setShowAuthModal(true)} />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-neon-blue mx-auto mb-4"></div>
+            <p className="text-xl text-gray-300">Yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-anime-dark">

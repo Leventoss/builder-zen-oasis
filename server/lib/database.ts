@@ -3,15 +3,16 @@ import { neon } from "@neondatabase/serverless";
 // Database connection
 const connectionString =
   process.env.DATABASE_URL ||
-  "postgresql://neondb_owner:npg_UOqmtxn2y4hE@ep-orange-math-aelrf30d-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
+  "postgresql://neondb_owner:npg_ycnCME0N1GXk@ep-orange-cloud-aei26sw0-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 export const sql = neon(connectionString);
 
 // Database utility functions
 export async function getUserByEmail(email: string) {
   const users = await sql`
-    SELECT id, username, email, password_hash, is_admin, created_at
-    FROM users 
+    SELECT id, username, email, password_hash, is_admin, is_premium,
+           premium_expires_at, discord_id, discord_username, created_at
+    FROM users
     WHERE email = ${email}
     LIMIT 1
   `;
@@ -22,18 +23,22 @@ export async function createUser(
   username: string,
   email: string,
   passwordHash: string,
+  discordId?: string,
+  discordUsername?: string,
 ) {
   const users = await sql`
-    INSERT INTO users (username, email, password_hash, is_admin)
-    VALUES (${username}, ${email}, ${passwordHash}, false)
-    RETURNING id, username, email, is_admin, created_at
+    INSERT INTO users (username, email, password_hash, is_admin, is_premium, discord_id, discord_username)
+    VALUES (${username}, ${email}, ${passwordHash}, false, false, ${discordId || null}, ${discordUsername || null})
+    RETURNING id, username, email, is_admin, is_premium, premium_expires_at,
+             discord_id, discord_username, created_at
   `;
   return users[0];
 }
 
 export async function getAllUsers() {
   return await sql`
-    SELECT id, username, email, is_admin, created_at
+    SELECT id, username, email, is_admin, is_premium, premium_expires_at,
+           discord_id, discord_username, created_at
     FROM users
     ORDER BY created_at DESC
   `;
@@ -41,8 +46,9 @@ export async function getAllUsers() {
 
 export async function getUserStats() {
   const stats = await sql`
-    SELECT 
+    SELECT
       (SELECT COUNT(*) FROM users) as total_users,
+      (SELECT COUNT(*) FROM users WHERE is_premium = true) as premium_users,
       (SELECT COUNT(*) FROM animes) as total_animes,
       (SELECT COUNT(*) FROM episodes) as total_episodes,
       (SELECT COUNT(*) FROM watch_progress WHERE DATE(last_watched) = CURRENT_DATE) as today_watches
@@ -68,18 +74,34 @@ export async function getAnimeById(id: number) {
 }
 
 export async function createAnime(animeData: any) {
+  // Ensure all featured columns exist
+  try {
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured INTEGER`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_banner TEXT`;
+  } catch (error) {
+    // Columns might already exist, ignore error
+  }
+
   const animes = await sql`
     INSERT INTO animes (
-      title, title_en, poster, banner, rating, year, episodes, 
-      genre, genre_en, duration, description, description_en, 
-      status, category
+      title, title_en, poster, banner, rating, year, episodes,
+      genre, genre_en, duration, description, description_en,
+      status, category, featured, featured_title, featured_title_en,
+      featured_description, featured_description_en, featured_banner
     )
     VALUES (
-      ${animeData.title}, ${animeData.titleEn}, ${animeData.poster}, 
-      ${animeData.banner}, ${animeData.rating}, ${animeData.year}, 
-      ${animeData.episodes}, ${animeData.genre}, ${animeData.genreEn}, 
-      ${animeData.duration}, ${animeData.description}, ${animeData.descriptionEn}, 
-      ${animeData.status}, ${animeData.category}
+      ${animeData.title}, ${animeData.titleEn}, ${animeData.poster},
+      ${animeData.banner}, ${animeData.rating}, ${animeData.year},
+      ${animeData.episodes}, ${animeData.genre}, ${animeData.genreEn},
+      ${animeData.duration}, ${animeData.description}, ${animeData.descriptionEn},
+      ${animeData.status}, ${animeData.category}, ${animeData.featured || null},
+      ${animeData.featuredTitle || null}, ${animeData.featuredTitleEn || null},
+      ${animeData.featuredDescription || null}, ${animeData.featuredDescriptionEn || null},
+      ${animeData.featuredBanner || null}
     )
     RETURNING *
   `;
@@ -87,22 +109,70 @@ export async function createAnime(animeData: any) {
 }
 
 export async function updateAnime(id: number, animeData: any) {
+  try {
+    // Ensure all featured columns exist
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured INTEGER`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_title_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_description_en TEXT`;
+    await sql`ALTER TABLE animes ADD COLUMN IF NOT EXISTS featured_banner TEXT`;
+  } catch (error) {
+    // Columns might already exist, ignore
+  }
+
+  // Check if only featured-related fields are being updated
+  const featuredOnlyFields = [
+    "featured",
+    "featuredTitle",
+    "featuredTitleEn",
+    "featuredDescription",
+    "featuredDescriptionEn",
+    "featuredBanner",
+  ];
+  const isFeatureOnlyUpdate = Object.keys(animeData).every((key) =>
+    featuredOnlyFields.includes(key),
+  );
+
+  if (isFeatureOnlyUpdate) {
+    const animes = await sql`
+      UPDATE animes SET
+        featured = ${animeData.featured !== undefined ? animeData.featured || null : sql`featured`},
+        featured_title = ${animeData.featuredTitle !== undefined ? animeData.featuredTitle || null : sql`featured_title`},
+        featured_title_en = ${animeData.featuredTitleEn !== undefined ? animeData.featuredTitleEn || null : sql`featured_title_en`},
+        featured_description = ${animeData.featuredDescription !== undefined ? animeData.featuredDescription || null : sql`featured_description`},
+        featured_description_en = ${animeData.featuredDescriptionEn !== undefined ? animeData.featuredDescriptionEn || null : sql`featured_description_en`},
+        featured_banner = ${animeData.featuredBanner !== undefined ? animeData.featuredBanner || null : sql`featured_banner`},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return animes[0];
+  }
+
+  // Full update
   const animes = await sql`
     UPDATE animes SET
-      title = ${animeData.title},
-      title_en = ${animeData.titleEn},
-      poster = ${animeData.poster},
-      banner = ${animeData.banner},
-      rating = ${animeData.rating},
-      year = ${animeData.year},
-      episodes = ${animeData.episodes},
-      genre = ${animeData.genre},
-      genre_en = ${animeData.genreEn},
-      duration = ${animeData.duration},
-      description = ${animeData.description},
-      description_en = ${animeData.descriptionEn},
-      status = ${animeData.status},
-      category = ${animeData.category},
+      title = ${animeData.title || sql`title`},
+      title_en = ${animeData.titleEn || sql`title_en`},
+      poster = ${animeData.poster || sql`poster`},
+      banner = ${animeData.banner || sql`banner`},
+      rating = ${animeData.rating || sql`rating`},
+      year = ${animeData.year || sql`year`},
+      episodes = ${animeData.episodes || sql`episodes`},
+      genre = ${animeData.genre || sql`genre`},
+      genre_en = ${animeData.genreEn || sql`genre_en`},
+      duration = ${animeData.duration || sql`duration`},
+      description = ${animeData.description || sql`description`},
+      description_en = ${animeData.descriptionEn || sql`description_en`},
+      status = ${animeData.status || sql`status`},
+      category = ${animeData.category || sql`category`},
+      featured = ${animeData.featured !== undefined ? animeData.featured || null : sql`featured`},
+      featured_title = ${animeData.featuredTitle !== undefined ? animeData.featuredTitle || null : sql`featured_title`},
+      featured_title_en = ${animeData.featuredTitleEn !== undefined ? animeData.featuredTitleEn || null : sql`featured_title_en`},
+      featured_description = ${animeData.featuredDescription !== undefined ? animeData.featuredDescription || null : sql`featured_description`},
+      featured_description_en = ${animeData.featuredDescriptionEn !== undefined ? animeData.featuredDescriptionEn || null : sql`featured_description_en`},
+      featured_banner = ${animeData.featuredBanner !== undefined ? animeData.featuredBanner || null : sql`featured_banner`},
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ${id}
     RETURNING *
@@ -158,25 +228,36 @@ export async function updateWatchProgress(
   animeId: number,
   episodeId: number,
   progress: number,
+  duration?: number,
 ) {
+  try {
+    // Ensure duration column exists
+    await sql`ALTER TABLE watch_progress ADD COLUMN IF NOT EXISTS duration INTEGER DEFAULT 0`;
+  } catch (error) {
+    // Column might already exist, ignore
+  }
+
   const existing = await sql`
-    SELECT id FROM watch_progress 
+    SELECT id FROM watch_progress
     WHERE user_id = ${userId} AND episode_id = ${episodeId}
     LIMIT 1
   `;
+
+  const progressPercent = duration ? (progress / duration) * 100 : 0;
 
   if (existing.length > 0) {
     await sql`
       UPDATE watch_progress SET
         progress = ${progress},
-        completed = ${progress > 80},
+        duration = ${duration || 0},
+        completed = ${progressPercent > 90},
         last_watched = CURRENT_TIMESTAMP
       WHERE user_id = ${userId} AND episode_id = ${episodeId}
     `;
   } else {
     await sql`
-      INSERT INTO watch_progress (user_id, anime_id, episode_id, progress, completed)
-      VALUES (${userId}, ${animeId}, ${episodeId}, ${progress}, ${progress > 80})
+      INSERT INTO watch_progress (user_id, anime_id, episode_id, progress, duration, completed)
+      VALUES (${userId}, ${animeId}, ${episodeId}, ${progress}, ${duration || 0}, ${progressPercent > 90})
     `;
   }
   return true;

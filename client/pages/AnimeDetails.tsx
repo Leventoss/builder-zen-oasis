@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Header from "@/components/Header";
 import VideoPlayer from "@/components/VideoPlayer";
+import EnhancedVideoPlayer from "@/components/EnhancedVideoPlayer";
 import AnimeCard from "@/components/AnimeCard";
 import { useAnimeStore } from "@/lib/animeStore";
 import { useLanguage } from "@/lib/i18n";
@@ -32,7 +33,7 @@ export default function AnimeDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const {
     animes,
     getEpisodesByAnimeId,
@@ -52,19 +53,28 @@ export default function AnimeDetails() {
   const episodes = getEpisodesByAnimeId(id || "");
 
   useEffect(() => {
-    if (!anime) {
-      navigate("/");
-      return;
-    }
+    // Don't show error immediately, give some time for anime store to load
+    const checkAnimeTimeout = setTimeout(() => {
+      if (!anime && animes.length > 0) {
+        toast({
+          title: "Anime Bulunamadı",
+          description: "Aradığınız anime bulunamadı",
+          variant: "destructive",
+        });
+        setTimeout(() => navigate("/"), 2000);
+      }
+    }, 1000);
 
     // Check if anime is in user's lists
-    if (isAuthenticated) {
-      const watchlist = getUserList("user", "watchlist");
-      const favorites = getUserList("user", "favorites");
+    if (isAuthenticated && anime && user?.id) {
+      const watchlist = getUserList(user.id.toString(), "watchlist");
+      const favorites = getUserList(user.id.toString(), "favorites");
       setIsInWatchlist(watchlist.includes(anime.id));
       setIsFavorite(favorites.includes(anime.id));
     }
-  }, [anime, isAuthenticated, navigate, getUserList]);
+
+    return () => clearTimeout(checkAnimeTimeout);
+  }, [anime, isAuthenticated, navigate, getUserList, animes, id]);
 
   if (!anime) {
     return (
@@ -73,7 +83,10 @@ export default function AnimeDetails() {
           <h1 className="text-2xl font-bold text-white mb-4">
             Anime Bulunamadı
           </h1>
-          <Button onClick={() => navigate("/")} className="btn-primary">
+          <Button
+            onClick={() => navigate("/")}
+            className="bg-anime-accent hover:bg-anime-accent/80 text-white"
+          >
             Ana Sayfaya Dön
           </Button>
         </div>
@@ -92,14 +105,14 @@ export default function AnimeDetails() {
     }
 
     if (isInWatchlist) {
-      removeFromList("user", anime.id, "watchlist");
+      removeFromList(user?.id?.toString() || "", anime.id, "watchlist");
       setIsInWatchlist(false);
       toast({
         title: "Listeden Çıkarıldı",
         description: "Anime izleme listenizden çıkarıldı",
       });
     } else {
-      addToList("user", anime.id, "watchlist");
+      addToList(user?.id?.toString() || "", anime.id, "watchlist");
       setIsInWatchlist(true);
       toast({
         title: "Listeye Eklendi",
@@ -119,14 +132,14 @@ export default function AnimeDetails() {
     }
 
     if (isFavorite) {
-      removeFromList("user", anime.id, "favorites");
+      removeFromList(user?.id?.toString() || "", anime.id, "favorites");
       setIsFavorite(false);
       toast({
         title: "Favorilerden Çıkarıldı",
         description: "Anime favorilerinizden çıkarıldı",
       });
     } else {
-      addToList("user", anime.id, "favorites");
+      addToList(user?.id?.toString() || "", anime.id, "favorites");
       setIsFavorite(true);
       toast({
         title: "Favorilere Eklendi",
@@ -156,10 +169,12 @@ export default function AnimeDetails() {
     if (episodes.length > 0) {
       handlePlayEpisode(1);
     } else {
+      // Show anime details instead of error
+      setSelectedTab("details");
       toast({
         title: "Bölüm Bulunamadı",
-        description: "Bu anime için henüz bölüm eklenmemiş",
-        variant: "destructive",
+        description:
+          "Bu anime için henüz bölüm eklenmemiş. Detayları görüntüleniyor.",
       });
     }
   };
@@ -194,24 +209,47 @@ export default function AnimeDetails() {
     <div className="min-h-screen bg-anime-dark">
       <Header />
 
-      {/* Video Player Modal */}
+      {/* Enhanced Video Player Modal */}
       {showPlayer && selectedEpisode && (
         <div className="fixed inset-0 z-50 bg-black">
           <div className="relative h-full">
             <Button
               onClick={() => setShowPlayer(false)}
-              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70"
+              className="absolute top-4 right-4 z-10 bg-anime-accent/80 hover:bg-anime-accent text-white"
               size="sm"
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Geri
             </Button>
-            <VideoPlayer
+            <EnhancedVideoPlayer
               src={`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`}
+              poster={anime.banner || anime.poster}
               title={`${language === "en" ? anime.titleEn : anime.title} - Bölüm ${selectedEpisode}`}
+              subtitles={[
+                {
+                  label: "Türkçe",
+                  src: "/subtitles/turkish.vtt",
+                  srcLang: "tr",
+                },
+                {
+                  label: "English",
+                  src: "/subtitles/english.vtt",
+                  srcLang: "en",
+                },
+              ]}
               onProgress={(progress) =>
                 updateWatchProgress(anime.id, selectedEpisode, progress)
               }
+              onEnded={() => {
+                // Auto-play next episode
+                if (selectedEpisode < episodes.length) {
+                  setSelectedEpisode(selectedEpisode + 1);
+                  toast({
+                    title: "Sonraki Bölüm",
+                    description: `Bölüm ${selectedEpisode + 1} başlatılıyor...`,
+                  });
+                }
+              }}
             />
           </div>
         </div>
@@ -274,7 +312,7 @@ export default function AnimeDetails() {
               <div className="flex flex-wrap items-center gap-4">
                 <Button
                   size="lg"
-                  className="btn-primary"
+                  className="bg-anime-accent hover:bg-anime-accent/80 text-white font-bold"
                   onClick={handleStartWatching}
                 >
                   <Play className="h-5 w-5 mr-2" />

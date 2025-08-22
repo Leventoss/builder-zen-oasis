@@ -8,13 +8,22 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider, ProtectedRoute, useAuth } from "@/lib/auth";
 import { AnimeStoreProvider } from "@/lib/animeStore";
 import LoadingScreen from "@/components/LoadingScreen";
+import ApiStatus from "@/components/ApiStatus";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AnimeDetails from "./pages/AnimeDetails";
 import Browse from "./pages/Browse";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import AdminTest from "./pages/AdminTest";
+import CompleteAdmin from "./pages/CompleteAdmin";
+import UltimateAdmin from "./pages/UltimateAdmin";
 import AnimeRequest from "./pages/AnimeRequest";
+import AnimeRequestFixed from "./pages/AnimeRequestFixed";
+import Chat from "./pages/Chat";
+import ChatFixed from "./pages/ChatFixed";
+import Settings from "./pages/Settings";
+import WatchEpisode from "./pages/WatchEpisode";
 
 const queryClient = new QueryClient();
 
@@ -51,21 +60,21 @@ const AppContent = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ApiStatus />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/anime/:id" element={<AnimeDetails />} />
             <Route
-              path="/anime/:id"
-              element={
-                <ProtectedRoute>
-                  <AnimeDetails />
-                </ProtectedRoute>
-              }
+              path="/anime/:animeId/episode/:episodeNumber"
+              element={<WatchEpisode />}
             />
+            <Route path="/anime-details/:id" element={<AnimeDetails />} />
             <Route path="/anime" element={<Browse />} />
             <Route path="/movies" element={<Browse />} />
             <Route path="/trending" element={<Browse />} />
-            <Route path="/anime-request" element={<AnimeRequest />} />
+            <Route path="/anime-request" element={<AnimeRequestFixed />} />
+            <Route path="/anime-request-old" element={<AnimeRequest />} />
             <Route
               path="/my-list"
               element={
@@ -86,7 +95,47 @@ const AppContent = () => {
               path="/admin"
               element={
                 <ProtectedRoute requireAdmin={true}>
+                  <UltimateAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-old"
+              element={
+                <ProtectedRoute requireAdmin={true}>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-test"
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminTest />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <ChatFixed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat-old"
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
